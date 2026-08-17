@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - esm1</title>
+  <meta name="description" content="Firebase Hosting Hello World Web Application for esm1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-gradient: linear-gradient(135deg, #ffca28 0%, #ffa000 50%, #f57c00 100%);
+      --badge-bg: rgba(255, 202, 40, 0.12);
+      --badge-border: rgba(255, 202, 40, 0.25);
+      --badge-text: #ffd54f;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-gradient);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-primary);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glow */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 10s ease-in-out infinite alternate;
+    }
+    .glow-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: rgba(255, 160, 0, 0.15);
+      top: 15%;
+      left: 20%;
+    }
+    .glow-orb-2 {
+      width: 450px;
+      height: 450px;
+      background: rgba(99, 102, 241, 0.15);
+      bottom: 15%;
+      right: 20%;
+      animation-delay: -5s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 90%;
+      max-width: 560px;
+      padding: 2.5rem 2rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 202, 40, 0.05);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 202, 40, 0.1);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.35rem 0.9rem;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--badge-text);
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .badge svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .info-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 1.2rem;
+      text-align: left;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .info-row:first-child {
+      padding-top: 0;
+    }
+
+    .info-label {
+      color: var(--text-secondary);
+    }
+
+    .info-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      margin-right: 6px;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    footer {
+      margin-top: 1.8rem;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <main class="container">
+    <div class="badge">
+      <svg viewBox="0 0 24 24">
+        <path d="M4.5 10.5C3.67 10.5 3 11.17 3 12s.67 1.5 1.5 1.5h15c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5h-15zM12 4.5C11.17 4.5 10.5 5.17 10.5 6s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0 12c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+      </svg>
+      Firebase Hosting
+    </div>
+
+    <h1>Hello World</h1>
+    <p class="subtitle">Firebase上で稼働するシンプルなWebアプリケーションです。</p>
+
+    <div class="info-box">
+      <div class="info-row">
+        <span class="info-label">ステータス</span>
+        <span class="info-value"><span class="status-dot"></span>オンライン</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">プロジェクト名</span>
+        <span class="info-value">esm1</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">プロジェクト ID</span>
+        <span class="info-value">esm1-773ad</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">プロジェクト番号</span>
+        <span class="info-value">377265747553</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">GCP 組織</span>
+        <span class="info-value">bp.esm.co.jp</span>
+      </div>
+    </div>
+
+    <footer>
+      Powered by Firebase & Google Cloud
+    </footer>
+  </main>
+</body>
+</html>
