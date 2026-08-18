@@ -1,32 +1,246 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To Do - 画面2</title>
-  <meta name="description" content="To Do Web Application - 画面2">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>TODO - 新規登録</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="page2.css"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed-dim": "#bec2ff",
+            "surface-container-high": "#e8e8e8",
+            "on-tertiary-fixed": "#410000",
+            "primary": "#a0d8ef",
+            "on-secondary-fixed": "#1d1d00",
+            "inverse-primary": "#bec2ff",
+            "on-error": "#ffffff",
+            "error": "#ba1a1a",
+            "inverse-on-surface": "#f0f1f1",
+            "border-primary": "#a0d8ef",
+            "outline": "#757589",
+            "on-primary-fixed": "#00006e",
+            "surface-container": "#eeeeee",
+            "tertiary-container": "#9d0002",
+            "on-tertiary": "#ffffff",
+            "secondary-fixed-dim": "#cdcd00",
+            "primary-fixed": "#e0e0ff",
+            "background": "#f9f9f9",
+            "surface-container-highest": "#e2e2e2",
+            "primary-container": "#a0d8ef",
+            "on-surface": "#1a1c1c",
+            "on-tertiary-fixed-variant": "#930002",
+            "text-on-accent": "#666600",
+            "on-secondary-fixed-variant": "#494900",
+            "on-surface-variant": "#454558",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f3f3f4",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#b3b7ff",
+            "surface-bright": "#f9f9f9",
+            "surface-dim": "#dadada",
+            "on-tertiary-container": "#ffa598",
+            "on-primary-fixed-variant": "#0000ef",
+            "tertiary-fixed-dim": "#ffb4a9",
+            "surface": "#f9f9f9",
+            "secondary-fixed": "#eaea0a",
+            "tertiary": "#720001",
+            "outline-variant": "#c5c4db",
+            "secondary": "#626200",
+            "on-secondary": "#ffffff",
+            "surface-lowest": "#ffffff",
+            "inverse-surface": "#2f3131",
+            "surface-tint": "#343dff",
+            "surface-variant": "#e2e2e2",
+            "secondary-container": "#e7e700",
+            "tertiary-fixed": "#ffdad5",
+            "error-container": "#ffdad6",
+            "surface-container-lowest": "#ffffff",
+            "on-background": "#1a1c1c",
+            "on-secondary-container": "#666600"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px",
+            "3xl": "1.5rem"
+          },
+          "spacing": {
+            "stack-gap": "24px",
+            "container-margin": "24px",
+            "input-padding": "16px 20px",
+            "base-gap": "8px",
+            "gutter": "16px",
+            "header-height": "64px"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Work Sans"],
+            "input-text": ["Work Sans"],
+            "headline-lg": ["Work Sans"],
+            "display-header": ["Work Sans"],
+            "label-bold": ["Work Sans"],
+            "body-md": ["Work Sans"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "input-text": ["18px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "display-header": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+            "label-bold": ["14px", { "lineHeight": "20px", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body>
-  <header class="header">
-    <div class="header-container">
-      <a href="index.html" class="header-title">To Do</a>
-      <nav class="header-nav" aria-label="ページナビゲーション">
-        <a href="index.html" class="nav-link">画面1</a>
-        <a href="page2.html" class="nav-link active" aria-current="page">画面2</a>
-        <a href="page3.html" class="nav-link">画面3</a>
-        <a href="page4.html" class="nav-link">画面4</a>
-      </nav>
-    </div>
+<body class="bg-background min-h-screen flex flex-col font-body-md text-body-md text-on-surface relative overflow-x-hidden" style="background-color: rgb(255, 255, 255);">
+  <!-- Decorative Bubbles -->
+  <div class="bubble-top-right"></div>
+  <div class="bubble-bottom-left"></div>
+
+  <!-- TopAppBar -->
+  <header class="bg-[#a0d8ef] h-header-height w-full flex items-center justify-center px-container-margin fixed top-0 left-0 z-50 shadow-sm">
+    <h1 class="font-display-header text-display-header" style="color: rgb(240, 230, 140);">TODO</h1>
   </header>
 
-  <main class="main-content">
-    <div class="content-container">
-      <!-- 空のコンテンツ領域（白背景） -->
+  <!-- Main Content -->
+  <main class="flex-grow pt-header-height flex flex-col items-center justify-center px-container-margin w-full max-w-[800px] mx-auto pb-[110px] relative z-10">
+    <div class="w-full max-w-md bg-surface p-8 border-2 border-[#a0d8ef] rounded-3xl mt-10 mb-8 shadow-sm">
+      <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-[#454558] mb-6 text-center">アカウント作成</h2>
+      
+      <form id="signup-form" class="flex flex-col gap-base" novalidate>
+        <!-- メールアドレス -->
+        <div class="flex flex-col">
+          <label class="font-label-bold text-label-bold text-[#454558] mb-2" for="email">
+            メールアドレス <span class="text-error font-bold">*</span>
+          </label>
+          <input 
+            class="border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 px-6 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200" 
+            id="email" 
+            name="email"
+            placeholder="name@example.com" 
+            type="email"
+            required
+            autocomplete="email"
+          />
+          <p id="email-error" class="text-error text-xs mt-1.5 px-3 hidden font-medium"></p>
+        </div>
+
+        <!-- パスワード -->
+        <div class="flex flex-col mt-4">
+          <label class="font-label-bold text-label-bold text-[#454558] mb-2" for="password">
+            パスワード <span class="text-error font-bold">*</span> <span class="text-xs text-[#757589] font-normal">（英数混合8文字以上）</span>
+          </label>
+          <div class="relative flex items-center">
+            <input 
+              class="w-full border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 pl-6 pr-12 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200" 
+              id="password" 
+              name="password"
+              placeholder="••••••••" 
+              type="password"
+              required
+              autocomplete="new-password"
+            />
+            <button 
+              type="button" 
+              id="toggle-password" 
+              class="absolute right-4 text-[#757589] hover:text-[#454558] focus:outline-none p-1 flex items-center justify-center transition-colors"
+              aria-label="パスワードの表示切替"
+            >
+              <span class="material-symbols-outlined text-xl" id="toggle-password-icon">visibility_off</span>
+            </button>
+          </div>
+          <p id="password-error" class="text-error text-xs mt-1.5 px-3 hidden font-medium"></p>
+        </div>
+
+        <!-- パスワード（確認用） -->
+        <div class="flex flex-col mt-4">
+          <label class="font-label-bold text-label-bold text-[#454558] mb-2" for="confirm-password">
+            パスワード（確認用） <span class="text-error font-bold">*</span>
+          </label>
+          <div class="relative flex items-center">
+            <input 
+              class="w-full border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 pl-6 pr-12 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200" 
+              id="confirm-password" 
+              name="confirm-password"
+              placeholder="••••••••" 
+              type="password"
+              required
+              autocomplete="new-password"
+            />
+            <button 
+              type="button" 
+              id="toggle-confirm-password" 
+              class="absolute right-4 text-[#757589] hover:text-[#454558] focus:outline-none p-1 flex items-center justify-center transition-colors"
+              aria-label="確認用パスワードの表示切替"
+            >
+              <span class="material-symbols-outlined text-xl" id="toggle-confirm-password-icon">visibility_off</span>
+            </button>
+          </div>
+          <p id="confirm-password-error" class="text-error text-xs mt-1.5 px-3 hidden font-medium"></p>
+        </div>
+
+        <!-- ニックネーム（任意） -->
+        <div class="flex flex-col mt-4">
+          <label class="font-label-bold text-label-bold text-[#454558] mb-2 flex items-center justify-between" for="nickname">
+            <span>ニックネーム</span>
+            <span class="text-xs text-[#757589] font-normal">（任意）</span>
+          </label>
+          <input 
+            class="border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 px-6 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200" 
+            id="nickname" 
+            name="nickname"
+            placeholder="ニックネームを入力" 
+            type="text"
+            autocomplete="nickname"
+          />
+          <p id="nickname-error" class="text-error text-xs mt-1.5 px-3 hidden font-medium"></p>
+        </div>
+
+        <!-- 全体エラーメッセージ表示エリア -->
+        <div id="general-error" class="hidden p-3 mt-4 bg-error-container text-error rounded-xl text-xs font-medium text-center"></div>
+
+        <!-- 送信ボタン -->
+        <div class="flex justify-end mt-8">
+          <button 
+            id="submit-btn"
+            class="bg-[#a0d8ef] font-label-bold text-label-bold min-h-[48px] px-8 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 border-2 border-[#a0d8ef] text-on-primary disabled:opacity-50 disabled:cursor-not-allowed" 
+            type="submit"
+          >
+            <span id="submit-btn-text">入力完了</span>
+            <span class="material-symbols-outlined text-on-primary" style='font-variation-settings: "FILL" 1;'>arrow_forward</span>
+          </button>
+        </div>
+      </form>
     </div>
   </main>
+
+  <!-- Bottom Action -->
+  <div class="fixed bottom-0 left-0 w-full p-container-margin flex justify-center bg-background z-50 shadow-md" style="background-color: rgb(255, 255, 255);">
+    <button 
+      id="google-signin-btn"
+      type="button"
+      class="w-full max-w-md bg-surface text-[#454558] border-2 border-[#a0d8ef] rounded-full font-label-bold text-label-bold min-h-[48px] px-6 py-3 hover:bg-primary-fixed active:scale-95 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+      </svg>
+      <span id="google-btn-text">Googleで登録</span>
+    </button>
+  </div>
+
+  <!-- External JS module -->
+  <script type="module" src="page2.js"></script>
 </body>
 </html>
