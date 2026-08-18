@@ -16,33 +16,18 @@ import {
 // ==========================================================================
 // 1. Firebase Initialization
 // ==========================================================================
-let app;
-let auth;
-let db;
+const firebaseConfig = {
+  apiKey: "AIzaSyAnckVkyrUIPFZyqAhXKPAkSElNzSdGLas",
+  authDomain: "intean-24e34.firebaseapp.com",
+  projectId: "intean-24e34",
+  storageBucket: "intean-24e34.firebasestorage.app",
+  messagingSenderId: "893122700636",
+  appId: "1:893122700636:web:6d9cc762927ab9d5608d99"
+};
 
-async function initFirebase() {
-  try {
-    const response = await fetch("/__/firebase/init.json");
-    if (response.ok) {
-      const config = await response.json();
-      app = initializeApp(config);
-    } else {
-      throw new Error("Local init fallback");
-    }
-  } catch (e) {
-    // Fallback configuration for project team-c: intean-24e34
-    const fallbackConfig = {
-      projectId: "intean-24e34",
-      authDomain: "intean-24e34.firebaseapp.com",
-      storageBucket: "intean-24e34.appspot.com"
-    };
-    app = initializeApp(fallbackConfig);
-  }
-  auth = getAuth(app);
-  db = getFirestore(app);
-}
-
-await initFirebase();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // ==========================================================================
 // 2. DOM Elements
@@ -108,19 +93,70 @@ function clearAllErrors() {
   clearError(generalError);
 }
 
-// Inputイベントでリアルタイムにエラー解除
-emailInput?.addEventListener("input", () => clearError(emailError));
-passwordInput?.addEventListener("input", () => clearError(passwordError));
-confirmPasswordInput?.addEventListener("input", () => clearError(confirmPasswordError));
-nicknameInput?.addEventListener("input", () => clearError(nicknameError));
+// リアルタイムに入力状態を監視し、ボタン色を更新するイベント登録
+["input", "change", "keyup", "paste"].forEach((eventType) => {
+  emailInput?.addEventListener(eventType, () => {
+    clearError(emailError);
+    updateSubmitButtonState();
+  });
+  passwordInput?.addEventListener(eventType, () => {
+    clearError(passwordError);
+    updateSubmitButtonState();
+  });
+  confirmPasswordInput?.addEventListener(eventType, () => {
+    clearError(confirmPasswordError);
+    updateSubmitButtonState();
+  });
+  nicknameInput?.addEventListener(eventType, () => {
+    clearError(nicknameError);
+  });
+});
 
 // ==========================================================================
-// 5. Validation Logic
+// 5. Validation & Button State Logic
 // ==========================================================================
 // 半角英字・半角数字をそれぞれ1文字以上含む8文字以上
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 // メールアドレス形式
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// 必須項目がすべて正しく入力されているかを判定
+function isFormFilledAndValid() {
+  const email = emailInput?.value.trim() || "";
+  const password = passwordInput?.value || "";
+  const confirmPassword = confirmPasswordInput?.value || "";
+
+  const isEmailValid = email !== "" && emailRegex.test(email);
+  const isPasswordValid = password !== "" && passwordRegex.test(password);
+  const isConfirmValid = confirmPassword !== "" && confirmPassword === password;
+
+  return isEmailValid && isPasswordValid && isConfirmValid;
+}
+
+// ボタンの見た目（色・活性状態）を更新
+function updateSubmitButtonState() {
+  if (!submitBtn) return;
+  const isAllValid = isFormFilledAndValid();
+
+  if (isAllValid) {
+    submitBtn.classList.remove("btn-inactive");
+    submitBtn.classList.add("btn-active");
+    // CSSのキャッシュやTailwindの詳細度を確実に上書き
+    submitBtn.style.setProperty("background-color", "#0F1A45", "important");
+    submitBtn.style.setProperty("border-color", "#0F1A45", "important");
+    submitBtn.style.setProperty("color", "#ffffff", "important");
+  } else {
+    submitBtn.classList.remove("btn-active");
+    submitBtn.classList.add("btn-inactive");
+    // 未完了時は #426AB3
+    submitBtn.style.setProperty("background-color", "#426AB3", "important");
+    submitBtn.style.setProperty("border-color", "#426AB3", "important");
+    submitBtn.style.setProperty("color", "#ffffff", "important");
+  }
+}
+
+// 初期ロード時のボタン状態を設定
+updateSubmitButtonState();
 
 function validateForm() {
   clearAllErrors();
@@ -157,6 +193,7 @@ function validateForm() {
     isValid = false;
   }
 
+  updateSubmitButtonState();
   return isValid;
 }
 
@@ -188,15 +225,23 @@ function getFriendlyErrorMessage(errorCode) {
 // 7. Save User to Firestore Database
 // ==========================================================================
 async function saveUserToFirestore(user, nickname, authProvider) {
-  const userRef = doc(db, "users", user.uid);
-  await setDoc(userRef, {
-    uid: user.uid,
-    email: user.email || "",
-    nickname: nickname || user.displayName || "",
-    authProvider: authProvider,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  }, { merge: true });
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const savePromise = setDoc(userRef, {
+      uid: user.uid,
+      email: user.email || "",
+      nickname: nickname || user.displayName || "",
+      authProvider: authProvider,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    // Firestoreの応答待ちでハングしないよう最大3秒でタイムアウト判定
+    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+    await Promise.race([savePromise, timeoutPromise]);
+  } catch (error) {
+    console.warn("Firestoreユーザー保存のスキップ/警告:", error);
+  }
 }
 
 // ==========================================================================
@@ -239,6 +284,7 @@ signupForm?.addEventListener("submit", async (e) => {
   } finally {
     submitBtn.disabled = false;
     submitBtnText.textContent = "入力完了";
+    updateSubmitButtonState();
   }
 });
 

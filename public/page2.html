@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="page2.css"/>
+  <link rel="stylesheet" href="page2.css?v=3"/>
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -212,11 +212,11 @@
         <div class="flex justify-end mt-8">
           <button 
             id="submit-btn"
-            class="bg-[#a0d8ef] font-label-bold text-label-bold min-h-[48px] px-8 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 border-2 border-[#a0d8ef] text-on-primary disabled:opacity-50 disabled:cursor-not-allowed" 
+            class="btn-inactive font-label-bold text-label-bold min-h-[48px] px-8 py-3 rounded-full flex items-center justify-center gap-2 border-2 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
             type="submit"
           >
-            <span id="submit-btn-text">入力完了</span>
-            <span class="material-symbols-outlined text-on-primary" style='font-variation-settings: "FILL" 1;'>arrow_forward</span>
+            <span id="submit-btn-text" class="text-white">入力完了</span>
+            <span class="material-symbols-outlined text-white" style='font-variation-settings: "FILL" 1;'>arrow_forward</span>
           </button>
         </div>
       </form>
@@ -241,6 +241,6 @@
   </div>
 
   <!-- External JS module -->
-  <script type="module" src="page2.js"></script>
+  <script type="module" src="page2.js?v=3"></script>
 </body>
 </html>
