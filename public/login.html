@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do - ログイン</title>
+  <meta name="description" content="To Do Web Application - ログイン">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="login.html" class="header-title">To Do</a>
+      <nav class="header-nav" aria-label="ページナビゲーション">
+        <a href="login.html" class="nav-link active" aria-current="page">ログイン</a>
+        <a href="page2.html" class="nav-link">画面2</a>
+        <a href="page3.html" class="nav-link">画面3</a>
+        <a href="page4.html" class="nav-link">画面4</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="login-header">
+          <h1>ログイン</h1>
+          <p>アカウント情報を入力してください</p>
+        </div>
+
+        <div id="errorMessage" class="login-error" role="alert" aria-live="polite"></div>
+
+        <form id="loginForm" class="login-form">
+          <div class="form-group">
+            <label for="email" class="form-label">メールアドレス</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              placeholder="example@mail.com" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">パスワード</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input" 
+              placeholder="••••••••" 
+              required 
+              autocomplete="current-password"
+            >
+          </div>
+
+          <div class="login-actions">
+            <a href="page2.html" class="btn-register" id="btnRegister">アカウントをお持ちでない方はこちら</a>
+            <button type="submit" id="btnLogin" class="btn-login">ログイン</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const btnLogin = document.getElementById("btnLogin");
+    const errorMessage = document.getElementById("errorMessage");
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add("show");
+    }
+
+    function hideError() {
+      errorMessage.textContent = "";
+      errorMessage.classList.remove("show");
+    }
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        showError("メールアドレスとパスワードを入力してください。");
+        return;
+      }
+
+      // ローディング状態の設定
+      btnLogin.disabled = true;
+      const originalText = btnLogin.textContent;
+      btnLogin.textContent = "ログイン中...";
+
+      try {
+        // 1. Firebase Authentication によるログイン
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 2. Firestore の users コレクションを参照
+        let userDocFound = false;
+        let userData = null;
+
+        try {
+          // UIDをキーにして users ドキュメントを検索
+          const userDocRef = doc(db, "users", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            userDocFound = true;
+            userData = userDocSnap.data();
+          } else {
+            // UIDで見つからない場合、emailフィールドでのクエリを試行
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("email", "==", email));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+              userDocFound = true;
+              userData = querySnapshot.docs[0].data();
+            }
+          }
+        } catch (dbError) {
+          console.warn("Firestore users 参照時の通知:", dbError);
+        }
+
+        // セッションストレージ等に基本情報を保存（必要に応じて利用可能）
+        sessionStorage.setItem("currentUserEmail", email);
+        if (userData) {
+          sessionStorage.setItem("currentUserName", userData.name || userData.username || "");
+        }
+
+        // 3. ホーム画面 (page3.html) へ遷移
+        window.location.href = "page3.html";
+
+      } catch (error) {
+        console.error("Login error:", error);
+        btnLogin.disabled = false;
+        btnLogin.textContent = originalText;
+
+        // エラーコードに応じた分かりやすいメッセージ表示
+        let message = "ログインに失敗しました。";
+        if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
+          message = "メールアドレスまたはパスワードが正しくありません。";
+        } else if (error.code === "auth/invalid-email") {
+          message = "メールアドレスの形式が正しくありません。";
+        } else if (error.code === "auth/too-many-requests") {
+          message = "ログイン試行回数が多すぎます。しばらく待ってから再度お試しください。";
+        } else if (error.code === "auth/api-key-not-valid" || error.message?.includes("API key")) {
+          message = "Firebaseの設定（APIキー等）が未設定または無効です。firebase-config.js をご確認ください。";
+        } else if (error.message) {
+          message = `ログインエラー: ${error.message}`;
+        }
+        showError(message);
+      }
+    });
+  </script>
+</body>
+</html>
