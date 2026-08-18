@@ -8,8 +8,11 @@
   <meta name="description" content="TODO Web Application - タスク一覧画面" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -117,104 +120,150 @@
   </style>
 </head>
 
-<body class="bg-surface-container-lowest font-body-md text-on-surface antialiased relative overflow-x-hidden min-h-screen">
+<body
+  class="bg-surface-container-lowest font-body-md text-on-surface antialiased relative overflow-x-hidden min-h-screen">
   <!-- Decorative Background Speech Bubbles -->
-  <div class="fixed top-[80px] right-[5%] md:right-[12%] w-[180px] h-[140px] bg-[#a0d8ef] rounded-t-full rounded-bl-full rounded-br-sm -z-10 opacity-70 rotate-12 transition-all pointer-events-none"></div>
-  <div class="fixed bottom-[120px] left-[5%] md:left-[12%] w-[220px] h-[160px] bg-[#fff59d] rounded-t-full rounded-br-full rounded-bl-sm -z-10 opacity-70 -rotate-6 transition-all pointer-events-none"></div>
+  <div
+    class="fixed top-[80px] right-[5%] md:right-[12%] w-[180px] h-[140px] bg-[#a0d8ef] rounded-t-full rounded-bl-full rounded-br-sm -z-10 opacity-70 rotate-12 transition-all pointer-events-none">
+  </div>
+  <div
+    class="fixed bottom-[120px] left-[5%] md:left-[12%] w-[220px] h-[160px] bg-[#fff59d] rounded-t-full rounded-br-full rounded-bl-sm -z-10 opacity-70 -rotate-6 transition-all pointer-events-none">
+  </div>
 
   <!-- TopAppBar -->
-  <header class="fixed top-0 left-0 w-full z-50 h-[64px] flex items-center justify-between px-4 md:px-container-margin bg-[#a0d8ef] border-none shadow-sm">
+  <header
+    class="fixed top-0 left-0 w-full z-50 h-[64px] flex items-center justify-between px-4 md:px-container-margin bg-[#a0d8ef] border-none shadow-sm">
     <!-- Brand / Title -->
     <div class="flex items-center gap-3">
-      <a href="login.html" class="font-display-header text-display-header tracking-wider font-bold" style="color: rgb(240, 230, 140);">TODO</a>
-    </div>
+      <a href="login.html" class="font-display-header text-display-header tracking-wider font-bold"
+        style="color: rgb(240, 230, 140);">TODO</a>
 
-    <!-- Screen Navigation Links -->
-    <nav class="flex items-center gap-1 sm:gap-2" aria-label="画面ナビゲーション">
-      <a href="login.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面1</a>
-      <a href="page2.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面2</a>
-      <a href="page3.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all bg-[#0000ff] text-[#e1ff00] shadow-sm font-label-bold" aria-current="page">画面3</a>
-      <a href="page4.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面4</a>
-    </nav>
+      <body>
+        <header class="header">
+          <div class="header-container">
+            <a href="login.html" class="header-title">To Do</a>
+            <nav class="header-nav" aria-label="ページナビゲーション">
+              <a href="login.html" class="nav-link">ログイン</a>
+              <a href="page2.html" class="nav-link">画面2</a>
+              <a href="page3.html" class="nav-link active" aria-current="page">画面3</a>
+              <a href="page4.html" class="nav-link">画面4</a>
+            </nav>
+          </div>
 
-    <!-- Trailing Action -->
-    <button class="text-[#0000ff] hover:opacity-80 transition-opacity flex items-center justify-center cursor-pointer" type="button" aria-label="アカウント">
-      <span class="material-symbols-outlined icon-filled" style="font-size: 28px;">account_circle</span>
-    </button>
-  </header>
+          <!-- Screen Navigation Links -->
+          <nav class="flex items-center gap-1 sm:gap-2" aria-label="画面ナビゲーション">
+            <a href="login.html"
+              class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面1</a>
+            <a href="page2.html"
+              class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面2</a>
+            <a href="page3.html"
+              class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all bg-[#0000ff] text-[#e1ff00] shadow-sm font-label-bold"
+              aria-current="page">画面3</a>
+            <a href="page4.html"
+              class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面4</a>
+          </nav>
 
-  <!-- Main Content Canvas (Fixed Grid approach for desktop max-width 800px) -->
-  <main class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center">
-    <!-- Task List (Design Only, Check Interactions Removed) -->
-    <div class="w-full flex flex-col gap-[12px]">
-      <!-- Task Item 1 (Design representation of completed task with check) -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-[#60a5fa] rounded-full flex items-center justify-center flex-shrink-0">
-          <span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>
-        </div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface line-through opacity-60">
-          Q3デザインシステムのレビューを完了する
-        </div>
-        <div class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          仕事
-        </div>
-      </div>
+          <!-- Trailing Action -->
+          <button
+            class="text-[#0000ff] hover:opacity-80 transition-opacity flex items-center justify-center cursor-pointer"
+            type="button" aria-label="アカウント">
+            <span class="material-symbols-outlined icon-filled" style="font-size: 28px;">account_circle</span>
+          </button>
+        </header>
 
-      <!-- Task Item 2 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0"></div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          ステージング環境の更新をデプロイ
-        </div>
-        <div class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          開発
-        </div>
-      </div>
+        <!-- Main Content Canvas (Fixed Grid approach for desktop max-width 800px) -->
+        <main
+          class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center">
+          <!-- Task List (Design Only, Check Interactions Removed) -->
+          <div class="w-full flex flex-col gap-[12px]">
+            <!-- Task Item 1 (Design representation of completed task with check) -->
+            <div
+              class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+              <div
+                class="w-6 h-6 border-2 border-[#60a5fa] bg-[#60a5fa] rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>
+              </div>
+              <div class="task-text flex-1 font-body-md text-body-md text-on-surface line-through opacity-60">
+                Q3デザインシステムのレビューを完了する
+              </div>
+              <div
+                class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
+                仕事
+              </div>
+            </div>
 
-      <!-- Task Item 3 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0"></div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          マーケティングチームとの同期をスケジュール
-        </div>
-        <div class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          会議
-        </div>
-      </div>
+            <!-- Task Item 2 -->
+            <div
+              class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+              <div
+                class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
+              </div>
+              <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
+                ステージング環境の更新をデプロイ
+              </div>
+              <div
+                class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
+                開発
+              </div>
+            </div>
 
-      <!-- Task Item 4 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0"></div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          Q4 OKRのドラフト作成
-        </div>
-      </div>
-    </div>
-  </main>
+            <!-- Task Item 3 -->
+            <div
+              class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+              <div
+                class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
+              </div>
+              <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
+                マーケティングチームとの同期をスケジュール
+              </div>
+              <div
+                class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
+                会議
+              </div>
+            </div>
 
-  <!-- Floating Action Button (FAB, Design Only) -->
-  <button aria-label="タスク追加" class="fixed bottom-[104px] md:bottom-container-margin right-container-margin md:right-[calc(50%-400px+24px)] w-[64px] h-[64px] bg-[#a0d8ef] rounded-full border-none flex items-center justify-center shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer" type="button">
-    <span class="material-symbols-outlined text-[#0000ff] text-[32px]">add</span>
-  </button>
+            <!-- Task Item 4 -->
+            <div
+              class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+              <div
+                class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
+              </div>
+              <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
+                Q4 OKRのドラフト作成
+              </div>
+            </div>
+          </div>
+        </main>
 
-  <!-- BottomNavBar (Mobile Only Shell) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
-    <!-- Active Tab: Tasks -->
-    <div aria-current="page" class="flex flex-col items-center justify-center bg-[#a0d8ef] text-[#0001bb] rounded-2xl p-2 w-[80px] cursor-pointer">
-      <span class="material-symbols-outlined icon-filled mb-1">list_alt</span>
-      <span class="font-label-bold text-[12px]">タスク</span>
-    </div>
-    <!-- Inactive Tab: Calendar -->
-    <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
-      <span class="material-symbols-outlined mb-1">calendar_today</span>
-      <span class="font-label-bold text-[12px]">カレンダー</span>
-    </div>
-    <!-- Inactive Tab: Settings -->
-    <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
-      <span class="material-symbols-outlined mb-1">settings</span>
-      <span class="font-label-bold text-[12px]">設定</span>
-    </div>
-  </nav>
-</body>
+        <!-- Floating Action Button (FAB, Design Only) -->
+        <button aria-label="タスク追加"
+          class="fixed bottom-[104px] md:bottom-container-margin right-container-margin md:right-[calc(50%-400px+24px)] w-[64px] h-[64px] bg-[#a0d8ef] rounded-full border-none flex items-center justify-center shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer"
+          type="button">
+          <span class="material-symbols-outlined text-[#0000ff] text-[32px]">add</span>
+        </button>
+
+        <!-- BottomNavBar (Mobile Only Shell) -->
+        <nav
+          class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
+          <!-- Active Tab: Tasks -->
+          <div aria-current="page"
+            class="flex flex-col items-center justify-center bg-[#a0d8ef] text-[#0001bb] rounded-2xl p-2 w-[80px] cursor-pointer">
+            <span class="material-symbols-outlined icon-filled mb-1">list_alt</span>
+            <span class="font-label-bold text-[12px]">タスク</span>
+          </div>
+          <!-- Inactive Tab: Calendar -->
+          <div
+            class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
+            <span class="material-symbols-outlined mb-1">calendar_today</span>
+            <span class="font-label-bold text-[12px]">カレンダー</span>
+          </div>
+          <!-- Inactive Tab: Settings -->
+          <div
+            class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
+            <span class="material-symbols-outlined mb-1">settings</span>
+            <span class="font-label-bold text-[12px]">設定</span>
+          </div>
+        </nav>
+      </body>
 
 </html>
