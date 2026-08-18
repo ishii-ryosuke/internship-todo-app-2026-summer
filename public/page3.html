@@ -142,98 +142,75 @@
 
   <!-- Main Content Canvas (Fixed Grid approach for desktop max-width 800px) -->
   <main class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center">
-    <!-- Task List -->
+    <!-- Task List (Design Only, Check Interactions Removed) -->
     <div class="w-full flex flex-col gap-[12px]">
-      <!-- Completed Task Item -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#0000ff] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#0000ff] bg-[#0000ff] rounded-full flex items-center justify-center flex-shrink-0 transition-colors">
-          <span class="material-symbols-outlined text-[#e1ff00] text-[18px] font-bold">check</span>
+      <!-- Task Item 1 (Design representation of completed task with check) -->
+      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-[#60a5fa] rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>
         </div>
-        <div class="flex-1 font-body-md text-body-md text-on-surface line-through opacity-60">
+        <div class="task-text flex-1 font-body-md text-body-md text-on-surface line-through opacity-60">
           Q3デザインシステムのレビューを完了する
         </div>
-        <div class="bg-[#0000ff] px-4 py-1 text-[#e1ff00] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
+        <div class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
           仕事
         </div>
       </div>
 
-      <!-- Active Task Item 1 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#0000ff] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#0000ff] bg-transparent rounded-full flex items-center justify-center flex-shrink-0 transition-colors"></div>
-        <div class="flex-1 font-body-md text-body-md text-on-surface">
+      <!-- Task Item 2 -->
+      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0"></div>
+        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
           ステージング環境の更新をデプロイ
         </div>
-        <div class="bg-[#0000ff] px-4 py-1 text-[#e1ff00] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
+        <div class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
           開発
         </div>
       </div>
 
-      <!-- Active Task Item 2 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#0000ff] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#0000ff] bg-transparent rounded-full flex items-center justify-center flex-shrink-0 transition-colors"></div>
-        <div class="flex-1 font-body-md text-body-md text-on-surface">
+      <!-- Task Item 3 -->
+      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0"></div>
+        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
           マーケティングチームとの同期をスケジュール
         </div>
-        <div class="bg-[#0000ff] px-4 py-1 text-[#e1ff00] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
+        <div class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
           会議
         </div>
       </div>
 
-      <!-- Active Task Item 3 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#0000ff] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm">
-        <div class="w-6 h-6 border-2 border-[#0000ff] bg-transparent rounded-full flex items-center justify-center flex-shrink-0 transition-colors"></div>
-        <div class="flex-1 font-body-md text-body-md text-on-surface">
+      <!-- Task Item 4 -->
+      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+        <div class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0"></div>
+        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
           Q4 OKRのドラフト作成
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Floating Action Button (FAB) -->
-  <a href="page4.html" aria-label="タスク追加" class="fixed bottom-[104px] md:bottom-container-margin right-container-margin md:right-[calc(50%-400px+24px)] w-[64px] h-[64px] bg-[#a0d8ef] rounded-full border-none flex items-center justify-center shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer">
+  <!-- Floating Action Button (FAB, Design Only) -->
+  <button aria-label="タスク追加" class="fixed bottom-[104px] md:bottom-container-margin right-container-margin md:right-[calc(50%-400px+24px)] w-[64px] h-[64px] bg-[#a0d8ef] rounded-full border-none flex items-center justify-center shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer" type="button">
     <span class="material-symbols-outlined text-[#0000ff] text-[32px]">add</span>
-  </a>
+  </button>
 
   <!-- BottomNavBar (Mobile Only Shell) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#0000ff] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
     <!-- Active Tab: Tasks -->
-    <div aria-current="page" class="flex flex-col items-center justify-center bg-[#0000ff] text-[#e1ff00] rounded-2xl p-2 w-[80px] cursor-pointer">
+    <div aria-current="page" class="flex flex-col items-center justify-center bg-[#a0d8ef] text-[#0001bb] rounded-2xl p-2 w-[80px] cursor-pointer">
       <span class="material-symbols-outlined icon-filled mb-1">list_alt</span>
       <span class="font-label-bold text-[12px]">タスク</span>
     </div>
     <!-- Inactive Tab: Calendar -->
-    <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#0000ff] hover:text-[#e1ff00] rounded-2xl transition-colors">
+    <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
       <span class="material-symbols-outlined mb-1">calendar_today</span>
       <span class="font-label-bold text-[12px]">カレンダー</span>
     </div>
     <!-- Inactive Tab: Settings -->
-    <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#0000ff] hover:text-[#e1ff00] rounded-2xl transition-colors">
+    <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
       <span class="material-symbols-outlined mb-1">settings</span>
       <span class="font-label-bold text-[12px]">設定</span>
     </div>
   </nav>
-
-  <script>
-    // Task check / uncheck toggle interaction
-    document.querySelectorAll('.group').forEach(task => {
-      task.addEventListener('click', function(e) {
-        if (e.target.classList.contains('bg-[#0000ff]') && e.target.tagName !== 'DIV') return;
-        const checkboxBox = this.querySelector('.w-6');
-        const checkboxIcon = this.querySelector('.material-symbols-outlined');
-        const textSpan = this.querySelector('.flex-1');
-        if (checkboxIcon && checkboxIcon.innerHTML.trim() === 'check') {
-          checkboxBox.classList.remove('bg-[#0000ff]');
-          checkboxBox.classList.add('bg-transparent');
-          checkboxIcon.remove();
-          textSpan.classList.remove('line-through', 'opacity-60');
-        } else {
-          checkboxBox.classList.remove('bg-transparent');
-          checkboxBox.classList.add('bg-[#0000ff]');
-          checkboxBox.innerHTML = '<span class="material-symbols-outlined text-[#e1ff00] text-[18px] font-bold">check</span>';
-          textSpan.classList.add('line-through', 'opacity-60');
-        }
-      });
-    });
-  </script>
 </body>
 </html>
