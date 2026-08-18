@@ -1,32 +1,204 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To Do - 画面1</title>
-  <meta name="description" content="To Do Web Application - 画面1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>TODO - ログイン (画面1)</title>
+  <meta name="description" content="TODO Web Application - ログイン画面"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "tertiary-container": "#9d0002",
+            "surface-container": "#eeeeee",
+            "on-tertiary-container": "#ffa598",
+            "on-secondary-fixed": "#1d1d00",
+            "primary-fixed-dim": "#bec2ff",
+            "on-error-container": "#93000a",
+            "outline-variant": "#c5c4db",
+            "on-primary": "#ffffff",
+            "secondary": "#626200",
+            "on-error": "#ffffff",
+            "surface-container-low": "#f3f3f4",
+            "surface-container-high": "#e8e8e8",
+            "inverse-surface": "#2f3131",
+            "inverse-on-surface": "#f0f1f1",
+            "surface-tint": "#343dff",
+            "tertiary": "#720001",
+            "secondary-fixed-dim": "#cdcd00",
+            "secondary-container": "#e7e700",
+            "surface-lowest": "#ffffff",
+            "surface-container-highest": "#e2e2e2",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#00006e",
+            "text-on-accent": "#666600",
+            "on-surface": "#1a1c1c",
+            "on-surface-variant": "#454558",
+            "on-tertiary-fixed-variant": "#930002",
+            "outline": "#757589",
+            "on-secondary": "#ffffff",
+            "surface-bright": "#f9f9f9",
+            "inverse-primary": "#bec2ff",
+            "secondary-fixed": "#eaea0a",
+            "surface-dim": "#dadada",
+            "surface-variant": "#e2e2e2",
+            "on-secondary-container": "#666600",
+            "on-background": "#1a1c1c",
+            "tertiary-fixed-dim": "#ffb4a9",
+            "background": "#f9f9f9",
+            "on-secondary-fixed-variant": "#494900",
+            "on-primary-container": "#b3b7ff",
+            "border-primary": "#0000ff",
+            "surface": "#f9f9f9",
+            "surface-container-lowest": "#ffffff",
+            "primary-container": "#0000ff",
+            "error-container": "#ffdad6",
+            "primary-fixed": "#e0e0ff",
+            "on-tertiary-fixed": "#410000",
+            "tertiary-fixed": "#ffdad5",
+            "primary": "#0001bb",
+            "on-tertiary": "#ffffff",
+            "on-primary-fixed-variant": "#0000ef",
+            "pastel-blue": "#a0d8ef",
+            "pastel-yellow": "#fffdd0"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "stack-gap": "24px",
+            "gutter": "16px",
+            "container-margin": "24px",
+            "input-padding": "16px 20px",
+            "header-height": "64px",
+            "base-gap": "8px"
+          },
+          fontFamily: {
+            "display-header": ["Work Sans", "sans-serif"],
+            "headline-lg-mobile": ["Work Sans", "sans-serif"],
+            "headline-lg": ["Work Sans", "sans-serif"],
+            "label-bold": ["Work Sans", "sans-serif"],
+            "body-md": ["Work Sans", "sans-serif"],
+            "input-text": ["Work Sans", "sans-serif"]
+          },
+          fontSize: {
+            "display-header": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "label-bold": ["14px", { "lineHeight": "20px", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "input-text": ["18px", { "lineHeight": "24px", "fontWeight": "500" }]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #ffffff;
+    }
+    .input-focus-ring:focus {
+      outline: none;
+      border-width: 3px;
+      border-color: #a0d8ef;
+    }
+    .bubble-tr {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 200px;
+      height: 160px;
+      background-color: #a0d8ef;
+      border-radius: 50% 50% 0 50%;
+      z-index: 0;
+      opacity: 0.5;
+    }
+    .bubble-bl {
+      position: absolute;
+      bottom: -40px;
+      left: -40px;
+      width: 240px;
+      height: 180px;
+      background-color: #e7e700;
+      border-radius: 50% 50% 50% 0;
+      z-index: 0;
+      opacity: 0.5;
+    }
+  </style>
 </head>
-<body>
-  <header class="header">
-    <div class="header-container">
-      <a href="index.html" class="header-title">To Do</a>
-      <nav class="header-nav" aria-label="ページナビゲーション">
-        <a href="index.html" class="nav-link active" aria-current="page">画面1</a>
-        <a href="page2.html" class="nav-link">画面2</a>
-        <a href="page3.html" class="nav-link">画面3</a>
-        <a href="page4.html" class="nav-link">画面4</a>
-      </nav>
+<body class="min-h-screen flex flex-col font-body-md text-on-background bg-surface-lowest relative overflow-x-hidden">
+  <div class="bubble-tr"></div>
+  <div class="bubble-bl"></div>
+
+  <!-- TopAppBar -->
+  <header class="bg-pastel-blue h-header-height w-full flex items-center justify-between px-4 md:px-container-margin shrink-0 relative z-20 shadow-sm">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="font-display-header text-display-header" style="color: rgb(240, 230, 140);">TODO</a>
     </div>
+
+    <!-- Screen Navigation Links -->
+    <nav class="flex items-center gap-1 sm:gap-2" aria-label="画面ナビゲーション">
+      <a href="index.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all bg-[#0000ff] text-[#e1ff00] shadow-sm font-label-bold" aria-current="page">画面1</a>
+      <a href="page2.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面2</a>
+      <a href="page3.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面3</a>
+      <a href="page4.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面4</a>
+    </nav>
   </header>
 
-  <main class="main-content">
-    <div class="content-container">
-      <!-- 空のコンテンツ領域（白背景） -->
+  <!-- Main Content Area -->
+  <main class="flex-grow flex flex-col items-center justify-center p-gutter w-full max-w-[800px] mx-auto relative z-10 py-8">
+    <div class="w-full max-w-md bg-surface-container-lowest p-container-margin rounded-xl border-2 border-pastel-blue flex flex-col gap-[24px] shadow-sm">
+      <div class="text-center mb-[8px]">
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-pastel-blue">ログイン</h2>
+      </div>
+
+      <!-- Input Form (Design Only, Submissions Prevented) -->
+      <form class="flex flex-col gap-[16px]" onsubmit="return false;">
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-pastel-blue sr-only" for="email">メールアドレス</label>
+          <input class="w-full bg-[#fff9c4] border-2 border-pastel-blue p-input-padding font-input-text text-input-text text-on-surface placeholder:text-on-surface/50 input-focus-ring rounded-lg transition-all duration-200" id="email" name="email" placeholder="メールアドレス" type="email" autocomplete="email"/>
+        </div>
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-pastel-blue sr-only" for="password">パスワード</label>
+          <input class="w-full bg-[#fff9c4] border-2 border-pastel-blue p-input-padding font-input-text text-input-text text-on-surface placeholder:text-on-surface/50 input-focus-ring rounded-lg transition-all duration-200" id="password" name="password" placeholder="パスワード" type="password" autocomplete="current-password"/>
+        </div>
+
+        <!-- Action Buttons Area -->
+        <div class="flex items-center justify-between mt-[16px] gap-2">
+          <a class="font-label-bold text-label-bold text-pastel-blue hover:opacity-80 transition-opacity text-xs sm:text-sm" href="page2.html">
+            アカウントをお持ちでない方はこちら
+          </a>
+          <button class="bg-pastel-blue text-white font-label-bold text-label-bold px-container-margin py-[12px] min-h-[48px] rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 shrink-0 cursor-pointer" type="button">
+            <span>ログイン</span>
+            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+          </button>
+        </div>
+      </form>
     </div>
   </main>
+
+  <!-- Bottom Actions -->
+  <div class="w-full p-container-margin flex flex-col items-center justify-center bg-surface-container-lowest border-pastel-blue shrink-0 mt-auto relative z-10 pb-8">
+    <button class="w-full max-w-md bg-surface-container-lowest border-2 border-pastel-blue text-pastel-blue font-label-bold text-label-bold min-h-[48px] flex items-center justify-center gap-2 hover:bg-pastel-blue hover:text-white transition-all duration-200 rounded-full cursor-pointer py-3" type="button">
+      <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+        <path d="M1 1h22v22H1z" fill="none"></path>
+      </svg>
+      <span>Googleでログイン</span>
+    </button>
+  </div>
 </body>
 </html>
