@@ -1,114 +1,37 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>TODO - 新規登録</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="page2.css?v=3"/>
-  <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          "colors": {
-            "primary-fixed-dim": "#bec2ff",
-            "surface-container-high": "#e8e8e8",
-            "on-tertiary-fixed": "#410000",
-            "primary": "#a0d8ef",
-            "on-secondary-fixed": "#1d1d00",
-            "inverse-primary": "#bec2ff",
-            "on-error": "#ffffff",
-            "error": "#ba1a1a",
-            "inverse-on-surface": "#f0f1f1",
-            "border-primary": "#a0d8ef",
-            "outline": "#757589",
-            "on-primary-fixed": "#00006e",
-            "surface-container": "#eeeeee",
-            "tertiary-container": "#9d0002",
-            "on-tertiary": "#ffffff",
-            "secondary-fixed-dim": "#cdcd00",
-            "primary-fixed": "#e0e0ff",
-            "background": "#f9f9f9",
-            "surface-container-highest": "#e2e2e2",
-            "primary-container": "#a0d8ef",
-            "on-surface": "#1a1c1c",
-            "on-tertiary-fixed-variant": "#930002",
-            "text-on-accent": "#666600",
-            "on-secondary-fixed-variant": "#494900",
-            "on-surface-variant": "#454558",
-            "on-primary": "#ffffff",
-            "surface-container-low": "#f3f3f4",
-            "on-error-container": "#93000a",
-            "on-primary-container": "#b3b7ff",
-            "surface-bright": "#f9f9f9",
-            "surface-dim": "#dadada",
-            "on-tertiary-container": "#ffa598",
-            "on-primary-fixed-variant": "#0000ef",
-            "tertiary-fixed-dim": "#ffb4a9",
-            "surface": "#f9f9f9",
-            "secondary-fixed": "#eaea0a",
-            "tertiary": "#720001",
-            "outline-variant": "#c5c4db",
-            "secondary": "#626200",
-            "on-secondary": "#ffffff",
-            "surface-lowest": "#ffffff",
-            "inverse-surface": "#2f3131",
-            "surface-tint": "#343dff",
-            "surface-variant": "#e2e2e2",
-            "secondary-container": "#e7e700",
-            "tertiary-fixed": "#ffdad5",
-            "error-container": "#ffdad6",
-            "surface-container-lowest": "#ffffff",
-            "on-background": "#1a1c1c",
-            "on-secondary-container": "#666600"
-          },
-          "borderRadius": {
-            "DEFAULT": "0.25rem",
-            "lg": "0.5rem",
-            "xl": "0.75rem",
-            "full": "9999px",
-            "3xl": "1.5rem"
-          },
-          "spacing": {
-            "stack-gap": "24px",
-            "container-margin": "24px",
-            "input-padding": "16px 20px",
-            "base-gap": "8px",
-            "gutter": "16px",
-            "header-height": "64px"
-          },
-          "fontFamily": {
-            "headline-lg-mobile": ["Work Sans"],
-            "input-text": ["Work Sans"],
-            "headline-lg": ["Work Sans"],
-            "display-header": ["Work Sans"],
-            "label-bold": ["Work Sans"],
-            "body-md": ["Work Sans"]
-          },
-          "fontSize": {
-            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
-            "input-text": ["18px", { "lineHeight": "24px", "fontWeight": "500" }],
-            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
-            "display-header": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }],
-            "label-bold": ["14px", { "lineHeight": "20px", "fontWeight": "700" }],
-            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <script src="tailwind-config.js"></script>
+  <link rel="stylesheet" href="page2.css?v=3" />
 </head>
+
 <body class="bg-background min-h-screen flex flex-col font-body-md text-body-md text-on-surface relative overflow-x-hidden" style="background-color: rgb(255, 255, 255);">
   <!-- Decorative Bubbles -->
   <div class="bubble-top-right"></div>
   <div class="bubble-bottom-left"></div>
 
   <!-- TopAppBar -->
-  <header class="bg-[#a0d8ef] h-header-height w-full flex items-center justify-center px-container-margin fixed top-0 left-0 z-50 shadow-sm">
-    <h1 class="font-display-header text-display-header" style="color: rgb(240, 230, 140);">TODO</h1>
+  <header class="bg-[#a0d8ef] h-header-height w-full flex items-center justify-between px-4 md:px-container-margin fixed top-0 left-0 z-50 shadow-sm">
+    <div class="flex items-center gap-3">
+      <a href="login.html" class="font-display-header text-display-header" style="color: rgb(240, 230, 140);">TODO</a>
+    </div>
+
+    <!-- Screen Navigation Links -->
+    <nav class="flex items-center gap-1 sm:gap-2" aria-label="画面ナビゲーション">
+      <a href="login.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面1</a>
+      <a href="page2.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all bg-[#0000ff] text-[#e1ff00] shadow-sm font-label-bold" aria-current="page">画面2</a>
+      <a href="page3.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面3</a>
+      <a href="page4.html" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all text-[#0000ff] hover:bg-white/30 font-label-bold">画面4</a>
+    </nav>
   </header>
 
   <!-- Main Content -->
@@ -208,11 +131,14 @@
         <!-- 全体エラーメッセージ表示エリア -->
         <div id="general-error" class="hidden p-3 mt-4 bg-error-container text-error rounded-xl text-xs font-medium text-center"></div>
 
-        <!-- 送信ボタン -->
-        <div class="flex justify-end mt-8">
+        <!-- ログインへの遷移リンク & 送信ボタン -->
+        <div class="flex items-center justify-between mt-8 gap-2">
+          <a class="font-label-bold text-label-bold text-pastel-blue hover:opacity-80 transition-opacity text-xs sm:text-sm" href="login.html">
+            すでにアカウントをお持ちの方はこちら
+          </a>
           <button 
             id="submit-btn"
-            class="btn-inactive font-label-bold text-label-bold min-h-[48px] px-8 py-3 rounded-full flex items-center justify-center gap-2 border-2 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+            class="btn-inactive font-label-bold text-label-bold min-h-[48px] px-8 py-3 rounded-full flex items-center justify-center gap-2 border-2 text-white disabled:opacity-50 disabled:cursor-not-allowed shrink-0" 
             type="submit"
           >
             <span id="submit-btn-text" class="text-white">入力完了</span>
@@ -230,7 +156,7 @@
       type="button"
       class="w-full max-w-md bg-surface text-[#454558] border-2 border-[#a0d8ef] rounded-full font-label-bold text-label-bold min-h-[48px] px-6 py-3 hover:bg-primary-fixed active:scale-95 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
@@ -243,4 +169,5 @@
   <!-- External JS module -->
   <script type="module" src="page2.js?v=3"></script>
 </body>
+
 </html>
