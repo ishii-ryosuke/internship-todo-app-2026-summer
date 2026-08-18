@@ -1,7 +1,7 @@
 {
   "projects": {
-    "team-a":"helloworld-7f097"
-    "team-b": "esm1-773ad"
+    "team-a":"helloworld-7f097",
+    "team-b": "esm1-773ad",
     "team-c":"intean-24e34"
   }
 }
