@@ -1,17 +1,17 @@
 // Firebase Authentication & Firestore Login Logic
 import { auth, db } from "./firebase-config.js";
-import { 
-  signInWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup 
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  doc, 
-  getDoc, 
-  collection, 
-  query, 
-  where, 
-  getDocs 
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
@@ -22,7 +22,17 @@ const btnLogin = document.getElementById("btnLogin");
 const btnText = document.getElementById("btnText");
 const errorMessage = document.getElementById("errorMessage");
 const btnGoogleLogin = document.getElementById("btnGoogleLogin");
+const btnTogglePassword = document.getElementById("btnTogglePassword");
+const passwordIcon = document.getElementById("passwordIcon");
 
+// パスワード表示切り替え処理
+if (btnTogglePassword && passwordInput && passwordIcon) {
+  btnTogglePassword.addEventListener("click", () => {
+    const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+    passwordIcon.textContent = type === "password" ? "visibility_off" : "visibility";
+  });
+}
 /**
  * Display error message in the UI alert box
  * @param {string} message 

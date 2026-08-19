@@ -21,7 +21,7 @@
   <!-- TopAppBar -->
   <header
     class="bg-pastel-blue h-header-height w-full flex items-center justify-center px-container-margin shrink-0 relative z-10">
-    <h1 class="font-display-header text-display-header" style="color: rgb(240, 230, 140);">TODO</h1>
+    <h1 class="font-display-header text-display-header text-white" style="color: #FFF100;">TODO</h1>
   </header>
 
   <!-- Main Content Area -->
@@ -46,17 +46,18 @@
         </div>
         <div class="flex flex-col gap-base">
           <label class="font-label-bold text-label-bold text-pastel-blue sr-only" for="password">パスワード</label>
-          <input
-            class="w-full bg-[#fff9c4] border-2 border-pastel-blue p-input-padding font-input-text text-input-text text-on-surface placeholder:text-on-surface/50 input-focus-ring rounded-lg transition-all duration-200"
-            id="password" name="password" placeholder="パスワード" required="" type="password"
-            autocomplete="current-password" />
+          <div class="relative w-full">
+            <input
+              class="w-full bg-[#fff9c4] border-2 border-pastel-blue p-input-padding pr-[48px] font-input-text text-input-text text-on-surface placeholder:text-on-surface/50 input-focus-ring rounded-lg transition-all duration-200"
+              id="password" name="password" placeholder="パスワード" required="" type="password"
+              autocomplete="current-password" />
+            <button type="button" id="btnTogglePassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-pastel-blue hover:opacity-80 focus:outline-none">
+              <span id="passwordIcon" class="material-symbols-outlined text-[24px]">visibility_off</span>
+            </button>
+          </div>
         </div>
         <!-- Action Buttons Area -->
-        <div class="flex items-center justify-between mt-[16px]">
-          <a class="font-label-bold text-label-bold text-pastel-blue hover:opacity-80 transition-opacity text-sm"
-            href="page2.html">
-            アカウントをお持ちでない方はこちら
-          </a>
+        <div class="flex items-center justify-end mt-[16px]">
           <button id="btnLogin"
             class="bg-pastel-blue text-white font-label-bold text-label-bold px-container-margin py-[12px] min-h-[48px] rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2"
             type="submit">
@@ -66,6 +67,9 @@
         </div>
       </form>
     </div>
+    <a class="mt-[24px] font-label-bold text-label-bold text-pastel-blue hover:opacity-80 transition-opacity text-center" href="page2.html">
+        アカウントをお持ちでない方はこちら
+    </a>
   </main>
 
   <!-- Bottom Actions -->
