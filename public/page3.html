@@ -14,6 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
     rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="stylesheet" href="login.css" />
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -121,27 +122,21 @@
 </head>
 
 <body
-  class="bg-surface-container-lowest font-body-md text-on-surface antialiased relative overflow-x-hidden min-h-screen">
-  <!-- Decorative Background Speech Bubbles -->
-  <div
-    class="fixed top-[80px] right-[5%] md:right-[12%] w-[180px] h-[140px] bg-[#a0d8ef] rounded-t-full rounded-bl-full rounded-br-sm -z-10 opacity-70 rotate-12 transition-all pointer-events-none">
-  </div>
-  <div
-    class="fixed bottom-[120px] left-[5%] md:left-[12%] w-[220px] h-[160px] bg-[#fff59d] rounded-t-full rounded-br-full rounded-bl-sm -z-10 opacity-70 -rotate-6 transition-all pointer-events-none">
-  </div>
+  class="bg-surface-lowest min-h-screen flex flex-col font-body-md text-on-background relative overflow-x-hidden">
+  <!-- Decorative background bubbles -->
+  <div class="bubble-tr"></div>
+  <div class="bubble-bl"></div>
 
   <!-- TopAppBar -->
   <header
-    class="fixed top-0 left-0 w-full z-50 h-[64px] flex items-center justify-between px-4 md:px-container-margin bg-[#a0d8ef] border-none shadow-sm">
+    class="bg-pastel-blue h-header-height w-full flex items-center justify-center px-4 md:px-container-margin fixed top-0 left-0 z-50 shadow-sm">
     <!-- Brand / Title -->
-    <div class="flex items-center gap-3">
-      <a href="login.html" class="font-display-header text-display-header tracking-wider font-bold"
-        style="color: rgb(240, 230, 140);">TODO</a>
-    </div>
+    <a href="login.html" class="font-display-header text-display-header text-white"
+      style="color: #FFF100;">TODO</a>
 
     <!-- Trailing Action -->
     <button id="account-btn"
-      class="text-[#0000ff] hover:opacity-80 transition-opacity flex items-center justify-center cursor-pointer"
+      class="absolute right-4 md:right-container-margin text-[#0000ff] hover:opacity-80 transition-opacity flex items-center justify-center cursor-pointer"
       type="button" aria-label="アカウント">
       <span class="material-symbols-outlined icon-filled" style="font-size: 28px;">account_circle</span>
     </button>
@@ -149,62 +144,9 @@
 
   <!-- Main Content Canvas (Fixed Grid approach for desktop max-width 800px) -->
   <main
-    class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center">
-    <!-- Task List (Design Only, Check Interactions Removed) -->
-    <div class="w-full flex flex-col gap-[12px]">
-      <!-- Task Item 1 (Design representation of completed task with check) -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div
-          class="w-6 h-6 border-2 border-[#60a5fa] bg-[#60a5fa] rounded-full flex items-center justify-center flex-shrink-0">
-          <span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>
-        </div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface line-through opacity-60">
-          Q3デザインシステムのレビューを完了する
-        </div>
-        <div
-          class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          仕事
-        </div>
-      </div>
-
-      <!-- Task Item 2 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div
-          class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
-        </div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          ステージング環境の更新をデプロイ
-        </div>
-        <div
-          class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          開発
-        </div>
-      </div>
-
-      <!-- Task Item 3 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div
-          class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
-        </div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          マーケティングチームとの同期をスケジュール
-        </div>
-        <div
-          class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          会議
-        </div>
-      </div>
-
-      <!-- Task Item 4 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
-        <div
-          class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
-        </div>
-        <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          Q4 OKRのドラフト
-        </div>
-      </div>
-    </div>
+    class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center relative z-10">
+    <!-- Task List (Dynamic) -->
+    <div id="task-list" class="w-full flex flex-col gap-[12px]"></div>
   </main>
 
   <!-- Floating Action Button (FAB) -->
@@ -287,6 +229,8 @@
 
   <!-- Sidebar Logic -->
   <script src="sidebar.js"></script>
+  <!-- Task List Logic Script -->
+  <script type="module" src="page3.js?v=1"></script>
 </body>
 
 </html>
