@@ -1,0 +1,93 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   Page 2 (新規登録画面) Styles
+   ========================================================================== */
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+/* パスワードトグルボタンのホバー時の挙動 */
+#toggle-password,
+#toggle-confirm-password {
+  cursor: pointer;
+}
+
+/* Decorative background elements */
+.bubble-top-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 330px;
+  height: 255px;
+  background-color: #a0d8ef;
+  border-radius: 50% 50% 0 50%;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.bubble-bottom-left {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 300px;
+  height: 250px;
+  background-color: #e7e700;
+  border-radius: 50% 50% 50% 0;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   送信ボタン（入力完了ボタン）の状態別スタイル
+   ========================================================================== */
+#submit-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 非アクティブ状態（入力完了前：#426AB3） */
+#submit-btn.btn-inactive {
+  background-color: #426AB3 !important;
+  border-color: #426AB3 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  opacity: 0.8 !important;
+}
+
+#submit-btn.btn-inactive .material-symbols-outlined,
+#submit-btn.btn-inactive span,
+#submit-btn.btn-inactive #submit-btn-text {
+  color: #ffffff !important;
+}
+
+/* アクティブ状態（入力完了後：#0F1A45） */
+#submit-btn.btn-active {
+  background-color: #0F1A45 !important;
+  border-color: #0F1A45 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(15, 26, 69, 0.45) !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  transform: translateY(-2px) !important;
+}
+
+#submit-btn.btn-active:hover {
+  background-color: #18286a !important;
+  border-color: #18286a !important;
+  box-shadow: 0 6px 22px rgba(15, 26, 69, 0.6) !important;
+  transform: translateY(-3px) !important;
+}
+
+#submit-btn.btn-active:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 10px rgba(15, 26, 69, 0.4) !important;
+}
+
+#submit-btn.btn-active .material-symbols-outlined,
+#submit-btn.btn-active span,
+#submit-btn.btn-active #submit-btn-text {
+  color: #ffffff !important;
+}
