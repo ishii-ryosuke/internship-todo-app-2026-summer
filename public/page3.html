@@ -293,7 +293,12 @@
 
     <!-- Sidebar Content (empty for future features) -->
     <div class="flex-1 px-6 py-6">
-      <!-- 将来の機能追加エリア -->
+      <nav class="flex flex-col gap-1">
+        <a href="page5.html" class="flex items-center gap-2 px-4 py-3 rounded-full transition-all hover:bg-[#e2e2e2] w-full text-on-surface">
+          <span class="material-symbols-outlined">delete</span>
+          <span class="font-label-bold">ゴミ箱</span>
+        </a>
+      </nav>
     </div>
 
     <!-- Sidebar Footer - Logout -->
@@ -409,11 +414,14 @@
         deleteModalBox.classList.add('scale-95');
       }
 
+      let taskToDelete = null;
+
       // Delete button in dropdown → show modal
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
           const taskItem = this.closest('.task-item');
+          taskToDelete = taskItem;
           const taskName = taskItem.dataset.taskName || '';
           const taskDesc = taskItem.dataset.taskDesc || '';
           closeAllDropdowns();
@@ -424,8 +432,15 @@
       // "いいえ" button → close modal
       deleteNo.addEventListener('click', hideDeleteModal);
 
-      // "はい" button → close modal (display only, no actual deletion)
-      deleteYes.addEventListener('click', hideDeleteModal);
+      // "はい" button → delete task visually and show alert
+      deleteYes.addEventListener('click', function() {
+        if (taskToDelete) {
+          taskToDelete.remove();
+          taskToDelete = null;
+          alert('ゴミ箱に移動しました');
+        }
+        hideDeleteModal();
+      });
 
       // Click overlay to close modal
       deleteModal.addEventListener('click', function (e) {

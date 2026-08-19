@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>TODO - ゴミ箱</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#f9f9f9",
+                        "surface-dim": "#dadad9",
+                        "error-container": "#ffdad6",
+                        "surface": "#f9f9f9",
+                        "on-primary-container": "#235f73",
+                        "secondary-fixed-dim": "#cdc996",
+                        "primary": "#2b6579",
+                        "secondary": "#636036",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c0c8cc",
+                        "tertiary-fixed": "#ffdcbe",
+                        "secondary-fixed": "#e9e5b0",
+                        "primary-container": "#a0d8ef",
+                        "error": "#ba1a1a",
+                        "tertiary": "#815526",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#b8eaff",
+                        "tertiary-fixed-dim": "#f5bb83",
+                        "bubble-yellow": "#fef9c3",
+                        "on-primary-fixed-variant": "#064d60",
+                        "surface-container-high": "#e8e8e8",
+                        "on-primary-fixed": "#001f28",
+                        "surface-container-low": "#f4f3f3",
+                        "secondary-container": "#e9e5b0",
+                        "on-secondary-fixed-variant": "#4a4821",
+                        "on-surface": "#1a1c1c",
+                        "primary-fixed-dim": "#97cfe5",
+                        "outline": "#70787c",
+                        "bubble-blue": "#a0d8ef",
+                        "inverse-on-surface": "#f1f1f0",
+                        "on-tertiary-fixed": "#2c1600",
+                        "on-tertiary-container": "#7a4f21",
+                        "on-surface-variant": "#40484c",
+                        "surface-container": "#eeeeed",
+                        "tertiary-container": "#ffc48b",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#69663c",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-fixed": "#1e1c00",
+                        "background": "#f9f9f9",
+                        "inverse-primary": "#97cfe5",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#653e10",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#2b6579",
+                        "input-bg": "#fef9c3",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2f3131",
+                        "surface-variant": "#e2e2e2"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "input-padding": "16px 24px",
+                        "header-height": "80px",
+                        "gutter": "20px",
+                        "base-gap": "12px",
+                        "container-margin": "24px",
+                        "stack-gap": "32px"
+                    },
+                    fontFamily: {
+                        "headline-lg-mobile": ["Work Sans"],
+                        "display-header": ["Work Sans"],
+                        "body-md": ["Work Sans"],
+                        "label-bold": ["Work Sans"],
+                        "headline-lg": ["Work Sans"],
+                        "input-text": ["Work Sans"]
+                    },
+                    fontSize: {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-header": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "20px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "input-text": ["18px", { "lineHeight": "24px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f9f9f9;
+            color: #1a1c1c;
+            font-family: 'Work Sans', sans-serif;
+            overflow-x: hidden;
+        }
+        .bubble-tr {
+            position: fixed;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background-color: #a0d8ef;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+            pointer-events: none;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+        .bubble-bl {
+            position: fixed;
+            bottom: -50px;
+            left: -50px;
+            width: 400px;
+            height: 400px;
+            background-color: #fef9c3;
+            border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+            filter: blur(100px);
+            z-index: 0;
+            opacity: 0.7;
+            pointer-events: none;
+            animation: float-reverse 12s ease-in-out infinite alternate;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-20px) scale(1.05); }
+        }
+        @keyframes float-reverse {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(20px) scale(1.05); }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative bg-surface-container-lowest">
+    <!-- Decorative Layer -->
+    <div class="bubble-tr"></div>
+    <div class="bubble-bl"></div>
+
+    <!-- TopAppBar -->
+    <header class="bg-[#a0d8ef] flex justify-between items-center h-[64px] px-container-margin w-full fixed top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="page3.html" class="font-display-header text-display-header text-[#0000ff] cursor-pointer font-bold tracking-wider" style="color: rgb(240, 230, 140);">TODO</a>
+        </div>
+        <div class="flex items-center justify-end">
+            <button class="hover:opacity-80 transition-opacity active:scale-95 transition-transform p-2 rounded-full flex items-center justify-center text-[#0000ff]">
+                <span class="material-symbols-outlined icon-filled" style="font-size: 28px;">account_circle</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[64px] relative z-10 w-full max-w-7xl mx-auto">
+        <!-- Main Content Area -->
+        <main class="w-full max-w-[800px] mx-auto pt-[40px] pb-[120px] px-container-margin flex flex-col items-center">
+            <!-- Content Wrapper for max-width and centering -->
+            <div class="w-full flex flex-col gap-8">
+                <!-- Page Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-headline-lg text-headline-lg md:font-headline-lg md:text-headline-lg text-on-surface">ゴミ箱</h2>
+                </div>
+
+                <!-- Trash List Container -->
+                <div class="flex flex-col gap-4">
+                    <!-- Trash Item 1 -->
+                    <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative">
+                        <div class="flex items-start gap-3 flex-1">
+                            <div class="flex flex-col">
+                                <span class="font-body-md text-body-md text-on-surface line-through opacity-70">牛乳を買う</span>
+                                <span class="text-xs text-outline mt-1">削除日時: 2023/10/26 14:30</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Trash Item 2 -->
+                    <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative">
+                        <div class="flex items-start gap-3 flex-1">
+                            <div class="flex flex-col">
+                                <span class="font-body-md text-body-md text-on-surface line-through opacity-70">企画書を提出する</span>
+                                <span class="text-xs text-outline mt-1">削除日時: 2023/10/25 09:15</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Trash Item 3 -->
+                    <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative">
+                        <div class="flex items-start gap-3 flex-1">
+                            <div class="flex flex-col">
+                                <span class="font-body-md text-body-md text-on-surface line-through opacity-70">歯医者の予約</span>
+                                <span class="text-xs text-outline mt-1">削除日時: 2023/10/20 18:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- BottomNavBar (Mobile) -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
+        <a href="page3.html" class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
+            <span class="material-symbols-outlined mb-1">list_alt</span>
+            <span class="font-label-bold text-[12px]">タスク</span>
+        </a>
+        <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
+            <span class="material-symbols-outlined mb-1">calendar_today</span>
+            <span class="font-label-bold text-[12px]">カレンダー</span>
+        </div>
+        <div aria-current="page" class="flex flex-col items-center justify-center bg-[#a0d8ef] text-[#0001bb] rounded-2xl p-2 w-[80px] cursor-pointer">
+            <span class="material-symbols-outlined icon-filled mb-1" style="font-variation-settings: 'FILL' 1;">delete</span>
+            <span class="font-label-bold text-[12px]">ゴミ箱</span>
+        </div>
+    </nav>
+</body>
+</html>
