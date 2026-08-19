@@ -150,10 +150,12 @@
   <!-- Main Content Canvas (Fixed Grid approach for desktop max-width 800px) -->
   <main
     class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center">
-    <!-- Task List (Design Only, Check Interactions Removed) -->
+    <!-- Task List -->
     <div class="w-full flex flex-col gap-[12px]">
-      <!-- Task Item 1 (Design representation of completed task with check) -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+      <!-- Task Item 1 (completed) -->
+      <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 shadow-sm"
+        data-task-name="Q3デザインシステムのレビューを完了する"
+        data-task-desc="デザインシステムの全コンポーネントを確認し、改善点をまとめる。">
         <div
           class="w-6 h-6 border-2 border-[#60a5fa] bg-[#60a5fa] rounded-full flex items-center justify-center flex-shrink-0">
           <span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>
@@ -161,47 +163,85 @@
         <div class="task-text flex-1 font-body-md text-body-md text-on-surface line-through opacity-60">
           Q3デザインシステムのレビューを完了する
         </div>
-        <div
-          class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          仕事
+        <div class="relative">
+          <button aria-label="メニュー" class="more-btn text-[#0000ff] hover:opacity-70 transition-opacity flex items-center justify-center p-2 cursor-pointer" type="button">
+            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          </button>
+          <div class="dropdown-menu absolute right-0 top-full mt-1 bg-white border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[100px] hidden">
+            <button class="delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer" type="button">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              <span>削除</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Task Item 2 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+      <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 shadow-sm"
+        data-task-name="ステージング環境の更新をデプロイ"
+        data-task-desc="最新のビルドをステージング環境に反映し、動作確認を行う。">
         <div
           class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
         </div>
         <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
           ステージング環境の更新をデプロイ
         </div>
-        <div
-          class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          開発
+        <div class="relative">
+          <button aria-label="メニュー" class="more-btn text-[#0000ff] hover:opacity-70 transition-opacity flex items-center justify-center p-2 cursor-pointer" type="button">
+            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          </button>
+          <div class="dropdown-menu absolute right-0 top-full mt-1 bg-white border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[100px] hidden">
+            <button class="delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer" type="button">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              <span>削除</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Task Item 3 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+      <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 shadow-sm"
+        data-task-name="マーケティングチームとの同期をスケジュール"
+        data-task-desc="来週の打ち合わせ日程を調整し、議題を共有する。">
         <div
           class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
         </div>
         <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
           マーケティングチームとの同期をスケジュール
         </div>
-        <div
-          class="category-tag bg-[#a0d8ef] px-4 py-1 text-[#0001bb] font-label-bold text-[12px] uppercase tracking-wider rounded-full flex-shrink-0">
-          会議
+        <div class="relative">
+          <button aria-label="メニュー" class="more-btn text-[#0000ff] hover:opacity-70 transition-opacity flex items-center justify-center p-2 cursor-pointer" type="button">
+            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          </button>
+          <div class="dropdown-menu absolute right-0 top-full mt-1 bg-white border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[100px] hidden">
+            <button class="delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer" type="button">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              <span>削除</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Task Item 4 -->
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 group shadow-sm">
+      <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 shadow-sm"
+        data-task-name="Q4 OKRのドラフト作成"
+        data-task-desc="次期四半期の目標と成果指標のドラフトを作成する。">
         <div
           class="w-6 h-6 border-2 border-[#60a5fa] bg-transparent rounded-full flex items-center justify-center flex-shrink-0">
         </div>
         <div class="task-text flex-1 font-body-md text-body-md text-on-surface">
-          Q4 OKRのドラフト
+          Q4 OKRのドラフト作成
+        </div>
+        <div class="relative">
+          <button aria-label="メニュー" class="more-btn text-[#0000ff] hover:opacity-70 transition-opacity flex items-center justify-center p-2 cursor-pointer" type="button">
+            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          </button>
+          <div class="dropdown-menu absolute right-0 top-full mt-1 bg-white border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[100px] hidden">
+            <button class="delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer" type="button">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              <span>削除</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -285,9 +325,116 @@
       </div>
     </div>
   </div>
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal"
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+    <div id="delete-modal-box"
+      class="bg-[#fffde7] w-[90%] max-w-[400px] rounded-3xl border-2 border-[#a0d8ef] p-6 shadow-lg flex flex-col gap-6 transform scale-95 transition-transform duration-200">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-error text-[48px] mb-2">warning</span>
+        <p class="text-on-surface font-bold text-[18px]">本当に削除しますか？</p>
+        <div class="mt-4 p-4 bg-surface-container-low rounded-2xl border border-outline-variant text-left">
+          <p id="delete-modal-task-name" class="font-bold text-on-surface text-[16px] mb-1"></p>
+          <p id="delete-modal-task-desc" class="text-on-surface-variant text-[14px] opacity-80 leading-relaxed"></p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <button id="delete-no"
+          class="flex-1 py-3 rounded-2xl border-2 border-[#a0d8ef] text-[#0000ff] font-label-bold hover:bg-surface-container transition-colors cursor-pointer">
+          いいえ
+        </button>
+        <button id="delete-yes"
+          class="flex-1 py-3 rounded-2xl bg-error text-on-error font-label-bold hover:opacity-90 transition-opacity cursor-pointer">
+          はい
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Sidebar Logic -->
   <script src="sidebar.js"></script>
+
+  <!-- Delete Flow Logic -->
+  <script>
+    (function () {
+      const deleteModal = document.getElementById('delete-modal');
+      const deleteModalBox = document.getElementById('delete-modal-box');
+      const deleteModalTaskName = document.getElementById('delete-modal-task-name');
+      const deleteModalTaskDesc = document.getElementById('delete-modal-task-desc');
+      const deleteNo = document.getElementById('delete-no');
+      const deleteYes = document.getElementById('delete-yes');
+
+      // Close all dropdown menus
+      function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+
+      // Toggle dropdown menu on more_vert button click
+      document.querySelectorAll('.more-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const dropdown = this.nextElementSibling;
+          const isHidden = dropdown.classList.contains('hidden');
+          closeAllDropdowns();
+          if (isHidden) {
+            dropdown.classList.remove('hidden');
+          }
+        });
+      });
+
+      // Close dropdown on outside click
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.more-btn') && !e.target.closest('.dropdown-menu')) {
+          closeAllDropdowns();
+        }
+      });
+
+      // Show delete confirmation modal
+      function showDeleteModal(taskName, taskDesc) {
+        deleteModalTaskName.textContent = taskName;
+        deleteModalTaskDesc.textContent = taskDesc;
+        deleteModal.classList.remove('opacity-0', 'pointer-events-none');
+        deleteModal.classList.add('opacity-100');
+        deleteModalBox.classList.remove('scale-95');
+        deleteModalBox.classList.add('scale-100');
+      }
+
+      // Hide delete confirmation modal
+      function hideDeleteModal() {
+        deleteModal.classList.remove('opacity-100');
+        deleteModal.classList.add('opacity-0', 'pointer-events-none');
+        deleteModalBox.classList.remove('scale-100');
+        deleteModalBox.classList.add('scale-95');
+      }
+
+      // Delete button in dropdown → show modal
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const taskItem = this.closest('.task-item');
+          const taskName = taskItem.dataset.taskName || '';
+          const taskDesc = taskItem.dataset.taskDesc || '';
+          closeAllDropdowns();
+          showDeleteModal(taskName, taskDesc);
+        });
+      });
+
+      // "いいえ" button → close modal
+      deleteNo.addEventListener('click', hideDeleteModal);
+
+      // "はい" button → close modal (display only, no actual deletion)
+      deleteYes.addEventListener('click', hideDeleteModal);
+
+      // Click overlay to close modal
+      deleteModal.addEventListener('click', function (e) {
+        if (e.target === deleteModal) {
+          hideDeleteModal();
+        }
+      });
+    })();
+  </script>
 </body>
 
 </html>
