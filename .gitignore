@@ -1,0 +1,6 @@
+#Firebase CLI logs
+firebase-debug.log
+firebase-debug.*.log
+
+#Firebase calhe
+./firebase
