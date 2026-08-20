@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="ja">
 
 <head>
@@ -220,14 +220,32 @@
       <span class="material-symbols-outlined text-[#ba1a1a]" style="font-size: 40px;">logout</span>
       <p class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface text-center">本当にログアウトしますか？</p>
       <div class="flex gap-4 w-full">
-        <button id="logout-no"
-          class="flex-1 py-3 px-6 rounded-full border-2 border-[#a0d8ef] text-on-surface font-label-bold text-label-bold hover:bg-[#a0d8ef]/10 transition-colors duration-200">
-          いいえ
-        </button>
         <button id="logout-yes"
           class="flex-1 py-3 px-6 rounded-full bg-[#ba1a1a] text-white font-label-bold text-label-bold hover:opacity-90 transition-opacity duration-200">
           はい
         </button>
+        <button id="logout-no"
+          class="flex-1 py-3 px-6 rounded-full border-2 border-[#a0d8ef] text-on-surface font-label-bold text-label-bold hover:bg-[#a0d8ef]/10 transition-colors duration-200">
+          いいえ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+    <div id="delete-modal-box" class="bg-[#f9f9f9] w-[90%] max-w-[400px] rounded-3xl border-2 border-[#a0d8ef] p-6 shadow-lg flex flex-col gap-6 transform scale-95 transition-transform duration-200">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-[#ba1a1a] text-[48px] mb-2">warning</span>
+        <p class="text-on-surface font-bold text-[18px]">本当に削除しますか？</p>
+        <div class="mt-4 p-4 bg-surface-container-low rounded-2xl border border-[#a0d8ef] text-left">
+          <p id="delete-modal-title" class="font-bold text-on-surface text-[16px] mb-1"></p>
+          <p id="delete-modal-desc" class="text-on-surface-variant text-[14px] opacity-80 leading-relaxed"></p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <button id="delete-modal-yes" class="flex-1 py-3 rounded-2xl bg-[#ff0000] text-[#ffffff] border-none font-label-bold cursor-pointer hover:opacity-90 transition-opacity">はい</button>
+        <button id="delete-modal-no" class="flex-1 py-3 rounded-2xl bg-[#f9f9f9] text-[#1e293b] border border-[#a0d8ef] font-label-bold cursor-pointer hover:bg-[#e2e2e2] transition-colors">いいえ</button>
       </div>
     </div>
   </div>
