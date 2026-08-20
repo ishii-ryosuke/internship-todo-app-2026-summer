@@ -130,8 +130,8 @@ function renderTasks(tasks) {
       <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
-        <div class="absolute -top-2 -left-2 bg-[#0000ff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
-          <span class="material-symbols-outlined text-[18px] text-[#ffffff] icon-filled">push_pin</span>
+        <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
+          <span class="material-symbols-outlined text-[18px] text-[#ff0000] icon-filled">push_pin</span>
         </div>
         ` : ''}
         <!-- Checkbox Button -->
@@ -177,7 +177,7 @@ function renderTasks(tasks) {
               data-id="${escapeHtml(task.id)}"
               data-pinned="true"
             >
-              <span class="material-symbols-outlined text-[18px]">keep_off</span>
+              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">keep_off</span>
               <span>ピンを外す</span>
             </button>
             ` : `
@@ -187,7 +187,7 @@ function renderTasks(tasks) {
               data-id="${escapeHtml(task.id)}"
               data-pinned="false"
             >
-              <span class="material-symbols-outlined text-[18px]">push_pin</span>
+              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">push_pin</span>
               <span>ピン留め</span>
             </button>
             `}

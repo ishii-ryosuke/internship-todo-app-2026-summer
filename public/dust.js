@@ -96,7 +96,7 @@ function renderTasks(tasks) {
             <span class="text-xs text-outline mt-1">削除日時: ${escapeHtml(formatDate(task.deletedAt))}</span>
           </div>
         </div>
-        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-bubble-blue text-on-primary-container rounded-full hover:opacity-80 transition-opacity active:scale-95">
+        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-[#a0d8ef] text-white rounded-full hover:bg-[#426ab3] transition-all duration-200 active:scale-95">
           <span class="material-symbols-outlined text-2xl">restore</span>
           <span class="font-label-bold">復元</span>
         </button>
@@ -148,7 +148,6 @@ if (restoreYes) {
         await updateDoc(taskDocRef, {
           isDeleted: false
         });
-        alert('メイン画面にタスクを移動しました。');
       } catch (err) {
         console.error("タスクの復元に失敗しました:", err);
         alert("復元に失敗しました。");

@@ -1,4 +1,4 @@
-﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -141,17 +141,9 @@ function updateSubmitButtonState() {
   if (isAllValid) {
     submitBtn.classList.remove("btn-inactive");
     submitBtn.classList.add("btn-active");
-    // CSSのキャッシュやTailwindの詳細度を確実に上書き
-    submitBtn.style.setProperty("background-color", "#0F1A45", "important");
-    submitBtn.style.setProperty("border-color", "#0F1A45", "important");
-    submitBtn.style.setProperty("color", "#ffffff", "important");
   } else {
     submitBtn.classList.remove("btn-active");
     submitBtn.classList.add("btn-inactive");
-    // 未完了時は #426AB3
-    submitBtn.style.setProperty("background-color", "#426AB3", "important");
-    submitBtn.style.setProperty("border-color", "#426AB3", "important");
-    submitBtn.style.setProperty("color", "#ffffff", "important");
   }
 }
 
