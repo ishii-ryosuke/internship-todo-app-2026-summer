@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -33,7 +33,7 @@
   <!-- Main Content -->
   <main
     class="flex-grow pt-header-height flex flex-col items-center justify-center px-container-margin w-full max-w-[800px] mx-auto pb-12 relative z-10">
-    <div class="w-full max-w-md bg-surface p-8 border-2 border-[#a0d8ef] rounded-3xl mt-8 mb-6 shadow-sm">
+    <div class="w-full max-w-md bg-[#f9f9f9] p-8 border-2 border-[#a0d8ef] rounded-3xl mt-8 mb-6 shadow-sm">
       <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-[#454558] mb-6 text-center">新規アカウント作成</h2>
 
       <form id="signup-form" class="flex flex-col gap-base" novalidate>
@@ -43,7 +43,7 @@
             メールアドレス <span class="text-error font-bold">*</span>
           </label>
           <input
-            class="border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 px-6 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200"
+            class="border-2 border-[#a0d8ef] bg-[#fff9c4] rounded-full text-[#1e293b] p-4 px-6 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
             id="email" name="email" placeholder="name@example.com" type="email" required autocomplete="email" />
           <p id="email-error" class="text-error text-xs mt-1.5 px-3 hidden font-medium"></p>
         </div>
@@ -56,7 +56,7 @@
           </label>
           <div class="relative flex items-center">
             <input
-              class="w-full border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 pl-6 pr-12 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200"
+              class="w-full border-2 border-[#a0d8ef] bg-[#fff9c4] rounded-full text-[#1e293b] p-4 pl-6 pr-12 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
               id="password" name="password" placeholder="••••••••" type="password" required
               autocomplete="new-password" />
             <button type="button" id="toggle-password"
@@ -75,7 +75,7 @@
           </label>
           <div class="relative flex items-center">
             <input
-              class="w-full border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 pl-6 pr-12 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200"
+              class="w-full border-2 border-[#a0d8ef] bg-[#fff9c4] rounded-full text-[#1e293b] p-4 pl-6 pr-12 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
               id="confirm-password" name="confirm-password" placeholder="••••••••" type="password" required
               autocomplete="new-password" />
             <button type="button" id="toggle-confirm-password"
@@ -95,7 +95,7 @@
             <span class="text-xs text-[#757589] font-normal">（任意）</span>
           </label>
           <input
-            class="border-2 border-[#a0d8ef] bg-[#fffacd] rounded-full text-[#454558] p-4 px-6 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#454558]/50 transition-all duration-200"
+            class="border-2 border-[#a0d8ef] bg-[#fff9c4] rounded-full text-[#1e293b] p-4 px-6 font-input-text text-input-text focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
             id="nickname" name="nickname" placeholder="ニックネームを入力" type="text" autocomplete="nickname" />
           <p id="nickname-error" class="text-error text-xs mt-1.5 px-3 hidden font-medium"></p>
         </div>
@@ -120,7 +120,7 @@
     <!-- Google Sign-in & Login Link Area (新規アカウント作成枠の下) -->
     <div class="w-full max-w-md flex flex-col items-center gap-4">
       <button id="google-signin-btn" type="button"
-        class="w-full bg-surface text-[#454558] border-2 border-[#a0d8ef] rounded-full font-label-bold text-label-bold min-h-[48px] px-6 py-3 hover:bg-primary-fixed active:scale-95 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+        class="w-full bg-[#f9f9f9] text-[#a0d8ef] border-2 border-[#a0d8ef] rounded-full font-label-bold text-label-bold min-h-[48px] px-6 py-3 hover:bg-[#426ab3] hover:text-white active:scale-95 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -139,7 +139,7 @@
       </button>
 
       <a href="login.html"
-        class="bg-pastel-blue text-white font-label-bold text-label-bold px-container-margin py-[12px] min-h-[48px] rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center w-full max-w-md mx-auto">
+        class="bg-[#a0d8ef] text-white font-label-bold text-label-bold px-container-margin py-[12px] min-h-[48px] rounded-lg hover:bg-[#426ab3] active:scale-95 transition-all duration-200 flex items-center justify-center w-full max-w-md mx-auto">
         アカウントをお持ちの方はこちら
       </a>
     </div>
