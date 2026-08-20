@@ -95,21 +95,71 @@ dueDateInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
+// Real-time formatting & strict limits for time input (HH:MM)
 dueTimeInput?.addEventListener("input", (e) => {
   hideInputError(dueDateError);
   hideGeneralError();
+
+  // Extract only digits
+  let raw = dueTimeInput.value.replace(/[^\d]/g, "");
+
+  if (!raw) {
+    dueTimeInput.value = "";
+    return;
+  }
+
+  // First digit of hour: if 3-9, automatically prefix with 0 (e.g. 3 -> 03:)
+  if (raw.length === 1) {
+    if (parseInt(raw, 10) > 2) {
+      dueTimeInput.value = `0${raw}:`;
+      return;
+    }
+    dueTimeInput.value = raw;
+    return;
+  }
+
+  // Hours (2 digits, max 23)
+  let hours = raw.slice(0, 2);
+  let hNum = parseInt(hours, 10);
+  if (hNum > 23) {
+    hours = "23";
+  }
+
+  // Minutes (up to 2 digits, max 59)
+  let minutes = "";
+  if (raw.length >= 3) {
+    let mRaw = raw.slice(2, 4);
+    // First minute digit cannot exceed 5
+    if (parseInt(mRaw[0], 10) > 5) {
+      mRaw = "5" + (mRaw.length > 1 ? mRaw[1] : "");
+    }
+    minutes = mRaw;
+  }
+
+  dueTimeInput.value = raw.length >= 2 ? `${hours}:${minutes}` : hours;
+});
+
+// Handle Backspace when cursor is after colon
+dueTimeInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Backspace") {
+    let val = dueTimeInput.value;
+    if (val.endsWith(":")) {
+      e.preventDefault();
+      dueTimeInput.value = val.slice(0, -1);
+    }
+  }
 });
 
 dueTimeInput?.addEventListener("blur", () => {
   let val = dueTimeInput.value.trim();
   if (!val) return;
-  // If user entered 4 digits without colon e.g. "1430"
-  if (/^\d{4}$/.test(val)) {
-    dueTimeInput.value = `${val.slice(0, 2)}:${val.slice(2)}`;
-  } else if (/^\d{3}$/.test(val)) { // e.g. "930" -> "09:30"
-    dueTimeInput.value = `0${val.slice(0, 1)}:${val.slice(1)}`;
-  } else if (/^(\d{1}):(\d{2})$/.test(val)) { // e.g. "9:30" -> "09:30"
-    dueTimeInput.value = `0${val}`;
+  // If user left e.g. "14:" or "9:" on blur, complete it nicely
+  if (/^(\d{1,2}):?$/.test(val)) {
+    let h = parseInt(val.replace(":", ""), 10);
+    h = Math.min(23, Math.max(0, h));
+    dueTimeInput.value = `${String(h).padStart(2, "0")}:00`;
+  } else if (/^(\d{1,2}):(\d{1})$/.test(val)) { // e.g. "14:3" -> "14:30"
+    dueTimeInput.value = `${val}0`;
   }
 });
 
@@ -152,15 +202,14 @@ taskForm?.addEventListener("submit", async (e) => {
   const dateVal = dueDateInput?.value || "";
   let timeVal = dueTimeInput?.value.trim() || "";
 
-  // Auto-format time before validation
-  if (/^\d{4}$/.test(timeVal)) {
-    timeVal = `${timeVal.slice(0, 2)}:${timeVal.slice(2)}`;
+  // Auto-complete time if 1-2 digits on submit
+  if (/^(\d{1,2}):?$/.test(timeVal)) {
+    let h = parseInt(timeVal.replace(":", ""), 10);
+    h = Math.min(23, Math.max(0, h));
+    timeVal = `${String(h).padStart(2, "0")}:00`;
     if (dueTimeInput) dueTimeInput.value = timeVal;
-  } else if (/^\d{3}$/.test(timeVal)) {
-    timeVal = `0${timeVal.slice(0, 1)}:${timeVal.slice(1)}`;
-    if (dueTimeInput) dueTimeInput.value = timeVal;
-  } else if (/^(\d{1}):(\d{2})$/.test(timeVal)) {
-    timeVal = `0${timeVal}`;
+  } else if (/^(\d{1,2}):(\d{1})$/.test(timeVal)) {
+    timeVal = `${timeVal}0`;
     if (dueTimeInput) dueTimeInput.value = timeVal;
   }
 
@@ -187,7 +236,7 @@ taskForm?.addEventListener("submit", async (e) => {
     showInputError(dueDateError, "期日の時間を入力してください（例: 14:00）。");
     hasError = true;
   } else if (!timeRegex.test(timeVal)) {
-    showInputError(dueDateError, "有効な時間（例: 14:00）を半角で入力してください。");
+    showInputError(dueDateError, "有効な時間（00:00〜23:59）を入力してください。");
     hasError = true;
   }
 
