@@ -409,7 +409,8 @@ onAuthStateChanged(auth, (user) => {
       // Combine arrays
       const sortedTasks = [...pinnedTasks, ...unpinnedTasks];
 
-      renderTasks(sortedTasks);
+      allTasks = sortedTasks;
+      renderTasks(allTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");
