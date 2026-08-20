@@ -82,6 +82,33 @@ function renderError(message) {
 }
 
 /**
+ * Render star rating for priority (1-3)
+ * @param {number|string} priority 
+ */
+function renderStars(priority) {
+  const p = parseInt(priority, 10) || 0;
+  if (p <= 0) return "";
+  let starsHtml = "";
+  for (let i = 1; i <= 3; i++) {
+    if (i <= p) {
+      starsHtml += `<span class="material-symbols-outlined text-[#FFC107] text-[16px] icon-filled" style="font-variation-settings: 'FILL' 1;">star</span>`;
+    } else {
+      starsHtml += `<span class="material-symbols-outlined text-[#d1d5db] text-[16px]">star</span>`;
+    }
+  }
+  return `<div class="flex items-center gap-0.5 flex-shrink-0" title="重要度: ${p}">${starsHtml}</div>`;
+}
+
+/**
+ * Format due date string nicely for display
+ * @param {string} dueDateStr 
+ */
+function formatDueDate(dueDateStr) {
+  if (!dueDateStr) return "";
+  return dueDateStr.replace("T", " ");
+}
+
+/**
  * Render the task items
  * @param {Array} tasks 
  */
@@ -116,13 +143,27 @@ function renderTasks(tasks) {
         </button>
 
         <!-- Task Content -->
-        <div class="flex-1 flex flex-col min-w-0">
-          <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
-            ${escapeHtml(task.title)}
+        <div class="flex-1 flex flex-col min-w-0 gap-1">
+          <!-- Title & Priority Stars -->
+          <div class="flex items-start justify-between gap-2">
+            <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
+              ${escapeHtml(task.title)}
+            </div>
+            ${task.priority ? renderStars(task.priority) : ''}
           </div>
+
+          <!-- Description -->
           ${task.description ? `
-            <div class="task-desc text-xs text-[#454558] mt-1 break-words opacity-80 whitespace-pre-wrap ${isDone ? 'line-through opacity-50' : ''}">
+            <div class="task-desc text-xs text-[#454558] break-words opacity-80 whitespace-pre-wrap ${isDone ? 'line-through opacity-50' : ''}">
               ${escapeHtml(task.description)}
+            </div>
+          ` : ''}
+
+          <!-- Due Date (期日) -->
+          ${task.dueDate ? `
+            <div class="flex items-center gap-1 text-[11px] text-[#426ab3] font-medium bg-[#a0d8ef]/30 px-2.5 py-0.5 rounded-full w-fit mt-1 ${isDone ? 'opacity-50' : ''}">
+              <span class="material-symbols-outlined text-[13px]">schedule</span>
+              <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}</span>
             </div>
           ` : ''}
         </div>
