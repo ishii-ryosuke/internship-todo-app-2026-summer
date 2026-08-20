@@ -158,6 +158,20 @@
                     <h2
                         class="font-headline-lg text-headline-lg md:font-headline-lg md:text-headline-lg text-on-surface">
                         ゴミ箱</h2>
+                    <div class="flex items-center gap-3">
+                        <!-- Select All Checkbox -->
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-medium text-on-surface-variant" id="select-all-label">
+                            <input type="checkbox" id="select-all-checkbox" class="w-4 h-4 accent-[#a0d8ef] cursor-pointer">
+                            全選択
+                        </label>
+                        <!-- Permanent Delete Button -->
+                        <button id="delete-selected-btn"
+                            class="flex items-center gap-1 px-4 py-2 bg-[#ba1a1a] text-white rounded-full font-label-bold text-sm hover:opacity-90 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                            disabled>
+                            <span class="material-symbols-outlined text-[18px]">delete_forever</span>
+                            <span>完全削除</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Trash List Container -->
@@ -219,6 +233,31 @@
                 <button id="restore-no"
                     class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
                     いいえ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permanent Delete Confirmation Modal -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200"
+        id="delete-modal">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/40" id="delete-modal-backdrop"></div>
+        <!-- Modal Container -->
+        <div id="delete-modal-box"
+            class="relative bg-surface-container-lowest w-full max-w-sm rounded-[32px] p-8 shadow-xl flex flex-col items-center border border-outline-variant gap-4 transform scale-95 transition-transform duration-200">
+            <span class="material-symbols-outlined text-[#ba1a1a]" style="font-size: 40px;">delete_forever</span>
+            <h3 class="font-display-header text-display-header text-on-surface text-center">完全削除の確認</h3>
+            <p id="delete-modal-message" class="text-sm text-on-surface-variant text-center"></p>
+            <p class="text-xs text-[#ba1a1a] font-medium text-center">この操作は元に戻せません。</p>
+            <div class="flex gap-4 w-full justify-center mt-2">
+                <button id="delete-cancel-btn"
+                    class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
+                    キャンセル
+                </button>
+                <button id="delete-confirm-btn"
+                    class="flex-1 max-w-[120px] py-3 px-6 rounded-full bg-[#ba1a1a] text-white font-label-bold hover:opacity-90 transition-opacity shadow-sm active:scale-95">
+                    削除
                 </button>
             </div>
         </div>
