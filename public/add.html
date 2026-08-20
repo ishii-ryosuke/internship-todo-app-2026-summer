@@ -11,39 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="login.css" />
   <script src="tailwind-config.js"></script>
   <style>
     .icon-filled {
       font-variation-settings: 'FILL' 1;
-    }
-
-    /* Decorative bubbles from login.css style */
-    .bubble-top-right {
-      position: fixed;
-      top: -50px;
-      right: -50px;
-      width: 300px;
-      height: 300px;
-      background-color: #a0d8ef;
-      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-      filter: blur(80px);
-      z-index: 0;
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .bubble-bottom-left {
-      position: fixed;
-      bottom: -50px;
-      left: -50px;
-      width: 400px;
-      height: 400px;
-      background-color: #fff59d;
-      border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
-      filter: blur(100px);
-      z-index: 0;
-      opacity: 0.7;
-      pointer-events: none;
     }
 
     /* Star rating */
@@ -74,8 +46,8 @@
 
 <body class="bg-white min-h-screen flex flex-col font-body-md text-body-md text-on-surface relative overflow-x-hidden pb-10">
   <!-- Decorative background bubbles -->
-  <div class="bubble-top-right"></div>
-  <div class="bubble-bottom-left"></div>
+  <div class="bubble-tr"></div>
+  <div class="bubble-bl"></div>
 
   <!-- TopAppBar -->
   <header
@@ -116,7 +88,9 @@
 
         <!-- Priority (Stars) -->
         <div class="flex flex-col gap-2">
-          <label class="font-label-bold text-label-bold text-[#454558] ml-1">重要度</label>
+          <label class="font-label-bold text-label-bold text-[#454558] ml-1">
+            重要度 <span class="text-error font-bold">*</span>
+          </label>
           <div class="flex gap-2 px-1" id="star-container">
             <button class="star-btn" type="button" data-value="1" aria-label="重要度1">
               <span class="material-symbols-outlined">star</span>
@@ -129,17 +103,22 @@
             </button>
           </div>
           <input type="hidden" id="priority" name="priority" value="0" />
+          <p id="priority-error" class="text-error text-xs mt-0.5 px-2 hidden font-medium"></p>
         </div>
 
         <!-- Due Date -->
         <div class="flex flex-col gap-2">
-          <label class="font-label-bold text-label-bold text-[#454558] ml-1" for="due-date">期日</label>
+          <label class="font-label-bold text-label-bold text-[#454558] ml-1" for="due-date">
+            期日 <span class="text-error font-bold">*</span>
+          </label>
           <input
             class="w-full bg-[#fff9c4] border border-[#a0d8ef] focus:ring-2 focus:ring-[#a0d8ef] focus:border-transparent rounded-xl px-4 py-3 font-input-text text-input-text text-on-surface outline-none transition-shadow duration-200"
             id="due-date"
             name="due-date"
-            type="date"
+            type="datetime-local"
+            required
           />
+          <p id="due-date-error" class="text-error text-xs mt-0.5 px-2 hidden font-medium"></p>
         </div>
 
         <!-- Task Description -->
@@ -254,6 +233,7 @@
         });
         currentRating = rating;
         priorityInput.value = rating;
+        priorityInput.dispatchEvent(new Event('change'));
       }
 
       stars.forEach((btn) => {

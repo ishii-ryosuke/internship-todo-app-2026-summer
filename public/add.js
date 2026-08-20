@@ -20,6 +20,8 @@ const dueDateInput = document.getElementById("due-date");
 const priorityInput = document.getElementById("priority");
 const taskNameError = document.getElementById("task-name-error");
 const taskDescError = document.getElementById("task-desc-error");
+const priorityError = document.getElementById("priority-error");
+const dueDateError = document.getElementById("due-date-error");
 const generalError = document.getElementById("general-error");
 const cancelBtn = document.getElementById("cancel-btn");
 const addTaskBtn = document.getElementById("add-task-btn");
@@ -82,6 +84,16 @@ taskNameInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
+priorityInput?.addEventListener("change", () => {
+  hideInputError(priorityError);
+  hideGeneralError();
+});
+
+dueDateInput?.addEventListener("input", () => {
+  hideInputError(dueDateError);
+  hideGeneralError();
+});
+
 taskDescInput?.addEventListener("input", () => {
   hideInputError(taskDescError);
   hideGeneralError();
@@ -110,6 +122,8 @@ function setLoading(isLoading) {
 taskForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   hideInputError(taskNameError);
+  hideInputError(priorityError);
+  hideInputError(dueDateError);
   hideInputError(taskDescError);
   hideGeneralError();
 
@@ -126,7 +140,19 @@ taskForm?.addEventListener("submit", async (e) => {
     hasError = true;
   }
 
-  // 2. Validation: Task Description
+  // 2. Validation: Priority
+  if (!priority || priority === 0) {
+    showInputError(priorityError, "重要度を選択してください。");
+    hasError = true;
+  }
+
+  // 3. Validation: Due Date
+  if (!dueDate) {
+    showInputError(dueDateError, "期日と時間を設定してください。");
+    hasError = true;
+  }
+
+  // 4. Validation: Task Description
   if (!description) {
     showInputError(taskDescError, "内容を入力してください。");
     hasError = true;
