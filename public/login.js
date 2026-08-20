@@ -1,4 +1,4 @@
-// Firebase Authentication & Firestore Login Logic
+﻿// Firebase Authentication & Firestore Login Logic
 import { auth, db } from "./firebase-config.js";
 import {
   signInWithEmailAndPassword,
@@ -125,8 +125,8 @@ if (loginForm) {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       // Firestore users コレクションを参照
       await checkFirestoreUser(userCredential.user);
-      // ホーム画面 (page3.html) へ遷移
-      window.location.href = "page3.html";
+      // ホーム画面 (main.html) へ遷移
+      window.location.href = "main.html";
     } catch (error) {
       console.error("Login error:", error);
       if (btnLogin) btnLogin.disabled = false;
@@ -144,7 +144,7 @@ if (btnGoogleLogin) {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       await checkFirestoreUser(userCredential.user);
-      window.location.href = "page3.html";
+      window.location.href = "main.html";
     } catch (error) {
       console.error("Google login error:", error);
       if (error.code !== "auth/popup-closed-by-user") {

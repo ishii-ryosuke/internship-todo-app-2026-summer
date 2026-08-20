@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -271,8 +271,8 @@ signupForm?.addEventListener("submit", async (e) => {
     // Firestoreユーザーデータベースに保存
     await saveUserToFirestore(user, nickname, "password");
 
-    // 登録完了後、即座にpage3.htmlへリダイレクト
-    window.location.href = "page3.html";
+    // 登録完了後、即座にmain.htmlへリダイレクト
+    window.location.href = "main.html";
   } catch (error) {
     console.error("Signup error:", error);
     const message = getFriendlyErrorMessage(error.code);
@@ -304,8 +304,8 @@ googleSignInBtn?.addEventListener("click", async () => {
     // Firestoreユーザーデータベースに保存
     await saveUserToFirestore(user, user.displayName || "", "google.com");
 
-    // 登録完了後、即座にpage3.htmlへリダイレクト
-    window.location.href = "page3.html";
+    // 登録完了後、即座にmain.htmlへリダイレクト
+    window.location.href = "main.html";
   } catch (error) {
     console.error("Google signin error:", error);
     const message = getFriendlyErrorMessage(error.code);

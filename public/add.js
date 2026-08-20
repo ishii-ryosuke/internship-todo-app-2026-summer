@@ -1,5 +1,5 @@
-// ==========================================================================
-// Task Creation Logic (page4.js)
+﻿// ==========================================================================
+// Task Creation Logic (add.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
 import { 
@@ -85,9 +85,9 @@ taskDescInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
-// Cancel button click -> Navigate back to page3.html
+// Cancel button click -> Navigate back to main.html
 cancelBtn?.addEventListener("click", () => {
-  window.location.href = "page3.html";
+  window.location.href = "main.html";
 });
 
 /**
@@ -159,8 +159,8 @@ taskForm?.addEventListener("submit", async (e) => {
 
     await setDoc(newTaskDocRef, taskData);
 
-    // 5. Navigate to task list (page3.html) upon success
-    window.location.href = "page3.html";
+    // 5. Navigate to task list (main.html) upon success
+    window.location.href = "main.html";
   } catch (error) {
     console.error("タスクの追加に失敗しました:", error);
     showGeneralError(`タスクの保存中にエラーが発生しました: ${error.message || "通信エラー"}`);
