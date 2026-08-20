@@ -7,7 +7,8 @@
   <title>タスク編集 - TODO</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
   <script src="tailwind-config.js"></script>
   <link rel="stylesheet" href="taskedit.css" />
 </head>
@@ -16,15 +17,20 @@
 
   <!-- Decorative Blobs -->
   <svg class="blob blob-tr" fill="currentColor" viewBox="0 0 100 100" aria-hidden="true">
-    <path d="M50,10 C22.4,10 0,27.9 0,50 C0,72.1 22.4,90 50,90 C57.8,90 65.2,88.7 71.9,86.4 L90,95 L85.5,77 C94.4,69.9 100,60.5 100,50 C100,27.9 77.6,10 50,10 Z"></path>
+    <path
+      d="M50,10 C22.4,10 0,27.9 0,50 C0,72.1 22.4,90 50,90 C57.8,90 65.2,88.7 71.9,86.4 L90,95 L85.5,77 C94.4,69.9 100,60.5 100,50 C100,27.9 77.6,10 50,10 Z">
+    </path>
   </svg>
   <svg class="blob blob-bl" fill="currentColor" viewBox="0 0 100 100" aria-hidden="true">
-    <path d="M50,10 C77.6,10 100,27.9 100,50 C100,72.1 77.6,90 50,90 C42.2,90 34.8,88.7 28.1,86.4 L10,95 L14.5,77 C5.6,69.9 0,60.5 0,50 C0,27.9 22.4,10 50,10 Z"></path>
+    <path
+      d="M50,10 C77.6,10 100,27.9 100,50 C100,72.1 77.6,90 50,90 C42.2,90 34.8,88.7 28.1,86.4 L10,95 L14.5,77 C5.6,69.9 0,60.5 0,50 C0,27.9 22.4,10 50,10 Z">
+    </path>
   </svg>
 
   <!-- TopAppBar -->
-  <header class="bg-[#a0d8ef] h-header-height w-full flex items-center justify-center px-container-margin shrink-0 relative z-10">
-    <a href="page3.html" class="absolute left-4 flex items-center text-white hover:opacity-80 transition-opacity">
+  <header
+    class="bg-[#a0d8ef] h-header-height w-full flex items-center justify-center px-container-margin shrink-0 relative z-10">
+    <a href="main.html" class="absolute left-4 flex items-center text-white hover:opacity-80 transition-opacity">
       <span class="material-symbols-outlined text-[28px]" style="color: #FFF100;">arrow_back</span>
     </a>
     <h1 class="font-display-header text-display-header" style="color: #FFF100;">TODO</h1>
@@ -37,8 +43,10 @@
     <div id="statusMessage" class="hidden px-4 py-3 rounded-lg text-sm font-medium text-center" role="alert"></div>
 
     <!-- 編集カード -->
-    <div class="bg-surface-container-lowest p-container-margin rounded-xl border-2 border-bubble-blue flex flex-col gap-stack-gap">
-      <h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary text-center">
+    <div
+      class="bg-surface-container-lowest p-container-margin rounded-xl border-2 border-bubble-blue flex flex-col gap-stack-gap">
+      <h2
+        class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary text-center">
         タスク編集
       </h2>
 
@@ -51,12 +59,7 @@
           </label>
           <input
             class="w-full bg-[#fff9c4] border-2 border-bubble-blue p-input-padding font-input-text text-input-text text-on-surface placeholder:text-on-surface/50 outline-none rounded-lg transition-all duration-200 focus:ring-2 focus:ring-primary-container"
-            id="taskName"
-            name="taskName"
-            placeholder="タスク名を入力"
-            type="text"
-            required
-          />
+            id="taskName" name="taskName" placeholder="タスク名を入力" type="text" required />
           <p id="taskNameError" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
         </div>
 
@@ -67,27 +70,19 @@
           </label>
           <textarea
             class="w-full bg-[#fff9c4] border-2 border-bubble-blue p-input-padding font-body-md text-body-md text-on-surface placeholder:text-on-surface/50 outline-none rounded-lg transition-all duration-200 focus:ring-2 focus:ring-primary-container resize-none"
-            id="taskContent"
-            name="taskContent"
-            rows="6"
-            placeholder="タスクの詳細を入力（任意）"
-          ></textarea>
+            id="taskContent" name="taskContent" rows="6" placeholder="タスクの詳細を入力（任意）"></textarea>
         </div>
 
         <!-- ボタン群 -->
         <div class="flex justify-end gap-4 mt-4">
-          <button
-            id="btnCancel"
+          <button id="btnCancel"
             class="px-6 py-3 rounded-full border-2 border-outline text-outline font-label-bold text-label-bold hover:bg-surface-variant transition-colors active:scale-95 duration-200"
-            type="button"
-          >
+            type="button">
             キャンセル
           </button>
-          <button
-            id="btnSave"
+          <button id="btnSave"
             class="px-8 py-3 rounded-full bg-[#a0d8ef] text-white font-label-bold text-label-bold hover:opacity-90 transition-opacity active:scale-95 duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            type="submit"
-          >
+            type="submit">
             <span id="btnSaveText">変更を保存</span>
             <span class="material-symbols-outlined text-[18px]">save</span>
           </button>
@@ -101,20 +96,26 @@
   </main>
 
   <!-- BottomNavBar -->
-  <nav class="fixed bottom-0 w-full rounded-t-lg z-50 bg-surface/90 shadow-[0_-4px_20px_0_rgba(160,216,239,0.15)] flex justify-around items-center px-4 py-3 pb-6 md:hidden" aria-label="ボトムナビゲーション">
-    <a href="page3.html" class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
+  <nav
+    class="fixed bottom-0 w-full rounded-t-lg z-50 bg-surface/90 shadow-[0_-4px_20px_0_rgba(160,216,239,0.15)] flex justify-around items-center px-4 py-3 pb-6 md:hidden"
+    aria-label="ボトムナビゲーション">
+    <a href="main.html"
+      class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
       <span class="material-symbols-outlined">checklist</span>
       <span class="font-label-bold text-[10px] mt-1">Tasks</span>
     </a>
-    <a href="#" class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
+    <a href="#"
+      class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
       <span class="material-symbols-outlined">calendar_today</span>
       <span class="font-label-bold text-[10px] mt-1">Calendar</span>
     </a>
-    <a href="#" class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
+    <a href="#"
+      class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
       <span class="material-symbols-outlined">timer</span>
       <span class="font-label-bold text-[10px] mt-1">Focus</span>
     </a>
-    <a href="page4.html" class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
+    <a href="page4.html"
+      class="flex flex-col items-center justify-center text-outline p-2 hover:text-primary transition-colors active:scale-90 duration-200 cursor-pointer">
       <span class="material-symbols-outlined">settings</span>
       <span class="font-label-bold text-[10px] mt-1">Settings</span>
     </a>

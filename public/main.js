@@ -2,17 +2,18 @@
 // Task List Display Logic (main.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
-import { 
-  onAuthStateChanged 
+import {
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  doc, 
-  updateDoc, 
-  deleteDoc 
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const taskListContainer = document.getElementById("task-list");
@@ -25,15 +26,15 @@ const taskListContainer = document.getElementById("task-list");
 let currentFilter = "incomplete";
 let allTasks = [];
 
-const filterBtn      = document.getElementById("filter-btn");
-const filterLabel    = document.getElementById("filter-label");
-const filterChevron  = document.getElementById("filter-chevron");
+const filterBtn = document.getElementById("filter-btn");
+const filterLabel = document.getElementById("filter-label");
+const filterChevron = document.getElementById("filter-chevron");
 const filterDropdown = document.getElementById("filter-dropdown");
 
 const FILTER_LABELS = {
   incomplete: "未完了",
-  completed:  "完了済み",
-  all:        "すべて表示"
+  completed: "完了済み",
+  all: "すべて表示"
 };
 
 /** フィルター条件に応じてタスクを絞り込む */
@@ -46,6 +47,14 @@ function applyFilter(tasks) {
   }
   return tasks; // all
 }
+// Delete modal elements
+const deleteModalOverlay = document.getElementById("delete-modal-overlay");
+const deleteModalBox = document.getElementById("delete-modal-box");
+const deleteModalTitle = document.getElementById("delete-modal-title");
+const deleteModalDesc = document.getElementById("delete-modal-desc");
+const deleteModalYes = document.getElementById("delete-modal-yes");
+const deleteModalNo = document.getElementById("delete-modal-no");
+let taskToDeleteId = null;
 
 // Helper function to safely escape HTML
 function escapeHtml(str) {
@@ -118,7 +127,13 @@ function renderTasks(tasks) {
   taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
     return `
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md" data-task-id="${escapeHtml(task.id)}">
+      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
+        <!-- Pin Icon -->
+        ${task.isPinned ? `
+        <div class="absolute -top-2 -left-2 bg-[#0000ff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
+          <span class="material-symbols-outlined text-[18px] text-[#ffffff] icon-filled">push_pin</span>
+        </div>
+        ` : ''}
         <!-- Checkbox Button -->
         <button
           type="button"
@@ -143,16 +158,59 @@ function renderTasks(tasks) {
           ` : ''}
         </div>
 
-        <!-- Delete Action Button -->
-        <button
-          type="button"
-          class="task-delete-btn text-[#757589] hover:text-[#ba1a1a] p-1 rounded-full opacity-40 hover:opacity-100 transition-all cursor-pointer flex-shrink-0"
-          data-id="${escapeHtml(task.id)}"
-          aria-label="タスクを削除"
-          title="タスクを削除"
-        >
-          <span class="material-symbols-outlined text-[20px]">delete</span>
-        </button>
+        <!-- Menu Button (3-dot leader) -->
+        <div class="relative task-menu-container flex-shrink-0">
+          <button
+            type="button"
+            class="task-menu-btn text-[#426ab3] hover:opacity-70 transition-opacity flex items-center justify-center p-2 rounded-full cursor-pointer"
+            aria-label="メニュー"
+          >
+            <span class="material-symbols-outlined text-[24px]">more_vert</span>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="task-dropdown-menu absolute right-0 top-full mt-1 bg-[#f9f9f9] border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[120px] hidden">
+            ${task.isPinned ? `
+            <button
+              type="button"
+              class="task-pin-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              data-id="${escapeHtml(task.id)}"
+              data-pinned="true"
+            >
+              <span class="material-symbols-outlined text-[18px]">keep_off</span>
+              <span>ピンを外す</span>
+            </button>
+            ` : `
+            <button
+              type="button"
+              class="task-pin-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              data-id="${escapeHtml(task.id)}"
+              data-pinned="false"
+            >
+              <span class="material-symbols-outlined text-[18px]">push_pin</span>
+              <span>ピン留め</span>
+            </button>
+            `}
+            <button
+              type="button"
+              class="task-edit-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              data-id="${escapeHtml(task.id)}"
+            >
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+              <span>編集</span>
+            </button>
+            <button
+              type="button"
+              class="task-delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer"
+              data-id="${escapeHtml(task.id)}"
+              data-title="${escapeHtml(task.title)}"
+              data-desc="${escapeHtml(task.description || '')}"
+            >
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              <span>削除</span>
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }).join("");
@@ -176,19 +234,122 @@ function renderTasks(tasks) {
 
   // Attach event listeners to delete buttons
   taskListContainer.querySelectorAll(".task-delete-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      // 削除実行時にメニューを閉じる
+      const menu = btn.closest('.task-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+
+      const taskId = btn.getAttribute("data-id");
+      const taskTitle = btn.getAttribute("data-title");
+      const taskDesc = btn.getAttribute("data-desc");
+
+      showDeleteModal(taskTitle, taskDesc, taskId);
+    });
+  });
+
+  // Attach event listeners to edit buttons
+  taskListContainer.querySelectorAll(".task-edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = btn.closest('.task-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+
+      const taskId = btn.getAttribute("data-id");
+      window.location.href = `taskedit.html?docId=${encodeURIComponent(taskId)}`;
+    });
+  });
+
+  // Attach event listeners to pin buttons
+  taskListContainer.querySelectorAll(".task-pin-btn").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
+      const menu = btn.closest('.task-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+
       const taskId = btn.getAttribute("data-id");
-      if (!confirm("このタスクを削除しますか？")) {
-        return;
-      }
+      const isPinned = btn.getAttribute("data-pinned") === "true";
+
       try {
         const taskDocRef = doc(db, "tasks", taskId);
-        await deleteDoc(taskDocRef);
+        await updateDoc(taskDocRef, {
+          isPinned: !isPinned,
+          pinnedAt: !isPinned ? serverTimestamp() : null
+        });
       } catch (err) {
-        console.error("タスクの削除に失敗しました:", err);
+        console.error("タスクのピン留めに失敗しました:", err);
       }
     });
+  });
+
+  // Attach event listeners to menu buttons
+  taskListContainer.querySelectorAll(".task-menu-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Close all other open menus
+      taskListContainer.querySelectorAll(".task-dropdown-menu").forEach(menu => {
+        if (menu !== btn.nextElementSibling) {
+          menu.classList.add("hidden");
+        }
+      });
+      // Toggle this menu
+      const dropdown = btn.nextElementSibling;
+      dropdown.classList.toggle("hidden");
+    });
+  });
+}
+
+// Close menus when clicking outside
+document.addEventListener("click", (e) => {
+  if (!e.target.closest('.task-menu-container') && taskListContainer) {
+    taskListContainer.querySelectorAll(".task-dropdown-menu").forEach(menu => {
+      menu.classList.add("hidden");
+    });
+  }
+});
+
+// Delete Modal Logic
+function showDeleteModal(title, desc, taskId) {
+  if (!deleteModalOverlay) return;
+  taskToDeleteId = taskId;
+  deleteModalTitle.textContent = title;
+
+  if (desc) {
+    deleteModalDesc.textContent = desc;
+    deleteModalDesc.style.display = 'block';
+  } else {
+    deleteModalDesc.style.display = 'none';
+  }
+
+  deleteModalOverlay.classList.remove("opacity-0", "pointer-events-none");
+  deleteModalBox.classList.remove("scale-95");
+}
+
+function hideDeleteModal() {
+  if (!deleteModalOverlay) return;
+  taskToDeleteId = null;
+  deleteModalOverlay.classList.add("opacity-0", "pointer-events-none");
+  deleteModalBox.classList.add("scale-95");
+}
+
+if (deleteModalNo) {
+  deleteModalNo.addEventListener("click", hideDeleteModal);
+}
+if (deleteModalYes) {
+  deleteModalYes.addEventListener("click", async () => {
+    if (!taskToDeleteId) return;
+    try {
+      const taskDocRef = doc(db, "tasks", taskToDeleteId);
+      await updateDoc(taskDocRef, {
+        isDeleted: true,
+        deletedAt: serverTimestamp()
+      });
+      hideDeleteModal();
+    } catch (err) {
+      console.error("タスクの削除に失敗しました:", err);
+      alert("削除に失敗しました。");
+    }
   });
 }
 
@@ -224,15 +385,31 @@ onAuthStateChanged(auth, (user) => {
         });
       });
 
-      // Sort client-side: newest first (or by createdAt desc)
-      tasks.sort((a, b) => {
+      // Filter out deleted tasks
+      const activeTasks = tasks.filter(task => !task.isDeleted);
+
+      // Separate into pinned and unpinned
+      const pinnedTasks = activeTasks.filter(task => task.isPinned);
+      const unpinnedTasks = activeTasks.filter(task => !task.isPinned);
+
+      // Sort pinned: newest pinned first
+      pinnedTasks.sort((a, b) => {
+        const timeA = a.pinnedAt?.toMillis ? a.pinnedAt.toMillis() : (a.pinnedAt?.seconds ? a.pinnedAt.seconds * 1000 : 0);
+        const timeB = b.pinnedAt?.toMillis ? b.pinnedAt.toMillis() : (b.pinnedAt?.seconds ? b.pinnedAt.seconds * 1000 : 0);
+        return timeB - timeA;
+      });
+
+      // Sort unpinned: newest created first
+      unpinnedTasks.sort((a, b) => {
         const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
         const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
         return timeB - timeA;
       });
 
-      allTasks = tasks;
-      renderTasks(allTasks);
+      // Combine arrays
+      const sortedTasks = [...pinnedTasks, ...unpinnedTasks];
+
+      renderTasks(sortedTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");

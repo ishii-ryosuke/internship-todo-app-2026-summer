@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="utf-8">
@@ -154,9 +154,7 @@
             <a href="main.html" class="font-display-header text-display-header text-[#0000ff] cursor-pointer font-bold tracking-wider" style="color: rgb(240, 230, 140);">TODO</a>
         </div>
         <div class="flex items-center justify-end">
-            <button class="hover:opacity-80 transition-opacity active:scale-95 transition-transform p-2 rounded-full flex items-center justify-center text-[#0000ff]">
-                <span class="material-symbols-outlined icon-filled" style="font-size: 28px;">account_circle</span>
-            </button>
+            <!-- Account circle removed as requested -->
         </div>
     </header>
 
@@ -171,50 +169,17 @@
                 </div>
 
                 <!-- Trash List Container -->
-                <div class="flex flex-col gap-4">
-                    <!-- Trash Item 1 -->
-                    <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative" data-task-name="牛乳を買う" data-task-desc="仕事帰りにスーパーで低脂肪乳を購入する。">
-                        <div class="flex items-start gap-3 flex-1">
-                            <div class="flex flex-col">
-                                <span class="font-body-md text-body-md text-on-surface line-through opacity-70">牛乳を買う</span>
-                                <span class="text-xs text-outline mt-1">削除日時: 2023/10/26 14:30</span>
-                            </div>
-                        </div>
-                        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-bubble-blue text-on-primary-container rounded-full hover:opacity-80 transition-opacity active:scale-95">
-                            <span class="material-symbols-outlined text-2xl">restore</span>
-                            <span class="font-label-bold">復元</span>
-                        </button>
-                    </div>
-                    <!-- Trash Item 2 -->
-                    <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative" data-task-name="企画書を提出する" data-task-desc="来期のマーケティング施策についての企画書を提出する。">
-                        <div class="flex items-start gap-3 flex-1">
-                            <div class="flex flex-col">
-                                <span class="font-body-md text-body-md text-on-surface line-through opacity-70">企画書を提出する</span>
-                                <span class="text-xs text-outline mt-1">削除日時: 2023/10/25 09:15</span>
-                            </div>
-                        </div>
-                        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-bubble-blue text-on-primary-container rounded-full hover:opacity-80 transition-opacity active:scale-95">
-                            <span class="material-symbols-outlined text-2xl">restore</span>
-                            <span class="font-label-bold">復元</span>
-                        </button>
-                    </div>
-                    <!-- Trash Item 3 -->
-                    <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative" data-task-name="歯医者の予約" data-task-desc="定期検診のために歯医者に予約の電話を入れる。">
-                        <div class="flex items-start gap-3 flex-1">
-                            <div class="flex flex-col">
-                                <span class="font-body-md text-body-md text-on-surface line-through opacity-70">歯医者の予約</span>
-                                <span class="text-xs text-outline mt-1">削除日時: 2023/10/20 18:00</span>
-                            </div>
-                        </div>
-                        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-bubble-blue text-on-primary-container rounded-full hover:opacity-80 transition-opacity active:scale-95">
-                            <span class="material-symbols-outlined text-2xl">restore</span>
-                            <span class="font-label-bold">復元</span>
-                        </button>
-                    </div>
+                <div id="trash-list" class="flex flex-col gap-4">
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Back to Main Button -->
+    <a href="main.html" aria-label="メインに戻る" class="fixed bottom-[104px] left-4 md:left-container-margin bg-[#a0d8ef] text-white rounded-full px-6 py-4 shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer flex items-center gap-2">
+        <span class="material-symbols-outlined text-[24px]">arrow_back</span>
+        <span class="font-label-bold">メインに戻る</span>
+    </a>
 
     <!-- BottomNavBar (Mobile) -->
     <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
@@ -244,71 +209,19 @@
                 <span id="restore-modal-task-desc" class="text-xs text-outline mt-2"></span>
             </div>
             <div class="flex gap-4 w-full justify-center mt-2">
-                <!-- No Button -->
-                <button id="restore-no" class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
-                    いいえ
-                </button>
-                <!-- Yes Button -->
+                <!-- Yes Button (Swapped to Left) -->
                 <button id="restore-yes" class="flex-1 max-w-[120px] py-3 px-6 rounded-full bg-bubble-blue text-on-primary-container font-label-bold hover:opacity-90 transition-opacity shadow-sm active:scale-95">
                     はい
+                </button>
+                <!-- No Button (Swapped to Right) -->
+                <button id="restore-no" class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
+                    いいえ
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Logic -->
-    <script>
-        (function() {
-            const restoreModal = document.getElementById('restore-modal');
-            const restoreModalBox = document.getElementById('restore-modal-box');
-            const restoreModalBackdrop = document.getElementById('restore-modal-backdrop');
-            const restoreModalTaskName = document.getElementById('restore-modal-task-name');
-            const restoreModalTaskDesc = document.getElementById('restore-modal-task-desc');
-            const restoreNo = document.getElementById('restore-no');
-            const restoreYes = document.getElementById('restore-yes');
-            
-            let taskToRestore = null;
-
-            function showModal(taskName, taskDesc) {
-                restoreModalTaskName.textContent = taskName;
-                restoreModalTaskDesc.textContent = taskDesc;
-                restoreModal.classList.remove('opacity-0', 'pointer-events-none');
-                restoreModal.classList.add('opacity-100');
-                restoreModalBox.classList.remove('scale-95');
-                restoreModalBox.classList.add('scale-100');
-            }
-
-            function hideModal() {
-                restoreModal.classList.remove('opacity-100');
-                restoreModal.classList.add('opacity-0', 'pointer-events-none');
-                restoreModalBox.classList.remove('scale-100');
-                restoreModalBox.classList.add('scale-95');
-                taskToRestore = null;
-            }
-
-            document.querySelectorAll('.restore-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const taskItem = this.closest('.task-item');
-                    taskToRestore = taskItem;
-                    const taskName = taskItem.dataset.taskName || '';
-                    const taskDesc = taskItem.dataset.taskDesc || '';
-                    showModal(taskName, taskDesc);
-                });
-            });
-
-            restoreNo.addEventListener('click', hideModal);
-            
-            restoreModalBackdrop.addEventListener('click', hideModal);
-
-            restoreYes.addEventListener('click', function() {
-                if (taskToRestore) {
-                    taskToRestore.remove(); // Remove from DOM to simulate restore
-                    alert('メイン画面にタスクを移動しました。');
-                }
-                hideModal();
-            });
-        })();
-    </script>
+    <script type="module" src="dust.js?v=1"></script>
 </body>
 </html>
