@@ -1,4 +1,4 @@
-﻿// ==========================================================================
+// ==========================================================================
 // Task Creation Logic (add.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
@@ -16,6 +16,8 @@ import {
 const taskForm = document.getElementById("task-form");
 const taskNameInput = document.getElementById("task-name");
 const taskDescInput = document.getElementById("task-desc");
+const dueDateInput = document.getElementById("due-date");
+const priorityInput = document.getElementById("priority");
 const taskNameError = document.getElementById("task-name-error");
 const taskDescError = document.getElementById("task-desc-error");
 const generalError = document.getElementById("general-error");
@@ -113,6 +115,8 @@ taskForm?.addEventListener("submit", async (e) => {
 
   const title = taskNameInput?.value.trim() || "";
   const description = taskDescInput?.value.trim() || "";
+  const priority = parseInt(priorityInput?.value || "0", 10);
+  const dueDate = dueDateInput?.value || null;
 
   let hasError = false;
 
@@ -124,7 +128,7 @@ taskForm?.addEventListener("submit", async (e) => {
 
   // 2. Validation: Task Description
   if (!description) {
-    showInputError(taskDescError, "タスク内容を入力してください。");
+    showInputError(taskDescError, "内容を入力してください。");
     hasError = true;
   }
 
@@ -153,6 +157,8 @@ taskForm?.addEventListener("submit", async (e) => {
       userId: currentUser.uid,
       title: title,
       description: description,
+      priority: priority,          // 0=未設定, 1=低, 2=中, 3=高
+      dueDate: dueDate,            // "YYYY-MM-DD" or null
       isCompleted: false,
       createdAt: serverTimestamp()
     };

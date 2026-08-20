@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>TODO - タスク追加 (画面4)</title>
+  <title>TODO - タスク作成</title>
   <meta name="description" content="TODO Web Application - タスク追加画面" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,20 +12,67 @@
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
   <script src="tailwind-config.js"></script>
-  <link rel="stylesheet" href="create.css?v=4" />
   <style>
     .icon-filled {
       font-variation-settings: 'FILL' 1;
     }
-    .input-focus-ring:focus {
-      outline: none;
-      border-width: 3px !important;
-      border-color: #0000ff !important;
+
+    /* Decorative bubbles from login.css style */
+    .bubble-top-right {
+      position: fixed;
+      top: -50px;
+      right: -50px;
+      width: 300px;
+      height: 300px;
+      background-color: #a0d8ef;
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      filter: blur(80px);
+      z-index: 0;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .bubble-bottom-left {
+      position: fixed;
+      bottom: -50px;
+      left: -50px;
+      width: 400px;
+      height: 400px;
+      background-color: #fff59d;
+      border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+      filter: blur(100px);
+      z-index: 0;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Star rating */
+    .star-btn {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      color: #d1d5db;
+    }
+    .star-btn:hover,
+    .star-btn.active {
+      color: #FFC107;
+      transform: scale(1.15);
+    }
+    .star-btn .material-symbols-outlined {
+      font-size: 36px;
+    }
+    .star-btn.active .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1;
+    }
+
+    /* Date input styling */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.6;
+      cursor: pointer;
     }
   </style>
 </head>
 
-<body class="bg-background min-h-screen flex flex-col font-body-md text-body-md text-on-surface relative overflow-x-hidden" style="background-color: rgb(255, 255, 255);">
+<body class="bg-white min-h-screen flex flex-col font-body-md text-body-md text-on-surface relative overflow-x-hidden pb-10">
   <!-- Decorative background bubbles -->
   <div class="bubble-top-right"></div>
   <div class="bubble-bottom-left"></div>
@@ -34,8 +81,7 @@
   <header
     class="bg-pastel-blue h-header-height w-full flex items-center justify-center px-4 md:px-container-margin fixed top-0 left-0 z-50 shadow-sm">
     <!-- Brand / Title -->
-    <a href="login.html" class="font-display-header text-display-header text-white" style="color: #FFF100;">TODO</a>
-
+    <a href="login.html" class="font-display-header text-display-header" style="color: #FFF100;">TODO</a>
     <!-- Trailing Action -->
     <button
       id="account-btn"
@@ -45,64 +91,92 @@
     </button>
   </header>
 
-  <!-- Main Content Canvas -->
+  <!-- Main Content -->
   <main class="flex-grow pt-header-height flex flex-col items-center justify-center px-container-margin w-full max-w-[800px] mx-auto py-10 relative z-10">
-    <div class="w-full bg-surface p-6 sm:p-8 border-2 border-[#a0d8ef] rounded-3xl shadow-sm">
-      <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-[#454558] mb-6 text-center">タスク新規追加</h2>
-      
-      <!-- Input Form -->
+    <!-- Task Creation Card -->
+    <div class="w-full max-w-[500px] bg-white border border-[#a0d8ef]/50 rounded-[32px] p-6 sm:p-8 shadow-[0_30px_60px_-15px_rgba(160,216,239,0.2)]">
+
       <form id="task-form" class="flex flex-col gap-6" novalidate>
-        <!-- Task Name Input -->
-        <div class="flex flex-col gap-base">
-          <label class="font-label-bold text-label-bold text-primary" for="task-name">
+
+        <!-- Task Name -->
+        <div class="flex flex-col gap-2">
+          <label class="font-label-bold text-label-bold text-[#454558] ml-1" for="task-name">
             タスク名 <span class="text-error font-bold">*</span>
           </label>
           <input
-            class="w-full bg-[#fffacd] rounded-2xl border-2 border-[#a0d8ef] text-primary font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-primary/40 transition-all duration-200"
+            class="w-full bg-[#fff9c4] border border-[#a0d8ef] focus:ring-2 focus:ring-[#a0d8ef] focus:border-transparent rounded-xl px-4 py-3 font-input-text text-input-text text-on-surface placeholder:text-on-surface/40 outline-none transition-shadow duration-200"
             id="task-name"
             name="task-name"
-            placeholder="タスク名を入力"
+            placeholder="タスクを入力"
             type="text"
             required
           />
-          <p id="task-name-error" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
+          <p id="task-name-error" class="text-error text-xs mt-0.5 px-2 hidden font-medium"></p>
         </div>
 
-        <!-- Task Description Input -->
-        <div class="flex flex-col gap-base">
-          <label class="font-label-bold text-label-bold text-primary" for="task-desc">
-            タスク内容 <span class="text-error font-bold">*</span>
+        <!-- Priority (Stars) -->
+        <div class="flex flex-col gap-2">
+          <label class="font-label-bold text-label-bold text-[#454558] ml-1">重要度</label>
+          <div class="flex gap-2 px-1" id="star-container">
+            <button class="star-btn" type="button" data-value="1" aria-label="重要度1">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+            <button class="star-btn" type="button" data-value="2" aria-label="重要度2">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+            <button class="star-btn" type="button" data-value="3" aria-label="重要度3">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+          </div>
+          <input type="hidden" id="priority" name="priority" value="0" />
+        </div>
+
+        <!-- Due Date -->
+        <div class="flex flex-col gap-2">
+          <label class="font-label-bold text-label-bold text-[#454558] ml-1" for="due-date">期日</label>
+          <input
+            class="w-full bg-[#fff9c4] border border-[#a0d8ef] focus:ring-2 focus:ring-[#a0d8ef] focus:border-transparent rounded-xl px-4 py-3 font-input-text text-input-text text-on-surface outline-none transition-shadow duration-200"
+            id="due-date"
+            name="due-date"
+            type="date"
+          />
+        </div>
+
+        <!-- Task Description -->
+        <div class="flex flex-col gap-2">
+          <label class="font-label-bold text-label-bold text-[#454558] ml-1" for="task-desc">
+            内容 <span class="text-error font-bold">*</span>
           </label>
           <textarea
-            class="w-full bg-[#fffacd] rounded-2xl border-2 border-[#a0d8ef] text-primary font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-primary/40 transition-all duration-200 resize-y"
+            class="w-full bg-[#fff9c4] border border-[#a0d8ef] focus:ring-2 focus:ring-[#a0d8ef] focus:border-transparent rounded-xl px-4 py-3 font-input-text text-input-text text-on-surface placeholder:text-on-surface/40 outline-none transition-shadow duration-200 resize-none"
             id="task-desc"
             name="task-desc"
-            placeholder="タスクの詳細を入力"
-            rows="5"
+            placeholder="タスクの詳細を記述"
+            rows="4"
             required
           ></textarea>
-          <p id="task-desc-error" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
+          <p id="task-desc-error" class="text-error text-xs mt-0.5 px-2 hidden font-medium"></p>
         </div>
 
-        <!-- 全体エラー / ログイン催促メッセージエリア -->
+        <!-- General Error -->
         <div id="general-error" class="hidden p-3 bg-error-container text-error rounded-xl text-sm font-medium text-center"></div>
 
-        <!-- Actions Container -->
-        <div class="flex justify-end items-center mt-4 gap-4">
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-3 mt-2">
           <button
             id="cancel-btn"
-            class="border-2 border-[#a0d8ef] text-[#426AB3] rounded-full font-label-bold text-label-bold min-h-[48px] px-8 py-3 hover:bg-[#a0d8ef]/20 transition-all flex items-center justify-center cursor-pointer"
+            class="px-6 py-[10px] rounded-full border border-[#a0d8ef] bg-white text-[#426AB3] font-label-bold text-label-bold hover:bg-[#a0d8ef]/10 transition-colors cursor-pointer"
             type="button"
           >
             キャンセル
           </button>
           <button
             id="add-task-btn"
-            class="bg-[#a0d8ef] text-white hover:bg-[#8ac6de] active:scale-95 rounded-full font-label-bold text-label-bold min-h-[48px] px-8 py-3 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-6 py-[10px] rounded-full bg-[#a0d8ef] text-white font-label-bold text-label-bold hover:bg-[#8ac6de] active:scale-95 transition-all flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
           >
             <span id="add-task-btn-text">追加</span>
-            <span class="material-symbols-outlined text-[20px]">add_task</span>
+            <span class="material-symbols-outlined text-[20px]">add_circle</span>
           </button>
         </div>
       </form>
@@ -122,9 +196,14 @@
       <span class="font-label-bold text-label-bold text-on-surface">アカウント</span>
     </div>
 
-    <!-- Sidebar Content (empty for future features) -->
+    <!-- Sidebar Content -->
     <div class="flex-1 px-6 py-6">
-      <!-- 将来の機能追加エリア -->
+      <nav class="flex flex-col gap-1">
+        <a href="dust.html" class="flex items-center gap-2 px-4 py-3 rounded-full transition-all hover:bg-[#e2e2e2] w-full text-on-surface">
+          <span class="material-symbols-outlined">delete</span>
+          <span class="font-label-bold">ゴミ箱</span>
+        </a>
+      </nav>
     </div>
 
     <!-- Sidebar Footer - Logout -->
@@ -157,10 +236,55 @@
     </div>
   </div>
 
+  <!-- Star Rating Logic -->
+  <script>
+    (function () {
+      const stars = document.querySelectorAll('.star-btn');
+      const priorityInput = document.getElementById('priority');
+      let currentRating = 0;
+
+      function updateStars(rating) {
+        stars.forEach((btn) => {
+          const val = parseInt(btn.dataset.value);
+          if (val <= rating) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+        currentRating = rating;
+        priorityInput.value = rating;
+      }
+
+      stars.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.dataset.value);
+          // Toggle off if clicking same star
+          if (val === currentRating) {
+            updateStars(0);
+          } else {
+            updateStars(val);
+          }
+        });
+
+        btn.addEventListener('mouseenter', () => {
+          const val = parseInt(btn.dataset.value);
+          stars.forEach((b) => {
+            b.classList.toggle('active', parseInt(b.dataset.value) <= val);
+          });
+        });
+
+        btn.addEventListener('mouseleave', () => {
+          updateStars(currentRating);
+        });
+      });
+    })();
+  </script>
+
   <!-- Sidebar Logic -->
   <script src="sidebar.js"></script>
-  <!-- Task Creation Logic Script -->
-  <script type="module" src="add.js?v=1"></script>
+  <!-- Task Creation Logic -->
+  <script type="module" src="add.js?v=2"></script>
 </body>
 
 </html>
