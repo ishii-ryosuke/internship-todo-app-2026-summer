@@ -32,6 +32,7 @@ tailwind.config = {
         "on-tertiary-fixed-variant": "#930002",
         "outline": "#757589",
         "on-secondary": "#ffffff",
+        //枠の中の色
         "surface-bright": "#f9f9f9",
         "inverse-primary": "#bec2ff",
         "secondary-fixed": "#eaea0a",
