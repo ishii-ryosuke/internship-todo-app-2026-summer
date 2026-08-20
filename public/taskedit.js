@@ -27,14 +27,14 @@ const taskDocId = params.get("docId"); // 例: taskedit.html?docId=MxodU6hI1IIlQ
 // ============================================================
 // 2. DOM参照
 // ============================================================
-const editForm        = document.getElementById("editForm");
-const taskNameInput   = document.getElementById("taskName");
-const taskContentInput= document.getElementById("taskContent");
-const taskNameError   = document.getElementById("taskNameError");
-const btnSave         = document.getElementById("btnSave");
-const btnSaveText     = document.getElementById("btnSaveText");
-const btnCancel       = document.getElementById("btnCancel");
-const statusMessage   = document.getElementById("statusMessage");
+const editForm = document.getElementById("editForm");
+const taskNameInput = document.getElementById("taskName");
+const taskContentInput = document.getElementById("taskContent");
+const taskNameError = document.getElementById("taskNameError");
+const btnSave = document.getElementById("btnSave");
+const btnSaveText = document.getElementById("btnSaveText");
+const btnCancel = document.getElementById("btnCancel");
+const statusMessage = document.getElementById("statusMessage");
 
 // ============================================================
 // 3. ステータスメッセージ表示
@@ -56,7 +56,7 @@ async function loadTask() {
   }
 
   try {
-    const taskRef  = doc(db, "tasks", taskDocId);
+    const taskRef = doc(db, "tasks", taskDocId);
     const taskSnap = await getDoc(taskRef);
 
     if (!taskSnap.exists()) {
@@ -65,7 +65,7 @@ async function loadTask() {
     }
 
     const data = taskSnap.data();
-    taskNameInput.value    = data.title       || "";
+    taskNameInput.value = data.title || "";
     taskContentInput.value = data.description || "";
   } catch (err) {
     console.error("タスク読み込みエラー:", err);
@@ -104,7 +104,7 @@ taskNameInput?.addEventListener("input", () => {
 async function updateTask(taskId, { title, description }) {
   const taskRef = doc(db, "tasks", taskId);
   await updateDoc(taskRef, {
-    title:       title,
+    title: title,
     description: description
   });
 }
@@ -122,12 +122,12 @@ editForm?.addEventListener("submit", async (e) => {
 
   try {
     await updateTask(taskDocId, {
-      title:       taskNameInput.value.trim(),
+      title: taskNameInput.value.trim(),
       description: taskContentInput.value.trim()
     });
 
     showStatus("タスクを更新しました。", "success");
-    setTimeout(() => window.location.href = "page3.html", 1200);
+    setTimeout(() => window.location.href = "main.html", 1200);
   } catch (err) {
     console.error("更新エラー:", err);
     showStatus("タスクの更新に失敗しました。", "error");
@@ -141,7 +141,7 @@ editForm?.addEventListener("submit", async (e) => {
 // 8. キャンセルボタン → 前の画面に戻る
 // ============================================================
 btnCancel?.addEventListener("click", () => {
-  window.location.href = "page3.html";
+  window.location.href = "main.html";
 });
 
 // ============================================================
