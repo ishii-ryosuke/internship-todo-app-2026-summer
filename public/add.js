@@ -9,7 +9,8 @@ import {
   collection,
   doc,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
@@ -230,7 +231,14 @@ taskForm?.addEventListener("submit", async (e) => {
     return;
   }
 
-  const dueDate = dateVal && timeVal ? `${dateVal} ${timeVal}` : dateVal;
+  // 日付 + 時間を合体して JS Date に変換 → Firestore Timestamp で保存
+  let dueDateTimestamp = null;
+  if (dateVal && timeVal) {
+    const [year, month, day] = dateVal.split("-").map(Number);
+    const [hour, minute] = timeVal.split(":").map(Number);
+    const dateObj = new Date(year, month - 1, day, hour, minute, 0, 0);
+    dueDateTimestamp = Timestamp.fromDate(dateObj);
+  }
 
   // 3. Authentication Check
   if (!currentUser) {
@@ -254,7 +262,7 @@ taskForm?.addEventListener("submit", async (e) => {
       title: title,
       description: description,
       priority: priority,          // 0=未設定, 1=低, 2=中, 3=高
-      dueDate: dueDate,            // "YYYY-MM-DD" or null
+      dueDate: dueDateTimestamp,   // Firestore Timestamp
       isCompleted: false,
       createdAt: serverTimestamp()
     };

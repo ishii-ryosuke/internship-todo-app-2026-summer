@@ -105,12 +105,141 @@ function renderStars(priority) {
 }
 
 /**
- * Format due date string nicely for display
- * @param {string} dueDateStr 
+ * Parse dueDate (Firestore Timestamp / {seconds} object / string) into ms.
+ * Returns null for null / undefined / empty / invalid — never throws.
+ * @param {*} dueDate
+ * @returns {number|null}
  */
-function formatDueDate(dueDateStr) {
-  if (!dueDateStr) return "";
-  return dueDateStr.replace("T", " ");
+function parseDueDateToTimestamp(dueDate) {
+  if (dueDate === null || dueDate === undefined || dueDate === "") return null;
+
+  // Firestore Timestamp (has toMillis method)
+  if (typeof dueDate === "object" && typeof dueDate.toMillis === "function") {
+    const ms = dueDate.toMillis();
+    return isNaN(ms) ? null : ms;
+  }
+
+  // Plain object with seconds (e.g. { seconds: 1234, nanoseconds: 0 })
+  if (typeof dueDate === "object" && typeof dueDate.seconds === "number") {
+    return dueDate.seconds * 1000;
+  }
+
+  // String handling
+  if (typeof dueDate === "string") {
+    const str = dueDate.trim();
+    if (!str) return null;
+    const parts = str.split(/[\sT]+/);
+    const dateSplit = (parts[0] || "").split("-").map(Number);
+    const year = dateSplit[0]; const month = dateSplit[1]; const day = dateSplit[2];
+    if (!year || !month || !day) return null;
+    const timeSplit = (parts[1] || "23:59").split(":").map(Number);
+    const dateObj = new Date(year, month - 1, day, timeSplit[0] || 0, timeSplit[1] || 0, 0, 0);
+    const time = dateObj.getTime();
+    return isNaN(time) ? null : time;
+  }
+
+  return null;
+}
+
+/**
+ * Determine display category for sorting:
+ * 1: ピン留め | 2: 期限切れ | 3: 期限が近い | 4: 期日なし
+ */
+function getTaskCategory(task, nowTime) {
+  if (task.isPinned) return 1;
+  const dueTime = parseDueDateToTimestamp(task.dueDate);
+  if (dueTime === null) return 4;
+  if (dueTime < nowTime) return 2;
+  return 3;
+}
+
+/**
+ * Compare tasks: ピン留め → 期限切れ → 期限が近い → 期日なし
+ * 同カテゴリ内: dueDate近い順 → priority高い順 → createdAt新しい順
+ */
+function compareTasks(a, b, nowTime) {
+  const catA = getTaskCategory(a, nowTime);
+  const catB = getTaskCategory(b, nowTime);
+  if (catA !== catB) return catA - catB;
+
+  const dueTimeA = parseDueDateToTimestamp(a.dueDate);
+  const dueTimeB = parseDueDateToTimestamp(b.dueDate);
+  const priorityA = parseInt(a.priority, 10) || 0;
+  const priorityB = parseInt(b.priority, 10) || 0;
+
+  // dueDate に差がある場合
+  if (dueTimeA !== null && dueTimeB !== null && dueTimeA !== dueTimeB) {
+    return dueTimeA - dueTimeB;
+  }
+
+  // ピン留め内のフォールバック
+  if (catA === 1) {
+    if (priorityA !== priorityB) return priorityB - priorityA;
+    const pA = a.pinnedAt?.toMillis ? a.pinnedAt.toMillis() : (a.pinnedAt?.seconds ? a.pinnedAt.seconds * 1000 : 0);
+    const pB = b.pinnedAt?.toMillis ? b.pinnedAt.toMillis() : (b.pinnedAt?.seconds ? b.pinnedAt.seconds * 1000 : 0);
+    if (pA !== pB) return pB - pA;
+  }
+
+  // priority
+  if (priorityA !== priorityB) return priorityB - priorityA;
+
+  // createdAt
+  const createdA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+  const createdB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+  return createdB - createdA;
+}
+
+/**
+ * Format dueDate (Firestore Timestamp / {seconds} object / string) for display.
+ * Always returns a string in "YYYY-MM-DD HH:mm" format, or "" if invalid.
+ * Never throws.
+ * @param {*} dueDate
+ * @returns {string}
+ */
+function formatDueDate(dueDate) {
+  if (dueDate === null || dueDate === undefined || dueDate === "") return "";
+
+  // Firestore Timestamp (has toDate method)
+  if (typeof dueDate === "object" && typeof dueDate.toDate === "function") {
+    try {
+      const d = dueDate.toDate();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const min = String(d.getMinutes()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    } catch (_) {
+      return "";
+    }
+  }
+
+  // Plain object with seconds (e.g. { seconds: 1234, nanoseconds: 0 })
+  if (typeof dueDate === "object" && typeof dueDate.seconds === "number") {
+    try {
+      const d = new Date(dueDate.seconds * 1000);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const min = String(d.getMinutes()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    } catch (_) {
+      return "";
+    }
+  }
+
+  // String: replace T separator with space
+  if (typeof dueDate === "string") {
+    return dueDate.trim().replace("T", " ");
+  }
+
+  // Any other type: coerce safely to string
+  try {
+    return String(dueDate);
+  } catch (_) {
+    return "";
+  }
 }
 
 /**
@@ -127,6 +256,8 @@ function renderTasks(tasks) {
 
   taskListContainer.innerHTML = tasks.map((task) => {
     const isDone = Boolean(task.isCompleted);
+    const dueTime = parseDueDateToTimestamp(task.dueDate);
+    const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
     return `
       <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
         <!-- Pin Icon -->
@@ -165,9 +296,9 @@ function renderTasks(tasks) {
           ${(task.dueDate || task.priority) ? `
             <div class="flex items-center gap-4 flex-wrap mt-1 ${isDone ? 'opacity-50' : ''}">
               ${task.dueDate ? `
-                <div class="flex items-center gap-1 text-xs text-[#454558]">
-                  <span class="material-symbols-outlined text-[16px] text-[#426ab3]">schedule</span>
-                  <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}</span>
+                <div class="flex items-center gap-1 text-xs ${isOverdue ? 'text-red-500 font-semibold' : 'text-[#454558]'}">
+                  <span class="material-symbols-outlined text-[16px] ${isOverdue ? 'text-red-500' : 'text-[#426ab3]'}">${isOverdue ? 'warning' : 'schedule'}</span>
+                  <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}${isOverdue ? ' (期限切れ)' : ''}</span>
                 </div>
               ` : ''}
               ${task.priority ? renderStars(task.priority) : ''}
@@ -385,34 +516,12 @@ onAuthStateChanged(auth, (user) => {
       // Filter out deleted tasks
       const activeTasks = tasks.filter(task => !task.isDeleted);
 
-      // Helper to sort tasks: closer due date/time first (昇順), fallback to createdAt (降順)
-      const compareTasks = (a, b) => {
-        if (a.dueDate && b.dueDate) {
-          const timeA = new Date(a.dueDate.replace(" ", "T")).getTime();
-          const timeB = new Date(b.dueDate.replace(" ", "T")).getTime();
-          if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
-            return timeA - timeB; // 期日・時間が近い順（早いものが上）
-          }
-        } else if (a.dueDate && !b.dueDate) {
-          return -1; // 期日ありを優先
-        } else if (!a.dueDate && b.dueDate) {
-          return 1;
-        }
+      // Sort: ピン留め → 期限切れ → 期限が近い順 → 期日なし
+      // 同カテゴリ内: dueDate近い順 → priority高い順 → createdAt新しい順
+      const nowTime = Date.now();
+      activeTasks.sort((a, b) => compareTasks(a, b, nowTime));
 
-        // 期日が同じまたは未設定の場合は作成日時の新しい順
-        const createdA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
-        const createdB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
-        return createdB - createdA;
-      };
-
-      // Sort pinned tasks and unpinned tasks
-      pinnedTasks.sort(compareTasks);
-      unpinnedTasks.sort(compareTasks);
-
-      // Combine arrays (pinned tasks on top)
-      const sortedTasks = [...pinnedTasks, ...unpinnedTasks];
-
-      renderTasks(sortedTasks);
+      renderTasks(activeTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");
