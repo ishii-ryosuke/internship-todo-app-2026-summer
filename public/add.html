@@ -120,10 +120,13 @@
               required
             />
             <input
-              class="w-[140px] bg-[#fff9c4] border border-[#a0d8ef] focus:ring-2 focus:ring-[#a0d8ef] focus:border-transparent rounded-xl px-4 py-3 font-input-text text-input-text text-on-surface outline-none transition-shadow duration-200 text-center"
+              class="w-[140px] bg-[#fff9c4] border border-[#a0d8ef] focus:ring-2 focus:ring-[#a0d8ef] focus:border-transparent rounded-xl px-4 py-3 font-input-text text-input-text text-on-surface placeholder:text-on-surface/40 outline-none transition-shadow duration-200 text-center"
               id="due-time"
               name="due-time"
-              type="time"
+              type="text"
+              inputmode="numeric"
+              placeholder="12:00"
+              maxlength="5"
               required
             />
           </div>
