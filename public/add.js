@@ -2,14 +2,14 @@
 // Task Creation Logic (add.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
-import { 
-  onAuthStateChanged 
+import {
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  serverTimestamp 
+import {
+  collection,
+  doc,
+  setDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
@@ -95,61 +95,21 @@ dueDateInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
-// Real-time formatting & strict limits for 4-digit time input (HH:MM)
 dueTimeInput?.addEventListener("input", (e) => {
   hideInputError(dueDateError);
   hideGeneralError();
-
-  // If user is deleting, allow natural deletion without re-formatting immediately
-  if (e.inputType && e.inputType.startsWith("delete")) {
-    return;
-  }
-
-  // Extract only digits up to 4 digits
-  let raw = dueTimeInput.value.replace(/[^\d]/g, "").slice(0, 4);
-
-  if (!raw) {
-    dueTimeInput.value = "";
-    return;
-  }
-
-  // 1 digit entered: keep as is
-  if (raw.length === 1) {
-    dueTimeInput.value = raw;
-    return;
-  }
-
-  // 2 digits entered (Hours: 00-23)
-  let hours = raw.slice(0, 2);
-  let hNum = parseInt(hours, 10);
-  if (hNum > 23) {
-    hours = "23";
-  }
-
-  // 3-4 digits entered (Minutes: 00-59)
-  let minutes = "";
-  if (raw.length >= 3) {
-    let mRaw = raw.slice(2, 4);
-    if (parseInt(mRaw[0], 10) > 5) {
-      mRaw = "5" + (mRaw.length > 1 ? mRaw[1] : "");
-    }
-    minutes = mRaw;
-  }
-
-  // Automatically insert colon after the first 2 digits
-  dueTimeInput.value = `${hours}:${minutes}`;
 });
 
 dueTimeInput?.addEventListener("blur", () => {
   let val = dueTimeInput.value.trim();
   if (!val) return;
-  // If user left e.g. "14:" or "9" on blur, complete it nicely
-  if (/^(\d{1,2}):?$/.test(val)) {
-    let h = parseInt(val.replace(":", ""), 10);
-    h = Math.min(23, Math.max(0, h));
-    dueTimeInput.value = `${String(h).padStart(2, "0")}:00`;
-  } else if (/^(\d{1,2}):(\d{1})$/.test(val)) { // e.g. "14:3" -> "14:30"
-    dueTimeInput.value = `${val}0`;
+  // If user entered 4 digits without colon e.g. "1430"
+  if (/^\d{4}$/.test(val)) {
+    dueTimeInput.value = `${val.slice(0, 2)}:${val.slice(2)}`;
+  } else if (/^\d{3}$/.test(val)) { // e.g. "930" -> "09:30"
+    dueTimeInput.value = `0${val.slice(0, 1)}:${val.slice(1)}`;
+  } else if (/^(\d{1}):(\d{2})$/.test(val)) { // e.g. "9:30" -> "09:30"
+    dueTimeInput.value = `0${val}`;
   }
 });
 
@@ -192,14 +152,15 @@ taskForm?.addEventListener("submit", async (e) => {
   const dateVal = dueDateInput?.value || "";
   let timeVal = dueTimeInput?.value.trim() || "";
 
-  // Auto-complete time if 1-2 digits on submit
-  if (/^(\d{1,2}):?$/.test(timeVal)) {
-    let h = parseInt(timeVal.replace(":", ""), 10);
-    h = Math.min(23, Math.max(0, h));
-    timeVal = `${String(h).padStart(2, "0")}:00`;
+  // Auto-format time before validation
+  if (/^\d{4}$/.test(timeVal)) {
+    timeVal = `${timeVal.slice(0, 2)}:${timeVal.slice(2)}`;
     if (dueTimeInput) dueTimeInput.value = timeVal;
-  } else if (/^(\d{1,2}):(\d{1})$/.test(timeVal)) {
-    timeVal = `${timeVal}0`;
+  } else if (/^\d{3}$/.test(timeVal)) {
+    timeVal = `0${timeVal.slice(0, 1)}:${timeVal.slice(1)}`;
+    if (dueTimeInput) dueTimeInput.value = timeVal;
+  } else if (/^(\d{1}):(\d{2})$/.test(timeVal)) {
+    timeVal = `0${timeVal}`;
     if (dueTimeInput) dueTimeInput.value = timeVal;
   }
 
@@ -226,7 +187,7 @@ taskForm?.addEventListener("submit", async (e) => {
     showInputError(dueDateError, "期日の時間を入力してください（例: 14:00）。");
     hasError = true;
   } else if (!timeRegex.test(timeVal)) {
-    showInputError(dueDateError, "有効な時間（00:00〜23:59）を入力してください。");
+    showInputError(dueDateError, "有効な時間（例: 14:00）を半角で入力してください。");
     hasError = true;
   }
 
