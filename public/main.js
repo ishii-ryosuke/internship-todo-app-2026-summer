@@ -2,22 +2,51 @@
 // Task List Display Logic (main.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
-import { 
-  onAuthStateChanged 
+import {
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  doc, 
-  updateDoc, 
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const taskListContainer = document.getElementById("task-list");
 
+// ============================================================
+// フィルター状態管理
+// 'incomplete' | 'completed' | 'all'
+// デフォルト：未完了（incomplete）
+// ============================================================
+let currentFilter = "incomplete";
+let allTasks = [];
+
+const filterBtn = document.getElementById("filter-btn");
+const filterLabel = document.getElementById("filter-label");
+const filterChevron = document.getElementById("filter-chevron");
+const filterDropdown = document.getElementById("filter-dropdown");
+
+const FILTER_LABELS = {
+  incomplete: "未完了",
+  completed: "完了済み",
+  all: "すべて表示"
+};
+
+/** フィルター条件に応じてタスクを絞り込む */
+function applyFilter(tasks) {
+  if (currentFilter === "incomplete") {
+    return tasks.filter((t) => t.isCompleted === false);
+  }
+  if (currentFilter === "completed") {
+    return tasks.filter((t) => t.isCompleted === true);
+  }
+  return tasks; // all
+}
 // Delete modal elements
 const deleteModalOverlay = document.getElementById("delete-modal-overlay");
 const deleteModalBox = document.getElementById("delete-modal-box");
@@ -88,12 +117,14 @@ function renderError(message) {
 function renderTasks(tasks) {
   if (!taskListContainer) return;
 
-  if (tasks.length === 0) {
+  const filtered = applyFilter(tasks);
+
+  if (filtered.length === 0) {
     renderEmpty();
     return;
   }
 
-  taskListContainer.innerHTML = tasks.map((task) => {
+  taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
     return `
       <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
@@ -205,7 +236,7 @@ function renderTasks(tasks) {
   taskListContainer.querySelectorAll(".task-delete-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      
+
       // 削除実行時にメニューを閉じる
       const menu = btn.closest('.task-dropdown-menu');
       if (menu) menu.classList.add('hidden');
@@ -213,7 +244,7 @@ function renderTasks(tasks) {
       const taskId = btn.getAttribute("data-id");
       const taskTitle = btn.getAttribute("data-title");
       const taskDesc = btn.getAttribute("data-desc");
-      
+
       showDeleteModal(taskTitle, taskDesc, taskId);
     });
   });
@@ -239,7 +270,7 @@ function renderTasks(tasks) {
 
       const taskId = btn.getAttribute("data-id");
       const isPinned = btn.getAttribute("data-pinned") === "true";
-      
+
       try {
         const taskDocRef = doc(db, "tasks", taskId);
         await updateDoc(taskDocRef, {
@@ -283,14 +314,14 @@ function showDeleteModal(title, desc, taskId) {
   if (!deleteModalOverlay) return;
   taskToDeleteId = taskId;
   deleteModalTitle.textContent = title;
-  
+
   if (desc) {
     deleteModalDesc.textContent = desc;
     deleteModalDesc.style.display = 'block';
   } else {
     deleteModalDesc.style.display = 'none';
   }
-  
+
   deleteModalOverlay.classList.remove("opacity-0", "pointer-events-none");
   deleteModalBox.classList.remove("scale-95");
 }
@@ -378,7 +409,8 @@ onAuthStateChanged(auth, (user) => {
       // Combine arrays
       const sortedTasks = [...pinnedTasks, ...unpinnedTasks];
 
-      renderTasks(sortedTasks);
+      allTasks = sortedTasks;
+      renderTasks(allTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");
@@ -387,4 +419,40 @@ onAuthStateChanged(auth, (user) => {
     console.error("クエリ実行エラー:", error);
     renderError(error.message);
   }
+});
+
+// ============================================================
+// フィルタードロップダウンの開閉
+// ============================================================
+function openDropdown() {
+  filterDropdown.classList.remove("hidden");
+  filterChevron.style.transform = "rotate(180deg)";
+  filterBtn.setAttribute("aria-expanded", "true");
+}
+
+function closeDropdown() {
+  filterDropdown.classList.add("hidden");
+  filterChevron.style.transform = "";
+  filterBtn.setAttribute("aria-expanded", "false");
+}
+
+filterBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const isOpen = !filterDropdown.classList.contains("hidden");
+  isOpen ? closeDropdown() : openDropdown();
+});
+
+// 選択肢クリック時
+document.querySelectorAll(".filter-option").forEach((option) => {
+  option.addEventListener("click", () => {
+    currentFilter = option.getAttribute("data-filter");
+    filterLabel.textContent = FILTER_LABELS[currentFilter];
+    closeDropdown();
+    renderTasks(allTasks);
+  });
+});
+
+// ドロップダウン外クリックで閉じる
+document.addEventListener("click", () => {
+  closeDropdown();
 });
