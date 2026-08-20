@@ -2,16 +2,16 @@
 // Task List Display Logic (main.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
-import { 
-  onAuthStateChanged 
+import {
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  doc, 
-  updateDoc, 
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -96,7 +96,12 @@ function renderStars(priority) {
       starsHtml += `<span class="material-symbols-outlined text-[#d1d5db] text-[16px]">star</span>`;
     }
   }
-  return `<div class="flex items-center gap-0.5 flex-shrink-0" title="重要度: ${p}">${starsHtml}</div>`;
+  return `
+    <div class="flex items-center gap-1 text-xs text-[#454558]">
+      <span class="font-medium">重要度:</span>
+      <div class="flex items-center gap-0.5" title="重要度: ${p}">${starsHtml}</div>
+    </div>
+  `;
 }
 
 /**
@@ -143,13 +148,10 @@ function renderTasks(tasks) {
         </button>
 
         <!-- Task Content -->
-        <div class="flex-1 flex flex-col min-w-0 gap-1">
-          <!-- Title & Priority Stars -->
-          <div class="flex items-start justify-between gap-2">
-            <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
-              ${escapeHtml(task.title)}
-            </div>
-            ${task.priority ? renderStars(task.priority) : ''}
+        <div class="flex-1 flex flex-col min-w-0 gap-1.5">
+          <!-- Title -->
+          <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
+            ${escapeHtml(task.title)}
           </div>
 
           <!-- Description -->
@@ -159,11 +161,16 @@ function renderTasks(tasks) {
             </div>
           ` : ''}
 
-          <!-- Due Date (期日) -->
-          ${task.dueDate ? `
-            <div class="flex items-center gap-1 text-[11px] text-[#426ab3] font-medium bg-[#a0d8ef]/30 px-2.5 py-0.5 rounded-full w-fit mt-1 ${isDone ? 'opacity-50' : ''}">
-              <span class="material-symbols-outlined text-[13px]">schedule</span>
-              <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}</span>
+          <!-- Metadata Row (Due Date & Priority) -->
+          ${(task.dueDate || task.priority) ? `
+            <div class="flex items-center gap-4 flex-wrap mt-1 ${isDone ? 'opacity-50' : ''}">
+              ${task.dueDate ? `
+                <div class="flex items-center gap-1 text-xs text-[#454558]">
+                  <span class="material-symbols-outlined text-[16px] text-[#426ab3]">schedule</span>
+                  <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}</span>
+                </div>
+              ` : ''}
+              ${task.priority ? renderStars(task.priority) : ''}
             </div>
           ` : ''}
         </div>
@@ -238,7 +245,7 @@ function renderTasks(tasks) {
   taskListContainer.querySelectorAll(".task-delete-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      
+
       // 削除実行時にメニューを閉じる
       const menu = btn.closest('.task-dropdown-menu');
       if (menu) menu.classList.add('hidden');
@@ -246,7 +253,7 @@ function renderTasks(tasks) {
       const taskId = btn.getAttribute("data-id");
       const taskTitle = btn.getAttribute("data-title");
       const taskDesc = btn.getAttribute("data-desc");
-      
+
       showDeleteModal(taskTitle, taskDesc, taskId);
     });
   });
@@ -260,7 +267,7 @@ function renderTasks(tasks) {
 
       const taskId = btn.getAttribute("data-id");
       const isPinned = btn.getAttribute("data-pinned") === "true";
-      
+
       try {
         const taskDocRef = doc(db, "tasks", taskId);
         await updateDoc(taskDocRef, {
@@ -304,14 +311,14 @@ function showDeleteModal(title, desc, taskId) {
   if (!deleteModalOverlay) return;
   taskToDeleteId = taskId;
   deleteModalTitle.textContent = title;
-  
+
   if (desc) {
     deleteModalDesc.textContent = desc;
     deleteModalDesc.style.display = 'block';
   } else {
     deleteModalDesc.style.display = 'none';
   }
-  
+
   deleteModalOverlay.classList.remove("opacity-0", "pointer-events-none");
   deleteModalBox.classList.remove("scale-95");
 }
