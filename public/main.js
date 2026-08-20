@@ -385,25 +385,31 @@ onAuthStateChanged(auth, (user) => {
       // Filter out deleted tasks
       const activeTasks = tasks.filter(task => !task.isDeleted);
 
-      // Separate into pinned and unpinned
-      const pinnedTasks = activeTasks.filter(task => task.isPinned);
-      const unpinnedTasks = activeTasks.filter(task => !task.isPinned);
+      // Helper to sort tasks: closer due date/time first (昇順), fallback to createdAt (降順)
+      const compareTasks = (a, b) => {
+        if (a.dueDate && b.dueDate) {
+          const timeA = new Date(a.dueDate.replace(" ", "T")).getTime();
+          const timeB = new Date(b.dueDate.replace(" ", "T")).getTime();
+          if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
+            return timeA - timeB; // 期日・時間が近い順（早いものが上）
+          }
+        } else if (a.dueDate && !b.dueDate) {
+          return -1; // 期日ありを優先
+        } else if (!a.dueDate && b.dueDate) {
+          return 1;
+        }
 
-      // Sort pinned: newest pinned first
-      pinnedTasks.sort((a, b) => {
-        const timeA = a.pinnedAt?.toMillis ? a.pinnedAt.toMillis() : (a.pinnedAt?.seconds ? a.pinnedAt.seconds * 1000 : 0);
-        const timeB = b.pinnedAt?.toMillis ? b.pinnedAt.toMillis() : (b.pinnedAt?.seconds ? b.pinnedAt.seconds * 1000 : 0);
-        return timeB - timeA;
-      });
+        // 期日が同じまたは未設定の場合は作成日時の新しい順
+        const createdA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+        const createdB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+        return createdB - createdA;
+      };
 
-      // Sort unpinned: newest created first
-      unpinnedTasks.sort((a, b) => {
-        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
-        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
-        return timeB - timeA;
-      });
+      // Sort pinned tasks and unpinned tasks
+      pinnedTasks.sort(compareTasks);
+      unpinnedTasks.sort(compareTasks);
 
-      // Combine arrays
+      // Combine arrays (pinned tasks on top)
       const sortedTasks = [...pinnedTasks, ...unpinnedTasks];
 
       renderTasks(sortedTasks);
