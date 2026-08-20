@@ -17,6 +17,7 @@ const taskForm = document.getElementById("task-form");
 const taskNameInput = document.getElementById("task-name");
 const taskDescInput = document.getElementById("task-desc");
 const dueDateInput = document.getElementById("due-date");
+const dueTimeInput = document.getElementById("due-time");
 const priorityInput = document.getElementById("priority");
 const taskNameError = document.getElementById("task-name-error");
 const taskDescError = document.getElementById("task-desc-error");
@@ -94,6 +95,11 @@ dueDateInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
+dueTimeInput?.addEventListener("input", () => {
+  hideInputError(dueDateError);
+  hideGeneralError();
+});
+
 taskDescInput?.addEventListener("input", () => {
   hideInputError(taskDescError);
   hideGeneralError();
@@ -130,7 +136,8 @@ taskForm?.addEventListener("submit", async (e) => {
   const title = taskNameInput?.value.trim() || "";
   const description = taskDescInput?.value.trim() || "";
   const priority = parseInt(priorityInput?.value || "0", 10);
-  const dueDate = dueDateInput?.value || null;
+  const dateVal = dueDateInput?.value || "";
+  const timeVal = dueTimeInput?.value || "";
 
   let hasError = false;
 
@@ -146,9 +153,12 @@ taskForm?.addEventListener("submit", async (e) => {
     hasError = true;
   }
 
-  // 3. Validation: Due Date
-  if (!dueDate) {
-    showInputError(dueDateError, "期日と時間を設定してください。");
+  // 3. Validation: Due Date & Time
+  if (!dateVal) {
+    showInputError(dueDateError, "期日の日付を設定してください。");
+    hasError = true;
+  } else if (!timeVal) {
+    showInputError(dueDateError, "期日の時間を設定してください。");
     hasError = true;
   }
 
@@ -161,6 +171,8 @@ taskForm?.addEventListener("submit", async (e) => {
   if (hasError) {
     return;
   }
+
+  const dueDate = dateVal && timeVal ? `${dateVal} ${timeVal}` : dateVal;
 
   // 3. Authentication Check
   if (!currentUser) {
