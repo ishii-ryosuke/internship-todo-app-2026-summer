@@ -95,65 +95,55 @@ dueDateInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
-// Real-time formatting & strict limits for time input (HH:MM)
+// Real-time formatting & strict limits for 4-digit time input (HH:MM)
 dueTimeInput?.addEventListener("input", (e) => {
   hideInputError(dueDateError);
   hideGeneralError();
 
-  // Extract only digits
-  let raw = dueTimeInput.value.replace(/[^\d]/g, "");
+  // If user is deleting, allow natural deletion without re-formatting immediately
+  if (e.inputType && e.inputType.startsWith("delete")) {
+    return;
+  }
+
+  // Extract only digits up to 4 digits
+  let raw = dueTimeInput.value.replace(/[^\d]/g, "").slice(0, 4);
 
   if (!raw) {
     dueTimeInput.value = "";
     return;
   }
 
-  // First digit of hour: if 3-9, automatically prefix with 0 (e.g. 3 -> 03:)
+  // 1 digit entered: keep as is
   if (raw.length === 1) {
-    if (parseInt(raw, 10) > 2) {
-      dueTimeInput.value = `0${raw}:`;
-      return;
-    }
     dueTimeInput.value = raw;
     return;
   }
 
-  // Hours (2 digits, max 23)
+  // 2 digits entered (Hours: 00-23)
   let hours = raw.slice(0, 2);
   let hNum = parseInt(hours, 10);
   if (hNum > 23) {
     hours = "23";
   }
 
-  // Minutes (up to 2 digits, max 59)
+  // 3-4 digits entered (Minutes: 00-59)
   let minutes = "";
   if (raw.length >= 3) {
     let mRaw = raw.slice(2, 4);
-    // First minute digit cannot exceed 5
     if (parseInt(mRaw[0], 10) > 5) {
       mRaw = "5" + (mRaw.length > 1 ? mRaw[1] : "");
     }
     minutes = mRaw;
   }
 
-  dueTimeInput.value = raw.length >= 2 ? `${hours}:${minutes}` : hours;
-});
-
-// Handle Backspace when cursor is after colon
-dueTimeInput?.addEventListener("keydown", (e) => {
-  if (e.key === "Backspace") {
-    let val = dueTimeInput.value;
-    if (val.endsWith(":")) {
-      e.preventDefault();
-      dueTimeInput.value = val.slice(0, -1);
-    }
-  }
+  // Automatically insert colon after the first 2 digits
+  dueTimeInput.value = `${hours}:${minutes}`;
 });
 
 dueTimeInput?.addEventListener("blur", () => {
   let val = dueTimeInput.value.trim();
   if (!val) return;
-  // If user left e.g. "14:" or "9:" on blur, complete it nicely
+  // If user left e.g. "14:" or "9" on blur, complete it nicely
   if (/^(\d{1,2}):?$/.test(val)) {
     let h = parseInt(val.replace(":", ""), 10);
     h = Math.min(23, Math.max(0, h));
