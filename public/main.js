@@ -1,4 +1,4 @@
-﻿// ==========================================================================
+// ==========================================================================
 // Task List Display Logic (main.js)
 // ==========================================================================
 import { auth, db } from "./firebase-config.js";
@@ -16,6 +16,36 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const taskListContainer = document.getElementById("task-list");
+
+// ============================================================
+// フィルター状態管理
+// 'incomplete' | 'completed' | 'all'
+// デフォルト：未完了（incomplete）
+// ============================================================
+let currentFilter = "incomplete";
+let allTasks = [];
+
+const filterBtn      = document.getElementById("filter-btn");
+const filterLabel    = document.getElementById("filter-label");
+const filterChevron  = document.getElementById("filter-chevron");
+const filterDropdown = document.getElementById("filter-dropdown");
+
+const FILTER_LABELS = {
+  incomplete: "未完了",
+  completed:  "完了済み",
+  all:        "すべて表示"
+};
+
+/** フィルター条件に応じてタスクを絞り込む */
+function applyFilter(tasks) {
+  if (currentFilter === "incomplete") {
+    return tasks.filter((t) => t.isCompleted === false);
+  }
+  if (currentFilter === "completed") {
+    return tasks.filter((t) => t.isCompleted === true);
+  }
+  return tasks; // all
+}
 
 // Helper function to safely escape HTML
 function escapeHtml(str) {
@@ -78,12 +108,14 @@ function renderError(message) {
 function renderTasks(tasks) {
   if (!taskListContainer) return;
 
-  if (tasks.length === 0) {
+  const filtered = applyFilter(tasks);
+
+  if (filtered.length === 0) {
     renderEmpty();
     return;
   }
 
-  taskListContainer.innerHTML = tasks.map((task) => {
+  taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
     return `
       <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md" data-task-id="${escapeHtml(task.id)}">
@@ -199,7 +231,8 @@ onAuthStateChanged(auth, (user) => {
         return timeB - timeA;
       });
 
-      renderTasks(tasks);
+      allTasks = tasks;
+      renderTasks(allTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");
@@ -208,4 +241,40 @@ onAuthStateChanged(auth, (user) => {
     console.error("クエリ実行エラー:", error);
     renderError(error.message);
   }
+});
+
+// ============================================================
+// フィルタードロップダウンの開閉
+// ============================================================
+function openDropdown() {
+  filterDropdown.classList.remove("hidden");
+  filterChevron.style.transform = "rotate(180deg)";
+  filterBtn.setAttribute("aria-expanded", "true");
+}
+
+function closeDropdown() {
+  filterDropdown.classList.add("hidden");
+  filterChevron.style.transform = "";
+  filterBtn.setAttribute("aria-expanded", "false");
+}
+
+filterBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const isOpen = !filterDropdown.classList.contains("hidden");
+  isOpen ? closeDropdown() : openDropdown();
+});
+
+// 選択肢クリック時
+document.querySelectorAll(".filter-option").forEach((option) => {
+  option.addEventListener("click", () => {
+    currentFilter = option.getAttribute("data-filter");
+    filterLabel.textContent = FILTER_LABELS[currentFilter];
+    closeDropdown();
+    renderTasks(allTasks);
+  });
+});
+
+// ドロップダウン外クリックで閉じる
+document.addEventListener("click", () => {
+  closeDropdown();
 });
