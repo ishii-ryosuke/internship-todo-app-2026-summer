@@ -95,21 +95,50 @@ dueDateInput?.addEventListener("input", () => {
   hideGeneralError();
 });
 
+// 4桁の数字を入力したら自動で間に「:」を挿入して時間形式（HH:MM）にする
 dueTimeInput?.addEventListener("input", (e) => {
   hideInputError(dueDateError);
   hideGeneralError();
+
+  // 削除中の場合はそのまま操作できるようにする
+  if (e.inputType && e.inputType.startsWith("delete")) {
+    return;
+  }
+
+  let val = dueTimeInput.value;
+  let digits = val.replace(/[^\d]/g, "");
+
+  // 4桁以上入力されたら即座に HH:MM 形式に変換
+  if (digits.length >= 4) {
+    let hours = digits.slice(0, 2);
+    let minutes = digits.slice(2, 4);
+
+    let hNum = parseInt(hours, 10);
+    if (hNum > 23) hours = "23";
+
+    let mNum = parseInt(minutes, 10);
+    if (mNum > 59) minutes = "59";
+
+    dueTimeInput.value = `${hours}:${minutes}`;
+  }
 });
 
 dueTimeInput?.addEventListener("blur", () => {
   let val = dueTimeInput.value.trim();
   if (!val) return;
-  // If user entered 4 digits without colon e.g. "1430"
-  if (/^\d{4}$/.test(val)) {
-    dueTimeInput.value = `${val.slice(0, 2)}:${val.slice(2)}`;
-  } else if (/^\d{3}$/.test(val)) { // e.g. "930" -> "09:30"
-    dueTimeInput.value = `0${val.slice(0, 1)}:${val.slice(1)}`;
-  } else if (/^(\d{1}):(\d{2})$/.test(val)) { // e.g. "9:30" -> "09:30"
-    dueTimeInput.value = `0${val}`;
+  let digits = val.replace(/[^\d]/g, "");
+
+  if (digits.length === 4) {
+    let h = Math.min(23, parseInt(digits.slice(0, 2), 10));
+    let m = Math.min(59, parseInt(digits.slice(2, 4), 10));
+    dueTimeInput.value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  } else if (digits.length === 3) { // 例: "930" -> "09:30"
+    let h = Math.min(23, parseInt(digits.slice(0, 1), 10));
+    let m = Math.min(59, parseInt(digits.slice(1, 3), 10));
+    dueTimeInput.value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  } else if (digits.length >= 1 && digits.length <= 2) { // 例: "9" -> "09:00", "14" -> "14:00"
+    let h = Math.min(23, parseInt(digits, 10));
+    dueTimeInput.value = `${String(h).padStart(2, "0")}:00`;
   }
 });
 
