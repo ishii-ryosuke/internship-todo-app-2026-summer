@@ -26,6 +26,9 @@ const taskListContainer = document.getElementById("task-list");
 // ============================================================
 let currentFilter = "incomplete";
 let allTasks = [];
+let searchQuery = "";
+let selectedCategories = [];
+let selectedPriorities = [];
 
 // ============================================================
 // カテゴリーマップ（categoryId -> categoryName）
@@ -46,13 +49,40 @@ const FILTER_LABELS = {
 
 /** フィルター条件に応じてタスクを絞り込む */
 function applyFilter(tasks) {
-  if (currentFilter === "incomplete") {
-    return tasks.filter((t) => t.isCompleted === false);
+  let filtered = tasks;
+
+  if (searchQuery.trim() !== "") {
+    // 検索中はステータスによる絞り込みを無視し、全件から検索（「すべて表示」強制）
+    const q = searchQuery.toLowerCase();
+    tasks = tasks.filter(t => {
+      const titleMatch = t.title && t.title.toLowerCase().includes(q);
+      const descMatch = t.description && t.description.toLowerCase().includes(q);
+      return titleMatch || descMatch;
+    });
+  } else {
+    // 検索していない時のみステータス絞り込みを適用
+    if (currentFilter === "incomplete") {
+      tasks = tasks.filter((t) => t.isCompleted === false);
+    } else if (currentFilter === "completed") {
+      tasks = tasks.filter((t) => t.isCompleted === true);
+    }
   }
-  if (currentFilter === "completed") {
-    return tasks.filter((t) => t.isCompleted === true);
+
+  // カテゴリ（OR）
+  if (selectedCategories.length > 0) {
+    tasks = tasks.filter(t => {
+      const cName = t.categoryId && categoryMap[t.categoryId] ? categoryMap[t.categoryId] : null;
+      return cName && selectedCategories.includes(cName);
+    });
   }
-  return tasks; // all
+
+  // 重要度（OR）
+  if (selectedPriorities.length > 0) {
+    // 優先度は数値または文字列で比較
+    tasks = tasks.filter(t => t.priority && selectedPriorities.includes(String(t.priority)));
+  }
+
+  return tasks;
 }
 // Delete modal elements
 const deleteModalOverlay = document.getElementById("delete-modal-overlay");
@@ -327,91 +357,63 @@ function renderTasks(tasks) {
 
   taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
-    const dueTime = parseDueDateToTimestamp(task.dueDate);
-    const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
-    const deadlineWarning = isDeadlineWarning(task) ? "deadline-warning" : "";
     const categoryName = task.categoryId && categoryMap[task.categoryId] ? categoryMap[task.categoryId] : '';
+    const formattedDate = formatDueDate(task.dueDate);
+
+    const dueTime = parseDueDateToTimestamp(task.dueDate);
+    // 今日の日付を0時にリセットして比較する（今日の期限はまだ過ぎていないとする場合）
+    // または単純に Date.now() と比較する。既存に合わせて Date.now() にする。
+    const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
+    const isWarning = isDeadlineWarning(task);
+
+    let bgClass = "bg-[#fffde7]";
+    let borderClass = "border-[#a0d8ef]";
+    let textClass = "text-on-surface";
+    let subTextClass = "text-[#454558]";
+    let deadlineWarningClass = "";
+
+    if (isOverdue) {
+      bgClass = "bg-[#ba1a1a]"; // bg-error
+      borderClass = "border-[#ba1a1a]";
+      textClass = "text-white";
+      subTextClass = "text-white/80";
+    } else if (isWarning && !isDone) {
+      deadlineWarningClass = "deadline-warning";
+    }
+
     return `
-      <div class="task-row w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-center gap-4 group shadow-sm transition-all hover:shadow-md relative cursor-pointer ${deadlineWarning}" data-task-id="${escapeHtml(task.id)}" data-task-title="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}" data-task-deadline="${escapeHtml(formatDueDate(task.dueDate) || '未設定')}" data-task-priority="${escapeHtml(String(task.priority || ''))}" data-task-category="${escapeHtml(categoryName)}">
-        <!-- Pin Icon -->
-        ${task.isPinned ? `
-        <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
-          <span class="material-symbols-outlined text-[18px] text-[#ff0000] icon-filled">push_pin</span>
+      <div class="task-row w-full ${bgClass} rounded-3xl border ${borderClass} ${deadlineWarningClass} p-4 flex gap-4 group shadow-sm transition-all hover:shadow-md relative cursor-pointer" 
+        data-task-id="${escapeHtml(task.id)}" 
+        data-task-title="${escapeHtml(task.title)}" 
+        data-task-desc="${escapeHtml(task.description || '')}" 
+        data-task-deadline="${escapeHtml(formattedDate || '未設定')}"
+        data-category="${escapeHtml(categoryName)}"
+        data-priority="${escapeHtml(task.priority || '')}"
+      >
+        <!-- チェックボックス -->
+        <div class="task-toggle-btn w-6 h-6 border-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors mt-1 ${isDone ? 'bg-[#426ab3] border-[#426ab3]' : 'bg-transparent border-[#a0d8ef]'}" data-id="${escapeHtml(task.id)}" data-completed="${isDone}">
+          ${isDone ? '<span class="material-symbols-outlined text-[#ffffff] text-[18px] font-bold">check</span>' : ''}
         </div>
-        ` : ''}
-        <!-- Checkbox Button -->
-        <button
-          type="button"
-          class="task-toggle-btn w-6 h-6 border-2 ${isOverdue ? 'border-white' : 'border-[#60a5fa]'} ${isDone ? (isOverdue ? 'bg-white' : 'bg-[#60a5fa]') : 'bg-transparent hover:bg-white/30'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
-          data-id="${escapeHtml(task.id)}"
-          data-completed="${isDone}"
-          aria-label="${isDone ? '未完了にする' : '完了にする'}"
-          title="${isDone ? '未完了にする' : '完了にする'}"
-        >
-          ${isDone ? '<span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>' : ''}
-        </button>
-
-        <!-- Task Content (タイトルのみ表示) -->
-        <div class="flex-1 flex items-center min-w-0">
-          <!-- Title -->
-          <div class="task-title font-body-md text-body-md font-medium break-words ${isDone ? 'line-through opacity-60' : ''} ${isOverdue ? 'text-white' : 'text-on-surface'}">
-            ${escapeHtml(task.title)}
-          </div>
-        </div>
-
-        <!-- Menu Button (3-dot leader) -->
-        <div class="relative task-menu-container flex-shrink-0">
-          <button
-            type="button"
-            class="task-menu-btn text-[#426ab3] hover:opacity-70 transition-opacity flex items-center justify-center p-2 rounded-full cursor-pointer"
-            aria-label="メニュー"
-          >
-            <span class="material-symbols-outlined text-[24px]">more_vert</span>
-          </button>
+        
+        <!-- タスク情報 (縦並び) -->
+        <div class="flex-1 flex flex-col justify-start">
+          <!-- 上段: カテゴリ -->
+          ${categoryName ? `<span class="inline-block bg-[#a0d8ef]/20 text-[#426ab3] text-[10px] font-bold px-2 py-0.5 rounded-full self-start mb-1 border border-[#a0d8ef]/50">${escapeHtml(categoryName)}</span>` : ''}
           
-          <!-- Dropdown Menu -->
-          <div class="task-dropdown-menu absolute right-0 top-full mt-1 bg-[#f9f9f9] border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[120px] hidden">
-            ${task.isPinned ? `
-            <button
-              type="button"
-              class="task-pin-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
-              data-id="${escapeHtml(task.id)}"
-              data-pinned="true"
-            >
-              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">keep_off</span>
-              <span>ピンを外す</span>
-            </button>
-            ` : `
-            <button
-              type="button"
-              class="task-pin-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
-              data-id="${escapeHtml(task.id)}"
-              data-pinned="false"
-            >
-              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">push_pin</span>
-              <span>ピン留め</span>
-            </button>
-            `}
-            <button
-              type="button"
-              class="task-edit-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
-              data-id="${escapeHtml(task.id)}"
-            >
-              <span class="material-symbols-outlined text-[18px]">edit</span>
-              <span>編集</span>
-            </button>
-            <button
-              type="button"
-              class="task-delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer"
-              data-id="${escapeHtml(task.id)}"
-              data-title="${escapeHtml(task.title)}"
-              data-desc="${escapeHtml(task.description || '')}"
-            >
-              <span class="material-symbols-outlined text-[18px]">delete</span>
-              <span>削除</span>
-            </button>
+          <!-- 中段: タイトル -->
+          <span class="font-body-md text-[16px] ${textClass} leading-tight ${isDone ? 'line-through opacity-60' : ''}">${escapeHtml(task.title)}</span>
+          
+          <!-- 下段: 期限 + 重要度 -->
+          <div class="flex items-center gap-3 mt-2 ${isOverdue ? 'opacity-100' : 'opacity-80'}">
+            ${formattedDate ? `<div class="flex items-center gap-1 text-[12px] ${subTextClass}"><span class="material-symbols-outlined text-[14px]">calendar_today</span><span>${escapeHtml(formattedDate)}</span></div>` : ''}
+            ${task.priority ? `<div class="flex items-center gap-0.5">${renderStars(task.priority, isOverdue)}</div>` : ''}
           </div>
         </div>
+
+        <!-- オプションメニュー -->
+        <button class="task-menu-btn ${isOverdue ? 'text-white hover:opacity-70' : 'text-[#a0d8ef] hover:opacity-70'} transition-opacity flex items-center justify-center p-2 self-start -mt-2 -mr-2" tabindex="0">
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
       </div>
     `;
   }).join("");
@@ -442,15 +444,11 @@ function renderTasks(tasks) {
   taskListContainer.querySelectorAll(".task-delete-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-
-      // 削除実行時にメニューを閉じる
       const menu = btn.closest('.task-dropdown-menu');
       if (menu) menu.classList.add('hidden');
-
       const taskId = btn.getAttribute("data-id");
       const taskTitle = btn.getAttribute("data-title");
       const taskDesc = btn.getAttribute("data-desc");
-
       showDeleteModal(taskTitle, taskDesc, taskId);
     });
   });
@@ -461,7 +459,6 @@ function renderTasks(tasks) {
       e.stopPropagation();
       const menu = btn.closest('.task-dropdown-menu');
       if (menu) menu.classList.add('hidden');
-
       const taskId = btn.getAttribute("data-id");
       window.location.href = `taskedit.html?docId=${encodeURIComponent(taskId)}`;
     });
@@ -473,10 +470,8 @@ function renderTasks(tasks) {
       e.stopPropagation();
       const menu = btn.closest('.task-dropdown-menu');
       if (menu) menu.classList.add('hidden');
-
       const taskId = btn.getAttribute("data-id");
       const isPinned = btn.getAttribute("data-pinned") === "true";
-
       try {
         const taskDocRef = doc(db, "tasks", taskId);
         await updateDoc(taskDocRef, {
@@ -493,29 +488,26 @@ function renderTasks(tasks) {
   taskListContainer.querySelectorAll(".task-menu-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      // Close all other open menus
       taskListContainer.querySelectorAll(".task-dropdown-menu").forEach(menu => {
         if (menu !== btn.nextElementSibling) {
           menu.classList.add("hidden");
         }
       });
-      // Toggle this menu
       const dropdown = btn.nextElementSibling;
-      dropdown.classList.toggle("hidden");
+      if (dropdown) dropdown.classList.toggle("hidden");
     });
   });
 
   // Attach click handler to task rows for detail modal
   taskListContainer.querySelectorAll(".task-row").forEach((row) => {
     row.addEventListener("click", (e) => {
-      // Do NOT open detail if user clicked on checkbox, menu, or any button inside
-      if (e.target.closest('.task-toggle-btn') || e.target.closest('.task-menu-container')) return;
+      if (e.target.closest('.task-toggle-btn') || e.target.closest('.task-menu-btn')) return;
 
       const title = row.getAttribute("data-task-title") || '';
       const desc = row.getAttribute("data-task-desc") || '';
       const deadline = row.getAttribute("data-task-deadline") || '';
-      const priority = row.getAttribute("data-task-priority") || '';
-      const category = row.getAttribute("data-task-category") || '';
+      const priority = row.getAttribute("data-priority") || '';
+      const category = row.getAttribute("data-category") || '';
       showTaskDetailModal(title, desc, deadline, priority, category);
     });
   });
@@ -636,6 +628,122 @@ if (taskDetailOverlay) {
 // Initial state
 renderLoading();
 
+// Search & Filter Modal Logic
+const searchFab = document.getElementById("search-fab");
+const filterModal = document.getElementById("filter-modal");
+const filterModalBackdrop = document.getElementById("filter-modal-backdrop");
+const filterModalCloseX = document.getElementById("filter-modal-close-x");
+const searchInput = document.getElementById("search-input");
+
+function openSearchModal() {
+  if (filterModal) filterModal.classList.remove("hidden");
+  if (searchInput) searchInput.focus();
+}
+
+function closeSearchModal() {
+  if (filterModal) filterModal.classList.add("hidden");
+}
+
+if (searchFab) searchFab.addEventListener("click", openSearchModal);
+if (filterModalBackdrop) filterModalBackdrop.addEventListener("click", closeSearchModal);
+if (filterModalCloseX) filterModalCloseX.addEventListener("click", closeSearchModal);
+
+const filterCategorySelect = document.getElementById("filter-category-select");
+const filterCategoryActiveContainer = document.getElementById("filter-category-active-container");
+
+// 全タスクから重複なしのカテゴリリストを抽出し、セレクトボックスを更新する
+function updateCategoryOptions() {
+  if (!filterCategorySelect) return;
+  // ユーザーが作成したカテゴリ含め、すべてのタスクからユニークなカテゴリを抽出
+  const uniqueCategories = [...new Set(allTasks.map(t => t.categoryId && categoryMap[t.categoryId] ? categoryMap[t.categoryId] : null).filter(c => c && c.trim() !== ""))].sort();
+  
+  let optionsHtml = `<option value="">カテゴリを選択して追加...</option>`;
+  uniqueCategories.forEach(cat => {
+    optionsHtml += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+  });
+  filterCategorySelect.innerHTML = optionsHtml;
+}
+
+// 選択されたカテゴリのチップを描画する
+function renderActiveCategoryChips() {
+  if (!filterCategoryActiveContainer) return;
+  
+  if (selectedCategories.length === 0) {
+    filterCategoryActiveContainer.innerHTML = "";
+    return;
+  }
+  
+  filterCategoryActiveContainer.innerHTML = selectedCategories.map(cat => `
+    <button data-value="${escapeHtml(cat)}" class="active-category-chip flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#426ab3] text-white text-[12px] font-label-bold hover:brightness-95 transition-all shadow-sm cursor-pointer">
+      ${escapeHtml(cat)}
+      <span class="material-symbols-outlined text-[14px]">close</span>
+    </button>
+  `).join("");
+  
+  // チップクリックで解除
+  document.querySelectorAll('.active-category-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.getAttribute('data-value');
+      selectedCategories = selectedCategories.filter(v => v !== val);
+      renderActiveCategoryChips();
+      renderTasks(allTasks);
+    });
+  });
+}
+
+// ドロップダウンでカテゴリが選択されたとき
+if (filterCategorySelect) {
+  filterCategorySelect.addEventListener('change', (e) => {
+    const val = e.target.value;
+    if (val && !selectedCategories.includes(val)) {
+      selectedCategories.push(val);
+      renderActiveCategoryChips();
+      renderTasks(allTasks);
+    }
+    // 選択をリセット
+    filterCategorySelect.value = "";
+  });
+}
+
+// Priorities Toggle
+document.querySelectorAll('.filter-priority-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const val = btn.getAttribute('data-value');
+    if (selectedPriorities.includes(val)) {
+      selectedPriorities = selectedPriorities.filter(v => v !== val);
+      btn.classList.remove('bg-[#a0d8ef]');
+      btn.classList.add('bg-white');
+    } else {
+      selectedPriorities.push(val);
+      btn.classList.remove('bg-white');
+      btn.classList.add('bg-[#a0d8ef]');
+    }
+    renderTasks(allTasks);
+  });
+});
+
+function updateFilterUI() {
+  if (searchQuery.trim() !== "") {
+    // 検索中はフィルターボタンを無効化し、ラベルを変更
+    filterBtn.disabled = true;
+    filterBtn.classList.add("opacity-50", "cursor-not-allowed");
+    filterLabel.textContent = "検索結果（すべて）";
+  } else {
+    // 検索がクリアされたら元のフィルター状態・ラベルを復元
+    filterBtn.disabled = false;
+    filterBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    filterLabel.textContent = FILTER_LABELS[currentFilter];
+  }
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    updateFilterUI();
+    renderTasks(allTasks);
+  });
+}
+
 // Authentication & Firestore listener setup
 let unsubscribeTasks = null;
 
@@ -701,7 +809,8 @@ onAuthStateChanged(auth, (user) => {
       activeTasks.sort((a, b) => compareTasks(a, b, nowTime));
 
       allTasks = activeTasks;
-      renderTasks(activeTasks);
+      updateCategoryOptions();
+      renderTasks(allTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");
@@ -729,6 +838,7 @@ function closeDropdown() {
 
 filterBtn?.addEventListener("click", (e) => {
   e.stopPropagation();
+  if (filterBtn.disabled) return;
   const isOpen = !filterDropdown.classList.contains("hidden");
   isOpen ? closeDropdown() : openDropdown();
 });
