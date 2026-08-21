@@ -271,6 +271,45 @@
     </div>
   </div>
 
+  <!-- Task Detail Modal -->
+  <div id="task-detail-overlay"
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div id="task-detail-box"
+      class="bg-white w-full max-w-[500px] rounded-3xl border-2 border-[#a0d8ef] shadow-lg overflow-hidden flex flex-col transform scale-95 transition-transform duration-200">
+      <div class="p-6 flex flex-col gap-5">
+        <!-- Header -->
+        <div class="flex justify-between items-start">
+          <h2 class="text-[20px] font-bold text-[#1e293b]">タスク詳細</h2>
+          <button id="task-detail-close-x" type="button" class="text-[#a0d8ef] hover:opacity-70 transition-opacity cursor-pointer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <!-- Content -->
+        <div class="flex flex-col gap-4">
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">タスク名</label>
+            <p id="task-detail-title" class="text-[18px] font-semibold text-[#1e293b] mt-1"></p>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">期限</label>
+            <p id="task-detail-deadline" class="text-body-md text-on-surface mt-1"></p>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">内容</label>
+            <p id="task-detail-desc" class="text-body-md text-on-surface leading-relaxed mt-1 whitespace-pre-wrap"></p>
+          </div>
+        </div>
+        <!-- Close Button -->
+        <div class="mt-2 flex justify-end">
+          <button id="task-detail-close-btn" type="button"
+            class="bg-[#a0d8ef] text-white px-6 py-2 rounded-full font-label-bold hover:bg-[#426ab3] transition-all shadow-sm cursor-pointer">
+            閉じる
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Delete Confirmation Modal -->
   <div id="delete-modal-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
     <div id="delete-modal-box" class="bg-[#f9f9f9] w-[90%] max-w-[400px] rounded-3xl border-2 border-[#a0d8ef] p-6 shadow-lg flex flex-col gap-6 transform scale-95 transition-transform duration-200">

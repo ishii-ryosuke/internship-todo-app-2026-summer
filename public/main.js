@@ -63,6 +63,15 @@ const deleteModalYes = document.getElementById("delete-modal-yes");
 const deleteModalNo = document.getElementById("delete-modal-no");
 let taskToDeleteId = null;
 
+// Task Detail modal elements
+const taskDetailOverlay = document.getElementById("task-detail-overlay");
+const taskDetailBox = document.getElementById("task-detail-box");
+const taskDetailTitle = document.getElementById("task-detail-title");
+const taskDetailDeadline = document.getElementById("task-detail-deadline");
+const taskDetailDesc = document.getElementById("task-detail-desc");
+const taskDetailCloseX = document.getElementById("task-detail-close-x");
+const taskDetailCloseBtn = document.getElementById("task-detail-close-btn");
+
 // Helper function to safely escape HTML
 function escapeHtml(str) {
   if (!str) return "";
@@ -134,7 +143,7 @@ function renderTasks(tasks) {
   taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
     return `
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
+      <div class="task-row w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative cursor-pointer" data-task-id="${escapeHtml(task.id)}" data-task-title="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}" data-task-deadline="${escapeHtml(task.deadline || '')}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
         <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
@@ -163,11 +172,6 @@ function renderTasks(tasks) {
           <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
             ${escapeHtml(task.title)}
           </div>
-          ${task.description ? `
-            <div class="task-desc text-xs text-[#454558] mt-1 break-words opacity-80 whitespace-pre-wrap ${isDone ? 'line-through opacity-50' : ''}">
-              ${escapeHtml(task.description)}
-            </div>
-          ` : ''}
         </div>
 
         <!-- Menu Button (3-dot leader) -->
@@ -315,6 +319,19 @@ function renderTasks(tasks) {
       dropdown.classList.toggle("hidden");
     });
   });
+
+  // Attach click handler to task rows for detail modal
+  taskListContainer.querySelectorAll(".task-row").forEach((row) => {
+    row.addEventListener("click", (e) => {
+      // Do NOT open detail if user clicked on checkbox, menu, or any button inside
+      if (e.target.closest('.task-toggle-btn') || e.target.closest('.task-menu-container')) return;
+
+      const title = row.getAttribute("data-task-title") || '';
+      const desc = row.getAttribute("data-task-desc") || '';
+      const deadline = row.getAttribute("data-task-deadline") || '';
+      showTaskDetailModal(title, desc, deadline);
+    });
+  });
 }
 
 // Close menus when clicking outside
@@ -367,6 +384,33 @@ if (deleteModalYes) {
       console.error("タスクの削除に失敗しました:", err);
       alert("削除に失敗しました。");
     }
+  });
+}
+
+// Task Detail Modal Logic
+function showTaskDetailModal(title, desc, deadline) {
+  if (!taskDetailOverlay) return;
+  taskDetailTitle.textContent = title;
+  taskDetailDesc.textContent = desc || '（内容なし）';
+  taskDetailDeadline.textContent = deadline || '（未設定）';
+  taskDetailOverlay.classList.remove('opacity-0', 'pointer-events-none');
+  taskDetailBox.classList.remove('scale-95');
+  taskDetailBox.classList.add('scale-100');
+}
+
+function hideTaskDetailModal() {
+  if (!taskDetailOverlay) return;
+  taskDetailOverlay.classList.add('opacity-0', 'pointer-events-none');
+  taskDetailBox.classList.remove('scale-100');
+  taskDetailBox.classList.add('scale-95');
+}
+
+if (taskDetailCloseX) taskDetailCloseX.addEventListener('click', hideTaskDetailModal);
+if (taskDetailCloseBtn) taskDetailCloseBtn.addEventListener('click', hideTaskDetailModal);
+if (taskDetailOverlay) {
+  taskDetailOverlay.addEventListener('click', (e) => {
+    // Close only when clicking the backdrop, not the modal content
+    if (e.target === taskDetailOverlay) hideTaskDetailModal();
   });
 }
 
