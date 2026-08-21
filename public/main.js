@@ -390,6 +390,12 @@ function renderTasks(tasks) {
         data-category="${escapeHtml(categoryName)}"
         data-priority="${escapeHtml(task.priority || '')}"
       >
+        <!-- Pin Icon -->
+        ${task.isPinned ? `
+        <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
+          <span class="material-symbols-outlined text-[18px] text-[#ff0000] icon-filled" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+        </div>
+        ` : ''}
         <!-- チェックボックス -->
         <div class="task-toggle-btn w-6 h-6 border-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors mt-1 ${isDone ? 'bg-[#426ab3] border-[#426ab3]' : 'bg-transparent border-[#a0d8ef]'}" data-id="${escapeHtml(task.id)}" data-completed="${isDone}">
           ${isDone ? '<span class="material-symbols-outlined text-[#ffffff] text-[18px] font-bold">check</span>' : ''}
@@ -411,9 +417,34 @@ function renderTasks(tasks) {
         </div>
 
         <!-- オプションメニュー -->
-        <button class="task-menu-btn ${isOverdue ? 'text-white hover:opacity-70' : 'text-[#a0d8ef] hover:opacity-70'} transition-opacity flex items-center justify-center p-2 self-start -mt-2 -mr-2" tabindex="0">
-          <span class="material-symbols-outlined">more_vert</span>
-        </button>
+        <div class="relative task-menu-container flex-shrink-0 self-start -mt-2 -mr-2">
+          <button class="task-menu-btn ${isOverdue ? 'text-white hover:opacity-70' : 'text-[#a0d8ef] hover:opacity-70'} transition-opacity flex items-center justify-center p-2" tabindex="0">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div class="task-dropdown-menu absolute right-0 top-full mt-1 bg-[#f9f9f9] border border-[#a0d8ef] rounded-lg shadow-lg z-50 py-1 min-w-[120px] hidden">
+            ${task.isPinned ? `
+            <button type="button" class="task-pin-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap" data-id="${escapeHtml(task.id)}" data-pinned="true">
+              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">keep_off</span>
+              <span>ピンを外す</span>
+            </button>
+            ` : `
+            <button type="button" class="task-pin-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap" data-id="${escapeHtml(task.id)}" data-pinned="false">
+              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">push_pin</span>
+              <span>ピン留め</span>
+            </button>
+            `}
+            <button type="button" class="task-edit-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap" data-id="${escapeHtml(task.id)}">
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+              <span>編集</span>
+            </button>
+            <button type="button" class="task-delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer" data-id="${escapeHtml(task.id)}" data-title="${escapeHtml(task.title)}" data-desc="${escapeHtml(task.description || '')}">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              <span>削除</span>
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }).join("");
@@ -501,7 +532,7 @@ function renderTasks(tasks) {
   // Attach click handler to task rows for detail modal
   taskListContainer.querySelectorAll(".task-row").forEach((row) => {
     row.addEventListener("click", (e) => {
-      if (e.target.closest('.task-toggle-btn') || e.target.closest('.task-menu-btn')) return;
+      if (e.target.closest('.task-toggle-btn') || e.target.closest('.task-menu-container')) return;
 
       const title = row.getAttribute("data-task-title") || '';
       const desc = row.getAttribute("data-task-desc") || '';

@@ -17,12 +17,12 @@ import {
 // 1. Firebase Initialization
 // ==========================================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyAnckVkyrUIPFZyqAhXKPAkSElNzSdGLas",
-  authDomain: "intean-24e34.firebaseapp.com",
-  projectId: "intean-24e34",
-  storageBucket: "intean-24e34.firebasestorage.app",
-  messagingSenderId: "893122700636",
-  appId: "1:893122700636:web:6d9cc762927ab9d5608d99"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 
 const app = initializeApp(firebaseConfig);
