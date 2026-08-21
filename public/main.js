@@ -141,6 +141,191 @@ function renderError(message) {
 }
 
 /**
+ * Render star rating for priority (1-3)
+ * @param {number|string} priority 
+ * @param {boolean} [isOverdue=false]
+ */
+function renderStars(priority, isOverdue = false) {
+  const p = parseInt(priority, 10) || 0;
+  if (p <= 0) return "";
+  let starsHtml = "";
+  for (let i = 1; i <= 3; i++) {
+    if (i <= p) {
+      starsHtml += `<span class="material-symbols-outlined text-[#FFC107] text-[16px] icon-filled" style="font-variation-settings: 'FILL' 1;">star</span>`;
+    } else {
+      starsHtml += `<span class="material-symbols-outlined ${isOverdue ? 'text-white/50' : 'text-[#d1d5db]'} text-[16px]">star</span>`;
+    }
+  }
+  return `
+    <div class="flex items-center gap-1 text-xs ${isOverdue ? 'text-white' : 'text-[#454558]'}">
+      <span class="font-medium">重要度:</span>
+      <div class="flex items-center gap-0.5" title="重要度: ${p}">${starsHtml}</div>
+    </div>
+  `;
+}
+
+/**
+ * Parse dueDate (Firestore Timestamp / {seconds} object / string) into ms.
+ * Returns null for null / undefined / empty / invalid — never throws.
+ * @param {*} dueDate
+ * @returns {number|null}
+ */
+function parseDueDateToTimestamp(dueDate) {
+  if (dueDate === null || dueDate === undefined || dueDate === "") return null;
+
+  // Firestore Timestamp (has toMillis method)
+  if (typeof dueDate === "object" && typeof dueDate.toMillis === "function") {
+    const ms = dueDate.toMillis();
+    return isNaN(ms) ? null : ms;
+  }
+
+  // Plain object with seconds (e.g. { seconds: 1234, nanoseconds: 0 })
+  if (typeof dueDate === "object" && typeof dueDate.seconds === "number") {
+    return dueDate.seconds * 1000;
+  }
+
+  // String handling
+  if (typeof dueDate === "string") {
+    const str = dueDate.trim();
+    if (!str) return null;
+    const parts = str.split(/[\sT]+/);
+    const dateSplit = (parts[0] || "").split("-").map(Number);
+    const year = dateSplit[0]; const month = dateSplit[1]; const day = dateSplit[2];
+    if (!year || !month || !day) return null;
+    const timeSplit = (parts[1] || "23:59").split(":").map(Number);
+    const dateObj = new Date(year, month - 1, day, timeSplit[0] || 0, timeSplit[1] || 0, 0, 0);
+    const time = dateObj.getTime();
+    return isNaN(time) ? null : time;
+  }
+
+  return null;
+}
+
+/**
+ * Determine display category for sorting:
+ * 1: ピン留め | 2: 期限切れ | 3: 期限が近い | 4: 期日なし
+ */
+function getTaskCategory(task, nowTime) {
+  if (task.isPinned) return 1;
+  const dueTime = parseDueDateToTimestamp(task.dueDate);
+  if (dueTime === null) return 4;
+  if (dueTime < nowTime) return 2;
+  return 3;
+}
+
+/**
+ * Compare tasks: ピン留め → 期限切れ → 期限が近い → 期日なし
+ * 同カテゴリ内: dueDate近い順 → priority高い順 → createdAt新しい順
+ */
+function compareTasks(a, b, nowTime) {
+  const catA = getTaskCategory(a, nowTime);
+  const catB = getTaskCategory(b, nowTime);
+  if (catA !== catB) return catA - catB;
+
+  const dueTimeA = parseDueDateToTimestamp(a.dueDate);
+  const dueTimeB = parseDueDateToTimestamp(b.dueDate);
+  const priorityA = parseInt(a.priority, 10) || 0;
+  const priorityB = parseInt(b.priority, 10) || 0;
+
+  // dueDate に差がある場合
+  if (dueTimeA !== null && dueTimeB !== null && dueTimeA !== dueTimeB) {
+    return dueTimeA - dueTimeB;
+  }
+
+  // ピン留め内のフォールバック
+  if (catA === 1) {
+    if (priorityA !== priorityB) return priorityB - priorityA;
+    const pA = a.pinnedAt?.toMillis ? a.pinnedAt.toMillis() : (a.pinnedAt?.seconds ? a.pinnedAt.seconds * 1000 : 0);
+    const pB = b.pinnedAt?.toMillis ? b.pinnedAt.toMillis() : (b.pinnedAt?.seconds ? b.pinnedAt.seconds * 1000 : 0);
+    if (pA !== pB) return pB - pA;
+  }
+
+  // priority
+  if (priorityA !== priorityB) return priorityB - priorityA;
+
+  // createdAt
+  const createdA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+  const createdB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+  return createdB - createdA;
+}
+
+/**
+ * Format dueDate for display as "M/D" (no leading zeros, no time).
+ * Supports Firestore Timestamp, {seconds} plain object, JS Date, and string.
+ * Never throws — returns "" for null/invalid values.
+ * @param {*} dueDate
+ * @returns {string}  e.g. "9/9", "12/25"
+ */
+function formatDueDate(dueDate) {
+  if (dueDate === null || dueDate === undefined || dueDate === "") return "";
+
+  let date = null;
+
+  // Firestore Timestamp → toDate()
+  if (typeof dueDate === "object" && typeof dueDate.toDate === "function") {
+    try { date = dueDate.toDate(); } catch (_) { return ""; }
+  }
+  // Plain {seconds} object
+  else if (typeof dueDate === "object" && typeof dueDate.seconds === "number") {
+    date = new Date(dueDate.seconds * 1000);
+  }
+  // JS Date
+  else if (dueDate instanceof Date) {
+    date = dueDate;
+  }
+  // String fallback: parse to Date
+  else if (typeof dueDate === "string") {
+    const str = dueDate.trim().replace("T", " ");
+    const parts = str.split(/[\s\-\/]+/);
+    if (parts.length >= 3) {
+      date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+  }
+
+  if (!date || isNaN(date.getTime())) return "";
+
+  const month = date.getMonth() + 1; // 先頭0なし
+  const day = date.getDate();        // 先頭0なし
+  return `${month}/${day}`;
+}
+
+/**
+ * Determine if a task is within today to 3 days later, excluding completed and overdue tasks.
+ * Year/Month/Date comparison only (ignores time/hours).
+ * @param {object} task
+ * @returns {boolean}
+ */
+function isDeadlineWarning(task) {
+  if (task.isCompleted) return false;
+  if (!task.dueDate) return false;
+
+  let dueDate = null;
+  if (typeof task.dueDate.toDate === "function") {
+    dueDate = task.dueDate.toDate();
+  } else if (typeof task.dueDate === "object" && typeof task.dueDate.seconds === "number") {
+    dueDate = new Date(task.dueDate.seconds * 1000);
+  } else if (task.dueDate instanceof Date) {
+    dueDate = task.dueDate;
+  } else if (typeof task.dueDate === "string") {
+    const str = task.dueDate.trim().replace("T", " ");
+    const parts = str.split(/[\s\-\/]+/);
+    if (parts.length >= 3) {
+      dueDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+  }
+
+  if (!dueDate || isNaN(dueDate.getTime())) return false;
+
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+
+  const diffDays = Math.round((dueDateOnly.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  return diffDays >= 0 && diffDays <= 3;
+}
+
+/**
  * Render the task items
  * @param {Array} tasks 
  */
@@ -156,8 +341,12 @@ function renderTasks(tasks) {
 
   taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
+    const dueTime = parseDueDateToTimestamp(task.dueDate);
+    const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
+    const deadlineWarning = isDeadlineWarning(task) ? "deadline-warning" : "";
+    const categoryName = task.categoryId && categoryMap[task.categoryId] ? categoryMap[task.categoryId] : '';
     return `
-      <div class="task-row w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative cursor-pointer" data-task-id="${escapeHtml(task.id)}" data-task-title="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}" data-task-deadline="${escapeHtml(task.deadline || '')}">
+      <div class="task-row w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-center gap-4 group shadow-sm transition-all hover:shadow-md relative cursor-pointer ${deadlineWarning}" data-task-id="${escapeHtml(task.id)}" data-task-title="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}" data-task-deadline="${escapeHtml(formatDueDate(task.dueDate) || '未設定')}" data-task-priority="${escapeHtml(String(task.priority || ''))}" data-task-category="${escapeHtml(categoryName)}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
         <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
@@ -167,7 +356,7 @@ function renderTasks(tasks) {
         <!-- Checkbox Button -->
         <button
           type="button"
-          class="task-toggle-btn w-6 h-6 mt-0.5 border-2 border-[#60a5fa] ${isDone ? 'bg-[#60a5fa]' : 'bg-transparent hover:bg-[#60a5fa]/20'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
+          class="task-toggle-btn w-6 h-6 border-2 ${isOverdue ? 'border-white' : 'border-[#60a5fa]'} ${isDone ? (isOverdue ? 'bg-white' : 'bg-[#60a5fa]') : 'bg-transparent hover:bg-white/30'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
           data-id="${escapeHtml(task.id)}"
           data-completed="${isDone}"
           aria-label="${isDone ? '未完了にする' : '完了にする'}"
@@ -176,14 +365,10 @@ function renderTasks(tasks) {
           ${isDone ? '<span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>' : ''}
         </button>
 
-        <!-- Task Content -->
-        <div class="flex-1 flex flex-col min-w-0">
-          ${task.categoryId && categoryMap[task.categoryId] ? `
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#a0d8ef] text-[#0001bb] mb-1 w-fit">
-              ${escapeHtml(categoryMap[task.categoryId])}
-            </span>
-          ` : ''}
-          <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
+        <!-- Task Content (タイトルのみ表示) -->
+        <div class="flex-1 flex items-center min-w-0">
+          <!-- Title -->
+          <div class="task-title font-body-md text-body-md font-medium break-words ${isDone ? 'line-through opacity-60' : ''} ${isOverdue ? 'text-white' : 'text-on-surface'}">
             ${escapeHtml(task.title)}
           </div>
         </div>
@@ -343,7 +528,9 @@ function renderTasks(tasks) {
       const title = row.getAttribute("data-task-title") || '';
       const desc = row.getAttribute("data-task-desc") || '';
       const deadline = row.getAttribute("data-task-deadline") || '';
-      showTaskDetailModal(title, desc, deadline);
+      const priority = row.getAttribute("data-task-priority") || '';
+      const category = row.getAttribute("data-task-category") || '';
+      showTaskDetailModal(title, desc, deadline, priority, category);
     });
   });
 }
@@ -402,11 +589,43 @@ if (deleteModalYes) {
 }
 
 // Task Detail Modal Logic
-function showTaskDetailModal(title, desc, deadline) {
+function showTaskDetailModal(title, desc, deadline, priority, categoryName) {
   if (!taskDetailOverlay) return;
   taskDetailTitle.textContent = title;
   taskDetailDesc.textContent = desc || '（内容なし）';
   taskDetailDeadline.textContent = deadline || '（未設定）';
+
+  // 重要度（stars）の表示
+  const priorityEl = document.getElementById('task-detail-priority');
+  if (priorityEl) {
+    const p = parseInt(priority, 10) || 0;
+    if (p > 0) {
+      let starsHtml = '';
+      for (let i = 1; i <= 3; i++) {
+        if (i <= p) {
+          starsHtml += `<span class="material-symbols-outlined text-[#FFC107] text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>`;
+        } else {
+          starsHtml += `<span class="material-symbols-outlined text-[#d1d5db] text-[20px]">star</span>`;
+        }
+      }
+      priorityEl.innerHTML = starsHtml;
+    } else {
+      priorityEl.textContent = '（未設定）';
+    }
+  }
+
+  // カテゴリーの表示
+  const categoryEl = document.getElementById('task-detail-category');
+  const categoryRow = document.getElementById('task-detail-category-row');
+  if (categoryEl && categoryRow) {
+    if (categoryName) {
+      categoryEl.textContent = categoryName;
+      categoryRow.classList.remove('hidden');
+    } else {
+      categoryRow.classList.add('hidden');
+    }
+  }
+
   taskDetailOverlay.classList.remove('opacity-0', 'pointer-events-none');
   taskDetailBox.classList.remove('scale-95');
   taskDetailBox.classList.add('scale-100');
@@ -536,29 +755,13 @@ onAuthStateChanged(auth, (user) => {
       // Filter out deleted tasks
       const activeTasks = tasks.filter(task => !task.isDeleted);
 
-      // Separate into pinned and unpinned
-      const pinnedTasks = activeTasks.filter(task => task.isPinned);
-      const unpinnedTasks = activeTasks.filter(task => !task.isPinned);
+      // Sort: ピン留め → 期限切れ → 期限が近い順 → 期日なし
+      // 同カテゴリ内: dueDate近い順 → priority高い順 → createdAt新しい順
+      const nowTime = Date.now();
+      activeTasks.sort((a, b) => compareTasks(a, b, nowTime));
 
-      // Sort pinned: newest pinned first
-      pinnedTasks.sort((a, b) => {
-        const timeA = a.pinnedAt?.toMillis ? a.pinnedAt.toMillis() : (a.pinnedAt?.seconds ? a.pinnedAt.seconds * 1000 : 0);
-        const timeB = b.pinnedAt?.toMillis ? b.pinnedAt.toMillis() : (b.pinnedAt?.seconds ? b.pinnedAt.seconds * 1000 : 0);
-        return timeB - timeA;
-      });
-
-      // Sort unpinned: newest created first
-      unpinnedTasks.sort((a, b) => {
-        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
-        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
-        return timeB - timeA;
-      });
-
-      // Combine arrays
-      const sortedTasks = [...pinnedTasks, ...unpinnedTasks];
-
-      allTasks = sortedTasks;
-      renderTasks(allTasks);
+      allTasks = activeTasks;
+      renderTasks(activeTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
       renderError(error.message || "タスクを取得できませんでした。");
