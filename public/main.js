@@ -25,6 +25,7 @@ const taskListContainer = document.getElementById("task-list");
 // ============================================================
 let currentFilter = "incomplete";
 let allTasks = [];
+let searchQuery = "";
 
 const filterBtn = document.getElementById("filter-btn");
 const filterLabel = document.getElementById("filter-label");
@@ -39,13 +40,26 @@ const FILTER_LABELS = {
 
 /** フィルター条件に応じてタスクを絞り込む */
 function applyFilter(tasks) {
-  if (currentFilter === "incomplete") {
-    return tasks.filter((t) => t.isCompleted === false);
+  let filtered = tasks;
+
+  if (searchQuery.trim() !== "") {
+    // 検索中はステータスによる絞り込みを無視し、全件から検索（「すべて表示」強制）
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(t => {
+      const titleMatch = t.title && t.title.toLowerCase().includes(q);
+      const descMatch = t.description && t.description.toLowerCase().includes(q);
+      return titleMatch || descMatch;
+    });
+  } else {
+    // 検索していない時のみステータス絞り込みを適用
+    if (currentFilter === "incomplete") {
+      filtered = filtered.filter((t) => t.isCompleted === false);
+    } else if (currentFilter === "completed") {
+      filtered = filtered.filter((t) => t.isCompleted === true);
+    }
   }
-  if (currentFilter === "completed") {
-    return tasks.filter((t) => t.isCompleted === true);
-  }
-  return tasks; // all
+
+  return filtered;
 }
 // Delete modal elements
 const deleteModalOverlay = document.getElementById("delete-modal-overlay");
@@ -405,6 +419,52 @@ if (taskDetailOverlay) {
 // Initial state
 renderLoading();
 
+// Search Modal Logic
+const searchFab = document.getElementById("search-fab");
+const filterModal = document.getElementById("filter-modal");
+const filterModalBackdrop = document.getElementById("filter-modal-backdrop");
+const filterModalCloseX = document.getElementById("filter-modal-close-x");
+const filterModalCancel = document.getElementById("filter-modal-cancel");
+const filterModalApply = document.getElementById("filter-modal-apply");
+const searchInput = document.getElementById("search-input");
+
+function openSearchModal() {
+  if (filterModal) filterModal.classList.remove("hidden");
+  if (searchInput) searchInput.focus();
+}
+
+function closeSearchModal() {
+  if (filterModal) filterModal.classList.add("hidden");
+}
+
+if (searchFab) searchFab.addEventListener("click", openSearchModal);
+if (filterModalBackdrop) filterModalBackdrop.addEventListener("click", closeSearchModal);
+if (filterModalCloseX) filterModalCloseX.addEventListener("click", closeSearchModal);
+if (filterModalCancel) filterModalCancel.addEventListener("click", closeSearchModal);
+if (filterModalApply) filterModalApply.addEventListener("click", closeSearchModal);
+
+function updateFilterUI() {
+  if (searchQuery.trim() !== "") {
+    // 検索中はフィルターボタンを無効化し、ラベルを変更
+    filterBtn.disabled = true;
+    filterBtn.classList.add("opacity-50", "cursor-not-allowed");
+    filterLabel.textContent = "検索結果（すべて）";
+  } else {
+    // 検索がクリアされたら元のフィルター状態・ラベルを復元
+    filterBtn.disabled = false;
+    filterBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    filterLabel.textContent = FILTER_LABELS[currentFilter];
+  }
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    updateFilterUI();
+    renderTasks(allTasks);
+  });
+}
+
 // Authentication & Firestore listener setup
 let unsubscribeTasks = null;
 
@@ -487,6 +547,7 @@ function closeDropdown() {
 
 filterBtn?.addEventListener("click", (e) => {
   e.stopPropagation();
+  if (filterBtn.disabled) return;
   const isOpen = !filterDropdown.classList.contains("hidden");
   isOpen ? closeDropdown() : openDropdown();
 });
