@@ -357,7 +357,7 @@
     </div>
   </div>
 
-  <!-- Search Filter Modal -->
+  <!-- Search & Filter Modal -->
   <div class="fixed inset-0 z-[100] flex items-center justify-center hidden" id="filter-modal">
     <div class="absolute inset-0 bg-black opacity-50" id="filter-modal-backdrop"></div>
     <div class="relative w-[90%] max-w-[400px] bg-[#f9f9f9] rounded-3xl border-2 border-[#a0d8ef] shadow-lg overflow-hidden">
@@ -369,12 +369,28 @@
       </div>
       <div class="p-6 flex flex-col gap-4">
         <div class="flex flex-col gap-2">
+          <label class="font-label-bold text-on-surface">カテゴリー</label>
+          <div class="relative">
+            <select id="filter-category-select" class="w-full p-3 pr-10 rounded-xl border border-[#a0d8ef] bg-white focus:outline-none focus:ring-2 focus:ring-[#426ab3] font-body-md appearance-none cursor-pointer">
+              <option value="">カテゴリを選択して追加...</option>
+              <!-- JSで動的に追加される -->
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#a0d8ef] pointer-events-none">expand_more</span>
+          </div>
+          <!-- 選択されたカテゴリのチップを表示するエリア -->
+          <div class="flex flex-wrap gap-2 mt-2" id="filter-category-active-container"></div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="font-label-bold text-on-surface">重要度</label>
+          <div class="flex flex-wrap gap-2" id="filter-priority-container">
+            <button data-value="3" class="filter-priority-btn flex items-center gap-2 px-4 py-2 rounded-full border border-[#a0d8ef] bg-white text-on-surface text-[14px] font-label-bold hover:bg-[#e8f7fd] transition-colors cursor-pointer"><span class="material-symbols-outlined text-[18px] icon-filled">star star star</span></button>
+            <button data-value="2" class="filter-priority-btn flex items-center gap-2 px-4 py-2 rounded-full border border-[#a0d8ef] bg-white text-on-surface text-[14px] font-label-bold hover:bg-[#e8f7fd] transition-colors cursor-pointer"><span class="material-symbols-outlined text-[18px] icon-filled">star star</span></button>
+            <button data-value="1" class="filter-priority-btn flex items-center gap-2 px-4 py-2 rounded-full border border-[#a0d8ef] bg-white text-on-surface text-[14px] font-label-bold hover:bg-[#e8f7fd] transition-colors cursor-pointer"><span class="material-symbols-outlined text-[18px] icon-filled">star</span></button>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
           <label class="font-label-bold text-on-surface">キーワードで検索</label>
           <input id="search-input" class="w-full p-3 rounded-xl border border-[#a0d8ef] bg-white focus:outline-none focus:ring-2 focus:ring-[#426ab3] font-body-md" placeholder="タスク名を入力..." type="text"/>
-        </div>
-        <div class="flex gap-3 mt-4">
-          <button id="filter-modal-cancel" class="flex-1 py-3 rounded-full border border-[#426ab3] text-[#426ab3] font-label-bold hover:bg-[#426ab3] hover:text-white transition-colors cursor-pointer">キャンセル</button>
-          <button id="filter-modal-apply" class="flex-1 py-3 rounded-full bg-[#426ab3] text-white font-label-bold hover:brightness-95 transition-all cursor-pointer">適用</button>
         </div>
       </div>
     </div>
