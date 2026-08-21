@@ -260,6 +260,42 @@ function formatDueDate(dueDate) {
 }
 
 /**
+ * Determine if a task is within today to 3 days later, excluding completed and overdue tasks.
+ * Year/Month/Date comparison only (ignores time/hours).
+ * @param {object} task
+ * @returns {boolean}
+ */
+function isDeadlineWarning(task) {
+  if (task.isCompleted) return false;
+  if (!task.dueDate) return false;
+
+  let dueDate = null;
+  if (typeof task.dueDate.toDate === "function") {
+    dueDate = task.dueDate.toDate();
+  } else if (typeof task.dueDate === "object" && typeof task.dueDate.seconds === "number") {
+    dueDate = new Date(task.dueDate.seconds * 1000);
+  } else if (task.dueDate instanceof Date) {
+    dueDate = task.dueDate;
+  } else if (typeof task.dueDate === "string") {
+    const str = task.dueDate.trim().replace("T", " ");
+    const parts = str.split(/[\s\-\/]+/);
+    if (parts.length >= 3) {
+      dueDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+  }
+
+  if (!dueDate || isNaN(dueDate.getTime())) return false;
+
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+
+  const diffDays = Math.round((dueDateOnly.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  return diffDays >= 0 && diffDays <= 3;
+}
+
+/**
  * Render the task items
  * @param {Array} tasks 
  */
@@ -277,8 +313,9 @@ function renderTasks(tasks) {
     const isDone = Boolean(task.isCompleted);
     const dueTime = parseDueDateToTimestamp(task.dueDate);
     const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
+    const deadlineWarning = isDeadlineWarning(task) ? "deadline-warning" : "";
     return `
-      <div class="w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
+      <div class="w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative ${deadlineWarning}" data-task-id="${escapeHtml(task.id)}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
         <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">

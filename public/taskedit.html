@@ -12,15 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <script src="tailwind-config.js"></script>
-  <link rel="stylesheet" href="create.css?v=4" />
+  <link rel="stylesheet" href="taskedit.css?v=1" />
   <style>
     .icon-filled {
       font-variation-settings: 'FILL' 1;
-    }
-    .input-focus-ring:focus {
-      outline: none;
-      border-width: 3px !important;
-      border-color: #0000ff !important;
     }
   </style>
 </head>
@@ -71,18 +66,67 @@
           <p id="taskNameError" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
         </div>
 
+        <!-- Priority (Stars) -->
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-primary">
+            重要度 <span class="text-error font-bold">*</span>
+          </label>
+          <div class="flex gap-2 px-1" id="starContainer">
+            <button class="star-btn" type="button" data-value="1" aria-label="重要度1">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+            <button class="star-btn" type="button" data-value="2" aria-label="重要度2">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+            <button class="star-btn" type="button" data-value="3" aria-label="重要度3">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+          </div>
+          <input type="hidden" id="priority" name="priority" value="0" />
+          <p id="priorityError" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
+        </div>
+
+        <!-- Due Date & Time -->
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-primary" for="dueDate">
+            期日 <span class="text-error font-bold">*</span>
+          </label>
+          <div class="flex gap-2">
+            <input
+              class="flex-1 bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
+              id="dueDate"
+              name="dueDate"
+              type="date"
+              required
+            />
+            <input
+              class="w-[140px] bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200 text-center"
+              id="dueTime"
+              name="dueTime"
+              type="text"
+              inputmode="numeric"
+              placeholder="12:00"
+              maxlength="5"
+              required
+            />
+          </div>
+          <p id="dueDateError" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
+        </div>
+
         <!-- Task Description Input -->
         <div class="flex flex-col gap-base">
           <label class="font-label-bold text-label-bold text-primary" for="taskContent">
-            内容
+            タスク内容 <span class="text-error font-bold">*</span>
           </label>
           <textarea
             class="w-full bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200 resize-y"
             id="taskContent"
             name="taskContent"
-            placeholder="タスクの詳細を入力（任意）"
+            placeholder="タスクの詳細を入力"
             rows="5"
+            required
           ></textarea>
+          <p id="taskContentError" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
         </div>
 
         <!-- Actions Container -->
