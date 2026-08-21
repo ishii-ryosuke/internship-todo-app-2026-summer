@@ -152,6 +152,27 @@
           <p id="task-desc-error" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
         </div>
 
+        <!-- Category Select -->
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-primary" for="task-category">
+            カテゴリー
+          </label>
+          <select
+            id="task-category"
+            class="w-full bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none transition-all duration-200 cursor-pointer"
+          >
+            <option value="">カテゴリーを選択（任意）</option>
+          </select>
+          <button
+            id="add-new-category-btn"
+            type="button"
+            class="flex items-center gap-1 text-[#0000ff] font-label-bold text-[13px] hover:opacity-70 transition-opacity w-fit cursor-pointer"
+          >
+            <span class="material-symbols-outlined text-[18px]">add_circle</span>
+            新しいカテゴリーを作成
+          </button>
+        </div>
+
         <!-- 全体エラー / ログイン催促メッセージエリア -->
         <div id="general-error" class="hidden p-3 bg-error-container text-error rounded-xl text-sm font-medium text-center"></div>
 
@@ -190,9 +211,18 @@
       <span class="font-label-bold text-label-bold text-on-surface">アカウント</span>
     </div>
 
-    <!-- Sidebar Content (empty for future features) -->
+    <!-- Sidebar Content -->
     <div class="flex-1 px-6 py-6">
-      <!-- 将来の機能追加エリア -->
+      <nav class="flex flex-col gap-1">
+        <a href="dust.html" class="flex items-center gap-2 px-4 py-3 rounded-full transition-all hover:bg-[#e2e2e2] w-full text-on-surface">
+          <span class="material-symbols-outlined">delete</span>
+          <span class="font-label-bold">ゴミ箱</span>
+        </a>
+        <a href="categories.html" class="flex items-center gap-2 px-4 py-3 rounded-full transition-all hover:bg-[#e2e2e2] w-full text-on-surface">
+          <span class="material-symbols-outlined">label</span>
+          <span class="font-label-bold">カテゴリー</span>
+        </a>
+      </nav>
     </div>
 
     <!-- Sidebar Footer - Logout -->
@@ -269,6 +299,41 @@
       });
     })();
   </script>
+
+  <!-- Category Create Modal -->
+  <div id="create-category-modal-overlay"
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+    <div id="create-category-modal-box"
+      class="bg-[#f9f9f9] w-[90%] max-w-[400px] rounded-3xl border-2 border-[#a0d8ef] p-6 shadow-lg flex flex-col gap-5 transform scale-95 transition-transform duration-200">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-[#0000ff] text-[40px] mb-1">label</span>
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">新しいカテゴリー</h2>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="font-label-bold text-label-bold text-primary" for="new-category-name">
+          カテゴリー名 <span class="text-error font-bold">*</span>
+        </label>
+        <input
+          id="new-category-name"
+          type="text"
+          maxlength="30"
+          placeholder="カテゴリー名を入力（最大30文字）"
+          class="w-full bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-[16px] p-3 px-5 focus:border-[3px] focus:border-[#0000ff] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
+        />
+        <p id="create-category-error" class="text-error text-xs px-1 hidden font-medium"></p>
+      </div>
+      <div class="flex gap-4">
+        <button id="create-category-cancel"
+          class="flex-1 py-3 rounded-3xl bg-[#f9f9f9] text-[#1e293b] border border-[#a0d8ef] font-label-bold cursor-pointer hover:bg-[#e2e2e2] transition-colors">
+          キャンセル
+        </button>
+        <button id="create-category-submit"
+          class="flex-1 py-3 rounded-3xl bg-[#a0d8ef] text-white border-none font-label-bold cursor-pointer hover:bg-[#426ab3] transition-colors">
+          作成
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Sidebar Logic -->
   <script src="sidebar.js"></script>

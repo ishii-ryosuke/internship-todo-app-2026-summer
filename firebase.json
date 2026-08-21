@@ -12,5 +12,8 @@
         "destination": "/login.html"
       }
     ]
+  },
+  "firestore": {
+    "indexes": "firestore.indexes.json"
   }
 }

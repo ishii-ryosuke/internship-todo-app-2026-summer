@@ -13,7 +13,8 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  serverTimestamp
+  serverTimestamp,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const taskListContainer = document.getElementById("task-list");
@@ -25,6 +26,12 @@ const taskListContainer = document.getElementById("task-list");
 // ============================================================
 let currentFilter = "incomplete";
 let allTasks = [];
+
+// ============================================================
+// カテゴリーマップ（categoryId -> categoryName）
+// ============================================================
+let categoryMap = {}; // { [categoryId]: name }
+let unsubscribeCategories = null;
 
 const filterBtn = document.getElementById("filter-btn");
 const filterLabel = document.getElementById("filter-label");
@@ -55,6 +62,15 @@ const deleteModalDesc = document.getElementById("delete-modal-desc");
 const deleteModalYes = document.getElementById("delete-modal-yes");
 const deleteModalNo = document.getElementById("delete-modal-no");
 let taskToDeleteId = null;
+
+// Task Detail modal elements
+const taskDetailOverlay = document.getElementById("task-detail-overlay");
+const taskDetailBox = document.getElementById("task-detail-box");
+const taskDetailTitle = document.getElementById("task-detail-title");
+const taskDetailDeadline = document.getElementById("task-detail-deadline");
+const taskDetailDesc = document.getElementById("task-detail-desc");
+const taskDetailCloseX = document.getElementById("task-detail-close-x");
+const taskDetailCloseBtn = document.getElementById("task-detail-close-btn");
 
 // Helper function to safely escape HTML
 function escapeHtml(str) {
@@ -314,8 +330,9 @@ function renderTasks(tasks) {
     const dueTime = parseDueDateToTimestamp(task.dueDate);
     const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
     const deadlineWarning = isDeadlineWarning(task) ? "deadline-warning" : "";
+    const categoryName = task.categoryId && categoryMap[task.categoryId] ? categoryMap[task.categoryId] : '';
     return `
-      <div class="w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative ${deadlineWarning}" data-task-id="${escapeHtml(task.id)}">
+      <div class="task-row w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-center gap-4 group shadow-sm transition-all hover:shadow-md relative cursor-pointer ${deadlineWarning}" data-task-id="${escapeHtml(task.id)}" data-task-title="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}" data-task-deadline="${escapeHtml(formatDueDate(task.dueDate) || '未設定')}" data-task-priority="${escapeHtml(String(task.priority || ''))}" data-task-category="${escapeHtml(categoryName)}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
         <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
@@ -325,7 +342,7 @@ function renderTasks(tasks) {
         <!-- Checkbox Button -->
         <button
           type="button"
-          class="task-toggle-btn w-6 h-6 mt-0.5 border-2 ${isOverdue ? 'border-white' : 'border-[#60a5fa]'} ${isDone ? (isOverdue ? 'bg-white' : 'bg-[#60a5fa]') : 'bg-transparent hover:bg-white/30'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
+          class="task-toggle-btn w-6 h-6 border-2 ${isOverdue ? 'border-white' : 'border-[#60a5fa]'} ${isDone ? (isOverdue ? 'bg-white' : 'bg-[#60a5fa]') : 'bg-transparent hover:bg-white/30'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
           data-id="${escapeHtml(task.id)}"
           data-completed="${isDone}"
           aria-label="${isDone ? '未完了にする' : '完了にする'}"
@@ -334,32 +351,12 @@ function renderTasks(tasks) {
           ${isDone ? '<span class="material-symbols-outlined text-white text-[18px] font-bold">check</span>' : ''}
         </button>
 
-        <!-- Task Content -->
-        <div class="flex-1 flex flex-col min-w-0 gap-1.5">
+        <!-- Task Content (タイトルのみ表示) -->
+        <div class="flex-1 flex items-center min-w-0">
           <!-- Title -->
           <div class="task-title font-body-md text-body-md font-medium break-words ${isDone ? 'line-through opacity-60' : ''} ${isOverdue ? 'text-white' : 'text-on-surface'}">
             ${escapeHtml(task.title)}
           </div>
-
-          <!-- Description -->
-          ${task.description ? `
-            <div class="task-desc text-xs break-words opacity-80 whitespace-pre-wrap ${isDone ? 'line-through opacity-50' : ''} ${isOverdue ? 'text-white/90' : 'text-[#454558]'}">
-              ${escapeHtml(task.description)}
-            </div>
-          ` : ''}
-
-          <!-- Metadata Row (Due Date & Priority) -->
-          ${(task.dueDate || task.priority) ? `
-            <div class="flex items-center gap-4 flex-wrap mt-1 ${isDone ? 'opacity-50' : ''}">
-              ${task.dueDate ? `
-                <div class="flex items-center gap-1 text-xs ${isOverdue ? 'text-white font-semibold' : 'text-[#454558]'}">
-                  <span class="material-symbols-outlined text-[16px] ${isOverdue ? 'text-white' : 'text-[#426ab3]'}">${isOverdue ? 'warning' : 'schedule'}</span>
-                  <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}${isOverdue ? ' (期限切れ)' : ''}</span>
-                </div>
-              ` : ''}
-              ${task.priority ? `<div class="${isOverdue ? 'text-white [&_span.font-medium]:text-white' : ''}">${renderStars(task.priority, isOverdue)}</div>` : ''}
-            </div>
-          ` : ''}
         </div>
 
         <!-- Menu Button (3-dot leader) -->
@@ -425,6 +422,11 @@ function renderTasks(tasks) {
       e.stopPropagation();
       const taskId = btn.getAttribute("data-id");
       const currentCompleted = btn.getAttribute("data-completed") === "true";
+
+      if (!currentCompleted) {
+        playCompletionEffect(btn);
+      }
+
       try {
         const taskDocRef = doc(db, "tasks", taskId);
         await updateDoc(taskDocRef, {
@@ -502,6 +504,21 @@ function renderTasks(tasks) {
       dropdown.classList.toggle("hidden");
     });
   });
+
+  // Attach click handler to task rows for detail modal
+  taskListContainer.querySelectorAll(".task-row").forEach((row) => {
+    row.addEventListener("click", (e) => {
+      // Do NOT open detail if user clicked on checkbox, menu, or any button inside
+      if (e.target.closest('.task-toggle-btn') || e.target.closest('.task-menu-container')) return;
+
+      const title = row.getAttribute("data-task-title") || '';
+      const desc = row.getAttribute("data-task-desc") || '';
+      const deadline = row.getAttribute("data-task-deadline") || '';
+      const priority = row.getAttribute("data-task-priority") || '';
+      const category = row.getAttribute("data-task-category") || '';
+      showTaskDetailModal(title, desc, deadline, priority, category);
+    });
+  });
 }
 
 // Close menus when clicking outside
@@ -557,6 +574,65 @@ if (deleteModalYes) {
   });
 }
 
+// Task Detail Modal Logic
+function showTaskDetailModal(title, desc, deadline, priority, categoryName) {
+  if (!taskDetailOverlay) return;
+  taskDetailTitle.textContent = title;
+  taskDetailDesc.textContent = desc || '（内容なし）';
+  taskDetailDeadline.textContent = deadline || '（未設定）';
+
+  // 重要度（stars）の表示
+  const priorityEl = document.getElementById('task-detail-priority');
+  if (priorityEl) {
+    const p = parseInt(priority, 10) || 0;
+    if (p > 0) {
+      let starsHtml = '';
+      for (let i = 1; i <= 3; i++) {
+        if (i <= p) {
+          starsHtml += `<span class="material-symbols-outlined text-[#FFC107] text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>`;
+        } else {
+          starsHtml += `<span class="material-symbols-outlined text-[#d1d5db] text-[20px]">star</span>`;
+        }
+      }
+      priorityEl.innerHTML = starsHtml;
+    } else {
+      priorityEl.textContent = '（未設定）';
+    }
+  }
+
+  // カテゴリーの表示
+  const categoryEl = document.getElementById('task-detail-category');
+  const categoryRow = document.getElementById('task-detail-category-row');
+  if (categoryEl && categoryRow) {
+    if (categoryName) {
+      categoryEl.textContent = categoryName;
+      categoryRow.classList.remove('hidden');
+    } else {
+      categoryRow.classList.add('hidden');
+    }
+  }
+
+  taskDetailOverlay.classList.remove('opacity-0', 'pointer-events-none');
+  taskDetailBox.classList.remove('scale-95');
+  taskDetailBox.classList.add('scale-100');
+}
+
+function hideTaskDetailModal() {
+  if (!taskDetailOverlay) return;
+  taskDetailOverlay.classList.add('opacity-0', 'pointer-events-none');
+  taskDetailBox.classList.remove('scale-100');
+  taskDetailBox.classList.add('scale-95');
+}
+
+if (taskDetailCloseX) taskDetailCloseX.addEventListener('click', hideTaskDetailModal);
+if (taskDetailCloseBtn) taskDetailCloseBtn.addEventListener('click', hideTaskDetailModal);
+if (taskDetailOverlay) {
+  taskDetailOverlay.addEventListener('click', (e) => {
+    // Close only when clicking the backdrop, not the modal content
+    if (e.target === taskDetailOverlay) hideTaskDetailModal();
+  });
+}
+
 // Initial state
 renderLoading();
 
@@ -568,11 +644,38 @@ onAuthStateChanged(auth, (user) => {
     unsubscribeTasks();
     unsubscribeTasks = null;
   }
+  if (unsubscribeCategories) {
+    unsubscribeCategories();
+    unsubscribeCategories = null;
+  }
 
   if (!user) {
     // If not logged in, redirect to login page
     window.location.href = "login.html";
     return;
+  }
+
+  // Subscribe to categories for badge display
+  try {
+    const categoriesRef = collection(db, "categories");
+    const catQuery = query(
+      categoriesRef,
+      where("userId", "==", user.uid),
+      orderBy("createdAt", "asc")
+    );
+    unsubscribeCategories = onSnapshot(catQuery, (snapshot) => {
+      categoryMap = {};
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        categoryMap[docSnap.id] = data.name;
+      });
+      // Re-render tasks so badges reflect updated category names
+      renderTasks(allTasks);
+    }, (error) => {
+      console.error("カテゴリー取得エラー:", error);
+    });
+  } catch (error) {
+    console.error("カテゴリークエリエラー:", error);
   }
 
   // Subscribe to tasks belonging to current user
@@ -644,3 +747,265 @@ document.querySelectorAll(".filter-option").forEach((option) => {
 document.addEventListener("click", () => {
   closeDropdown();
 });
+
+// ============================================================
+// 超派手なタスク完了達成感エフェクト関連ロジック
+// ============================================================
+const effectStyles = document.createElement('style');
+effectStyles.textContent = `
+@keyframes check-pop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes card-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+@keyframes flash-screen {
+  0% { opacity: 0; background: rgba(255, 255, 255, 0); }
+  10% { opacity: 1; background: rgba(255, 255, 255, 0.6); }
+  100% { opacity: 0; background: rgba(255, 255, 255, 0); }
+}
+@keyframes huge-text-pop {
+  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  60% { 
+    transform: translate(-50%, -50%) scale(1); 
+    opacity: 1; 
+    filter: 
+      drop-shadow(0px 2px 0px #c65100) 
+      drop-shadow(0px 4px 0px #a03000)
+      drop-shadow(0px 6px 0px #802000)
+      drop-shadow(0px 15px 20px rgba(255, 100, 0, 0.8))
+      drop-shadow(0px 0px 30px rgba(255, 215, 0, 1))
+      brightness(1);
+  }
+  75% { 
+    transform: translate(-50%, -50%) scale(1.05); 
+    opacity: 1; 
+    filter: 
+      drop-shadow(0px 2px 0px #c65100) 
+      drop-shadow(0px 4px 0px #a03000)
+      drop-shadow(0px 6px 0px #802000)
+      drop-shadow(0px 15px 20px rgba(255, 100, 0, 0.8))
+      drop-shadow(0px 0px 50px rgba(255, 255, 255, 1))
+      brightness(1.3);
+  }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+}
+.huge-text-done {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-weight: 900;
+  font-family: 'Arial Black', 'Impact', 'Work Sans', sans-serif;
+  font-size: clamp(60px, 15vw, 120px);
+  white-space: nowrap;
+  text-align: center;
+  background: linear-gradient(
+    to bottom, 
+    #FFFFFF 0%, 
+    #FFF7B1 15%, 
+    #FFD700 40%, 
+    #FFF1A0 45%,
+    #FFB800 55%, 
+    #FF8C00 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 3px #FFFFFF;
+  filter: 
+    drop-shadow(0px 2px 0px #c65100) 
+    drop-shadow(0px 4px 0px #a03000)
+    drop-shadow(0px 6px 0px #802000)
+    drop-shadow(0px 15px 20px rgba(255, 100, 0, 0.8))
+    drop-shadow(0px 0px 30px rgba(255, 215, 0, 1));
+  animation: huge-text-pop 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes ray-burst {
+  0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.5) rotate(90deg); opacity: 0; }
+}
+@keyframes ring-burst {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 20px; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 0px; }
+}
+@keyframes confetti-blast {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+}
+@keyframes spark-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .effect-layer * {
+    animation-duration: 0.01ms !important;
+  }
+}
+`;
+document.head.appendChild(effectStyles);
+
+function playCompletionEffect(btn) {
+  const card = btn.closest('[data-task-id]');
+  if (!card) return;
+
+  // 1. タスクカード側の軽いリアクション（既存UIへのクローン表示）
+  const rect = card.getBoundingClientRect();
+  const clone = card.cloneNode(true);
+  
+  clone.style.position = 'absolute';
+  clone.style.top = (rect.top + window.scrollY) + 'px';
+  clone.style.left = (rect.left + window.scrollX) + 'px';
+  clone.style.width = rect.width + 'px';
+  clone.style.height = rect.height + 'px';
+  clone.style.zIndex = '9998';
+  clone.style.margin = '0';
+  clone.style.pointerEvents = 'none';
+  clone.style.transition = 'opacity 0.2s ease-out';
+  clone.style.animation = 'card-bounce 0.3s ease-out forwards';
+
+  const cloneBtn = clone.querySelector('.task-toggle-btn');
+  if (cloneBtn) {
+    cloneBtn.classList.remove('bg-transparent', 'hover:bg-[#60a5fa]/20');
+    cloneBtn.classList.add('bg-[#60a5fa]');
+    cloneBtn.innerHTML = '<span class="material-symbols-outlined text-white text-[18px] font-bold" style="animation: check-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">check</span>';
+  }
+
+  const titleEl = clone.querySelector('.task-title');
+  if (titleEl) titleEl.classList.add('line-through', 'opacity-60', 'text-slate-500');
+  const descEl = clone.querySelector('.task-desc');
+  if (descEl) descEl.classList.add('line-through', 'opacity-50');
+
+  document.body.appendChild(clone);
+  
+  setTimeout(() => {
+    clone.style.opacity = '0';
+    setTimeout(() => clone.remove(), 200);
+  }, 1000);
+
+  // 2. 画面全体の超派手なエフェクトレイヤー
+  const effectLayer = document.createElement('div');
+  effectLayer.className = 'effect-layer';
+  effectLayer.style.position = 'fixed';
+  effectLayer.style.inset = '0';
+  effectLayer.style.zIndex = '9999';
+  effectLayer.style.pointerEvents = 'none';
+  effectLayer.style.overflow = 'hidden';
+  document.body.appendChild(effectLayer);
+
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  // フラッシュ
+  const flash = document.createElement('div');
+  flash.style.position = 'absolute';
+  flash.style.inset = '0';
+  flash.style.animation = 'flash-screen 0.3s ease-out forwards';
+  effectLayer.appendChild(flash);
+
+  // 放射状のリングエフェクト
+  const ring = document.createElement('div');
+  ring.style.position = 'absolute';
+  ring.style.left = '50%';
+  ring.style.top = '50%';
+  ring.style.width = '150px';
+  ring.style.height = '150px';
+  ring.style.borderRadius = '50%';
+  ring.style.border = 'solid #fff59d';
+  ring.style.animation = 'ring-burst 0.7s ease-out forwards';
+  effectLayer.appendChild(ring);
+
+  // 放射状の光線
+  const rays = document.createElement('div');
+  rays.style.position = 'absolute';
+  rays.style.left = '50%';
+  rays.style.top = '50%';
+  rays.style.width = '300px';
+  rays.style.height = '300px';
+  rays.style.background = 'repeating-conic-gradient(from 0deg, transparent 0deg, transparent 10deg, rgba(255,215,0,0.4) 10deg, rgba(255,215,0,0.4) 20deg)';
+  rays.style.borderRadius = '50%';
+  rays.style.maskImage = 'radial-gradient(circle, black 20%, transparent 70%)';
+  rays.style.webkitMaskImage = 'radial-gradient(circle, black 20%, transparent 70%)';
+  rays.style.animation = 'ray-burst 0.8s ease-out forwards';
+  effectLayer.appendChild(rays);
+
+  // スパーク・光の粒子 (20個)
+  for (let i = 0; i < 20; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 150 + Math.random() * 250;
+    
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'absolute';
+    wrapper.style.left = cx + 'px';
+    wrapper.style.top = cy + 'px';
+    wrapper.style.transform = `rotate(${angle + Math.PI/2}rad)`;
+    
+    const spark = document.createElement('div');
+    spark.style.width = '3px';
+    spark.style.height = '15px';
+    spark.style.backgroundColor = '#ffffff';
+    spark.style.borderRadius = '2px';
+    spark.style.boxShadow = '0 0 10px 3px #fff59d';
+    spark.style.setProperty('--tx', '0px');
+    spark.style.setProperty('--ty', -dist + 'px');
+    spark.style.animation = `spark-fly ${0.3 + Math.random() * 0.4}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+    
+    wrapper.appendChild(spark);
+    effectLayer.appendChild(wrapper);
+  }
+
+  // 画面全体への紙吹雪大爆発 (30個)
+  const confettiColors = ['#0000ff', '#a0d8ef', '#fff59d', '#ff5252', '#4caf50', '#ff9800'];
+  const shapes = ['circle', 'square', 'rect'];
+  for (let i = 0; i < 30; i++) {
+    const piece = document.createElement('div');
+    const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    
+    piece.style.position = 'absolute';
+    piece.style.left = cx + 'px';
+    piece.style.top = cy + 'px';
+    piece.style.backgroundColor = color;
+    
+    if (shape === 'circle') {
+      piece.style.width = '10px';
+      piece.style.height = '10px';
+      piece.style.borderRadius = '50%';
+    } else if (shape === 'square') {
+      piece.style.width = '12px';
+      piece.style.height = '12px';
+    } else {
+      piece.style.width = '8px';
+      piece.style.height = '18px';
+    }
+    
+    const angle2 = Math.random() * Math.PI * 2;
+    const velocity = 300 + Math.random() * 400; // 広範囲へ拡散
+    const tx = Math.cos(angle2) * velocity;
+    const ty = Math.sin(angle2) * velocity + (Math.random() * 200); // 下方向への重力バイアス
+    const rot = (Math.random() * 720 - 360) + 'deg';
+    
+    piece.style.setProperty('--tx', tx + 'px');
+    piece.style.setProperty('--ty', ty + 'px');
+    piece.style.setProperty('--rot', rot);
+    
+    piece.style.animation = `confetti-blast ${0.6 + Math.random() * 0.6}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+    effectLayer.appendChild(piece);
+  }
+
+  // 主役：「完了！」の巨大テキスト
+  const msg = document.createElement('div');
+  msg.textContent = '完了！';
+  msg.className = 'huge-text-done';
+  effectLayer.appendChild(msg);
+
+  // 約1.5秒でエフェクトレイヤー全体を削除して通常画面に戻る
+  setTimeout(() => {
+    effectLayer.remove();
+  }, 1500);
+}

@@ -249,6 +249,10 @@
           <span class="material-symbols-outlined">delete</span>
           <span class="font-label-bold">ゴミ箱</span>
         </a>
+        <a href="categories.html" class="flex items-center gap-2 px-4 py-3 rounded-full transition-all hover:bg-[#e2e2e2] w-full text-on-surface">
+          <span class="material-symbols-outlined">label</span>
+          <span class="font-label-bold">カテゴリー</span>
+        </a>
       </nav>
     </div>
 
@@ -278,6 +282,54 @@
           class="flex-1 py-3 px-6 rounded-full border-2 border-[#a0d8ef] text-on-surface font-label-bold text-label-bold hover:bg-[#a0d8ef]/10 transition-colors duration-200">
           いいえ
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Detail Modal -->
+  <div id="task-detail-overlay"
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div id="task-detail-box"
+      class="bg-white w-full max-w-[500px] rounded-3xl border-2 border-[#a0d8ef] shadow-lg overflow-hidden flex flex-col transform scale-95 transition-transform duration-200">
+      <div class="p-6 flex flex-col gap-5">
+        <!-- Header -->
+        <div class="flex justify-between items-start">
+          <h2 class="text-[20px] font-bold text-[#1e293b]">タスク詳細</h2>
+          <button id="task-detail-close-x" type="button" class="text-[#a0d8ef] hover:opacity-70 transition-opacity cursor-pointer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <!-- Content -->
+        <div class="flex flex-col gap-4">
+          <!-- カテゴリー（カテゴリーがあるときのみ表示） -->
+          <div id="task-detail-category-row" class="hidden">
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">カテゴリー</label>
+            <p id="task-detail-category" class="text-body-md font-semibold text-[#0001bb] mt-1"></p>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">タスク名</label>
+            <p id="task-detail-title" class="text-[18px] font-semibold text-[#1e293b] mt-1"></p>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">期限</label>
+            <p id="task-detail-deadline" class="text-body-md text-on-surface mt-1"></p>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">重要度</label>
+            <div id="task-detail-priority" class="flex items-center gap-0.5 mt-1"></div>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">内容</label>
+            <p id="task-detail-desc" class="text-body-md text-on-surface leading-relaxed mt-1 whitespace-pre-wrap"></p>
+          </div>
+        </div>
+        <!-- Close Button -->
+        <div class="mt-2 flex justify-end">
+          <button id="task-detail-close-btn" type="button"
+            class="bg-[#a0d8ef] text-white px-6 py-2 rounded-full font-label-bold hover:bg-[#426ab3] transition-all shadow-sm cursor-pointer">
+            閉じる
+          </button>
+        </div>
       </div>
     </div>
   </div>
