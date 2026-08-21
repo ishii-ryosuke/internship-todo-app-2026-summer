@@ -11,7 +11,8 @@ import {
   where, 
   onSnapshot, 
   doc, 
-  updateDoc 
+  updateDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const trashListContainer = document.getElementById("trash-list");
@@ -24,6 +25,18 @@ const restoreModalTaskName = document.getElementById("restore-modal-task-name");
 const restoreModalTaskDesc = document.getElementById("restore-modal-task-desc");
 const restoreNo = document.getElementById("restore-no");
 const restoreYes = document.getElementById("restore-yes");
+
+// Delete modal elements
+const deleteModal = document.getElementById("delete-modal");
+const deleteModalBox = document.getElementById("delete-modal-box");
+const deleteModalBackdrop = document.getElementById("delete-modal-backdrop");
+const deleteModalMessage = document.getElementById("delete-modal-message");
+const deleteCancelBtn = document.getElementById("delete-cancel-btn");
+const deleteConfirmBtn = document.getElementById("delete-confirm-btn");
+
+// Select / delete control elements
+const selectAllCheckbox = document.getElementById("select-all-checkbox");
+const deleteSelectedBtn = document.getElementById("delete-selected-btn");
 
 let taskToRestoreId = null;
 
@@ -79,24 +92,53 @@ function renderError(message) {
   `;
 }
 
+// Update the select-all checkbox and delete button state based on current checkboxes
+function updateSelectionState() {
+  const checkboxes = trashListContainer.querySelectorAll(".task-checkbox");
+  const checked = trashListContainer.querySelectorAll(".task-checkbox:checked");
+
+  if (selectAllCheckbox) {
+    if (checkboxes.length === 0) {
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.indeterminate = false;
+    } else if (checked.length === 0) {
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.indeterminate = false;
+    } else if (checked.length === checkboxes.length) {
+      selectAllCheckbox.checked = true;
+      selectAllCheckbox.indeterminate = false;
+    } else {
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.indeterminate = true;
+    }
+  }
+
+  if (deleteSelectedBtn) {
+    deleteSelectedBtn.disabled = checked.length === 0;
+  }
+}
+
 function renderTasks(tasks) {
   if (!trashListContainer) return;
 
   if (tasks.length === 0) {
     renderEmpty();
+    updateSelectionState();
     return;
   }
 
   trashListContainer.innerHTML = tasks.map((task) => {
     return `
-      <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm relative" data-id="${escapeHtml(task.id)}" data-task-name="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}">
+      <div class="task-item w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-center gap-4 shadow-sm relative" data-id="${escapeHtml(task.id)}" data-task-name="${escapeHtml(task.title)}" data-task-desc="${escapeHtml(task.description || '')}">
+        <!-- Checkbox -->
+        <input type="checkbox" class="task-checkbox w-5 h-5 accent-[#a0d8ef] flex-shrink-0 cursor-pointer rounded" data-id="${escapeHtml(task.id)}">
         <div class="flex items-start gap-3 flex-1">
           <div class="flex flex-col">
             <span class="font-body-md text-body-md text-on-surface">${escapeHtml(task.title)}</span>
             <span class="text-xs text-outline mt-1">削除日時: ${escapeHtml(formatDate(task.deletedAt))}</span>
           </div>
         </div>
-        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-bubble-blue text-on-primary-container rounded-full hover:opacity-80 transition-opacity active:scale-95">
+        <button class="restore-btn flex items-center gap-1 px-4 py-2 bg-[#a0d8ef] text-white rounded-full hover:bg-[#426ab3] transition-all duration-200 active:scale-95">
           <span class="material-symbols-outlined text-2xl">restore</span>
           <span class="font-label-bold">復元</span>
         </button>
@@ -115,9 +157,42 @@ function renderTasks(tasks) {
       showModal(taskName, taskDesc);
     });
   });
+
+  // Attach event listeners to individual checkboxes
+  trashListContainer.querySelectorAll(".task-checkbox").forEach((cb) => {
+    cb.addEventListener("change", updateSelectionState);
+  });
+
+  // Sync initial state
+  updateSelectionState();
 }
 
-// Modal Logic
+// ---- Select All Logic ----
+if (selectAllCheckbox) {
+  selectAllCheckbox.addEventListener("change", () => {
+    const checkboxes = trashListContainer.querySelectorAll(".task-checkbox");
+    checkboxes.forEach((cb) => {
+      cb.checked = selectAllCheckbox.checked;
+    });
+    updateSelectionState();
+  });
+}
+
+// ---- Delete Selected Button ----
+if (deleteSelectedBtn) {
+  deleteSelectedBtn.addEventListener("click", () => {
+    const checked = trashListContainer.querySelectorAll(".task-checkbox:checked");
+    const count = checked.length;
+    if (count === 0) return;
+
+    if (deleteModalMessage) {
+      deleteModalMessage.textContent = `選択した${count}件のタスクを完全に削除しますか？`;
+    }
+    showDeleteModal();
+  });
+}
+
+// ---- Restore Modal Logic ----
 function showModal(taskName, taskDesc) {
   if (!restoreModal) return;
   restoreModalTaskName.textContent = taskName;
@@ -148,13 +223,67 @@ if (restoreYes) {
         await updateDoc(taskDocRef, {
           isDeleted: false
         });
-        alert('メイン画面にタスクを移動しました。');
       } catch (err) {
         console.error("タスクの復元に失敗しました:", err);
         alert("復元に失敗しました。");
       }
     }
     hideModal();
+  });
+}
+
+// ---- Delete Modal Logic ----
+function showDeleteModal() {
+  if (!deleteModal) return;
+  deleteModal.classList.remove('opacity-0', 'pointer-events-none');
+  deleteModal.classList.add('opacity-100');
+  deleteModalBox.classList.remove('scale-95');
+  deleteModalBox.classList.add('scale-100');
+}
+
+function hideDeleteModal() {
+  if (!deleteModal) return;
+  deleteModal.classList.remove('opacity-100');
+  deleteModal.classList.add('opacity-0', 'pointer-events-none');
+  deleteModalBox.classList.remove('scale-100');
+  deleteModalBox.classList.add('scale-95');
+}
+
+if (deleteCancelBtn) deleteCancelBtn.addEventListener('click', hideDeleteModal);
+if (deleteModalBackdrop) deleteModalBackdrop.addEventListener('click', hideDeleteModal);
+
+if (deleteConfirmBtn) {
+  deleteConfirmBtn.addEventListener('click', async () => {
+    const checkedBoxes = trashListContainer.querySelectorAll(".task-checkbox:checked");
+    const idsToDelete = Array.from(checkedBoxes).map((cb) => cb.getAttribute("data-id")).filter(Boolean);
+
+    if (idsToDelete.length === 0) {
+      hideDeleteModal();
+      return;
+    }
+
+    // Disable confirm button during deletion
+    deleteConfirmBtn.disabled = true;
+    deleteConfirmBtn.textContent = "削除中...";
+
+    try {
+      await Promise.all(
+        idsToDelete.map((id) => deleteDoc(doc(db, "tasks", id)))
+      );
+      // Reset selection state after deletion (Firestore snapshot will re-render)
+      if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      }
+      if (deleteSelectedBtn) deleteSelectedBtn.disabled = true;
+      hideDeleteModal();
+    } catch (err) {
+      console.error("タスクの完全削除に失敗しました:", err);
+      alert("削除に失敗しました。もう一度お試しください。");
+    } finally {
+      deleteConfirmBtn.disabled = false;
+      deleteConfirmBtn.textContent = "削除";
+    }
   });
 }
 

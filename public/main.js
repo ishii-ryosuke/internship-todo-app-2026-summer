@@ -18,6 +18,35 @@ import {
 
 const taskListContainer = document.getElementById("task-list");
 
+// ============================================================
+// フィルター状態管理
+// 'incomplete' | 'completed' | 'all'
+// デフォルト：未完了（incomplete）
+// ============================================================
+let currentFilter = "incomplete";
+let allTasks = [];
+
+const filterBtn = document.getElementById("filter-btn");
+const filterLabel = document.getElementById("filter-label");
+const filterChevron = document.getElementById("filter-chevron");
+const filterDropdown = document.getElementById("filter-dropdown");
+
+const FILTER_LABELS = {
+  incomplete: "未完了",
+  completed: "完了済み",
+  all: "すべて表示"
+};
+
+/** フィルター条件に応じてタスクを絞り込む */
+function applyFilter(tasks) {
+  if (currentFilter === "incomplete") {
+    return tasks.filter((t) => t.isCompleted === false);
+  }
+  if (currentFilter === "completed") {
+    return tasks.filter((t) => t.isCompleted === true);
+  }
+  return tasks; // all
+}
 // Delete modal elements
 const deleteModalOverlay = document.getElementById("delete-modal-overlay");
 const deleteModalBox = document.getElementById("delete-modal-box");
@@ -237,12 +266,14 @@ function formatDueDate(dueDate) {
 function renderTasks(tasks) {
   if (!taskListContainer) return;
 
-  if (tasks.length === 0) {
+  const filtered = applyFilter(tasks);
+
+  if (filtered.length === 0) {
     renderEmpty();
     return;
   }
 
-  taskListContainer.innerHTML = tasks.map((task) => {
+  taskListContainer.innerHTML = filtered.map((task) => {
     const isDone = Boolean(task.isCompleted);
     const dueTime = parseDueDateToTimestamp(task.dueDate);
     const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
@@ -250,8 +281,8 @@ function renderTasks(tasks) {
       <div class="w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
-        <div class="absolute -top-2 -left-2 bg-[#0000ff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
-          <span class="material-symbols-outlined text-[18px] text-[#ffffff] icon-filled">push_pin</span>
+        <div class="absolute -top-2 -left-2 bg-[#ffffff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
+          <span class="material-symbols-outlined text-[18px] text-[#ff0000] icon-filled">push_pin</span>
         </div>
         ` : ''}
         <!-- Checkbox Button -->
@@ -313,7 +344,7 @@ function renderTasks(tasks) {
               data-id="${escapeHtml(task.id)}"
               data-pinned="true"
             >
-              <span class="material-symbols-outlined text-[18px]">keep_off</span>
+              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">keep_off</span>
               <span>ピンを外す</span>
             </button>
             ` : `
@@ -323,10 +354,18 @@ function renderTasks(tasks) {
               data-id="${escapeHtml(task.id)}"
               data-pinned="false"
             >
-              <span class="material-symbols-outlined text-[18px]">push_pin</span>
+              <span class="material-symbols-outlined text-[18px] text-[#ff0000]">push_pin</span>
               <span>ピン留め</span>
             </button>
             `}
+            <button
+              type="button"
+              class="task-edit-btn w-full text-left px-4 py-2 text-on-surface font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              data-id="${escapeHtml(task.id)}"
+            >
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+              <span>編集</span>
+            </button>
             <button
               type="button"
               class="task-delete-btn w-full text-left px-4 py-2 text-error font-label-bold text-[14px] hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer"
@@ -374,6 +413,18 @@ function renderTasks(tasks) {
       const taskDesc = btn.getAttribute("data-desc");
 
       showDeleteModal(taskTitle, taskDesc, taskId);
+    });
+  });
+
+  // Attach event listeners to edit buttons
+  taskListContainer.querySelectorAll(".task-edit-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = btn.closest('.task-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+
+      const taskId = btn.getAttribute("data-id");
+      window.location.href = `taskedit.html?docId=${encodeURIComponent(taskId)}`;
     });
   });
 
@@ -509,6 +560,7 @@ onAuthStateChanged(auth, (user) => {
       const nowTime = Date.now();
       activeTasks.sort((a, b) => compareTasks(a, b, nowTime));
 
+      allTasks = activeTasks;
       renderTasks(activeTasks);
     }, (error) => {
       console.error("タスク取得エラー:", error);
@@ -518,4 +570,40 @@ onAuthStateChanged(auth, (user) => {
     console.error("クエリ実行エラー:", error);
     renderError(error.message);
   }
+});
+
+// ============================================================
+// フィルタードロップダウンの開閉
+// ============================================================
+function openDropdown() {
+  filterDropdown.classList.remove("hidden");
+  filterChevron.style.transform = "rotate(180deg)";
+  filterBtn.setAttribute("aria-expanded", "true");
+}
+
+function closeDropdown() {
+  filterDropdown.classList.add("hidden");
+  filterChevron.style.transform = "";
+  filterBtn.setAttribute("aria-expanded", "false");
+}
+
+filterBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const isOpen = !filterDropdown.classList.contains("hidden");
+  isOpen ? closeDropdown() : openDropdown();
+});
+
+// 選択肢クリック時
+document.querySelectorAll(".filter-option").forEach((option) => {
+  option.addEventListener("click", () => {
+    currentFilter = option.getAttribute("data-filter");
+    filterLabel.textContent = FILTER_LABELS[currentFilter];
+    closeDropdown();
+    renderTasks(allTasks);
+  });
+});
+
+// ドロップダウン外クリックで閉じる
+document.addEventListener("click", () => {
+  closeDropdown();
 });

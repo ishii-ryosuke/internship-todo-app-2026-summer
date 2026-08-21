@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>TODO - ゴミ箱</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -105,57 +107,45 @@
             font-family: 'Work Sans', sans-serif;
             overflow-x: hidden;
         }
+
         .bubble-tr {
-            position: fixed;
-            top: -50px;
-            right: -50px;
-            width: 300px;
-            height: 300px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 330px;
+            height: 255px;
             background-color: #a0d8ef;
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-            filter: blur(80px);
+            border-radius: 50% 50% 0 50%;
             z-index: 0;
-            opacity: 0.6;
+            opacity: 0.5;
             pointer-events: none;
-            animation: float 10s ease-in-out infinite alternate;
         }
+
         .bubble-bl {
-            position: fixed;
-            bottom: -50px;
-            left: -50px;
-            width: 400px;
-            height: 400px;
-            background-color: #fef9c3;
-            border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
-            filter: blur(100px);
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 300px;
+            height: 250px;
+            background-color: #e7e700;
+            border-radius: 50% 50% 50% 0;
             z-index: 0;
-            opacity: 0.7;
+            opacity: 0.5;
             pointer-events: none;
-            animation: float-reverse 12s ease-in-out infinite alternate;
-        }
-        @keyframes float {
-            0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(-20px) scale(1.05); }
-        }
-        @keyframes float-reverse {
-            0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(20px) scale(1.05); }
         }
     </style>
 </head>
+
 <body class="antialiased min-h-screen flex flex-col relative bg-surface-container-lowest">
     <!-- Decorative Layer -->
     <div class="bubble-tr"></div>
     <div class="bubble-bl"></div>
 
     <!-- TopAppBar -->
-    <header class="bg-[#a0d8ef] flex justify-between items-center h-[64px] px-container-margin w-full fixed top-0 z-50">
-        <div class="flex items-center gap-3">
-            <a href="main.html" class="font-display-header text-display-header text-[#0000ff] cursor-pointer font-bold tracking-wider" style="color: rgb(240, 230, 140);">TODO</a>
-        </div>
-        <div class="flex items-center justify-end">
-            <!-- Account circle removed as requested -->
-        </div>
+    <header class="bg-[#a0d8ef] h-[64px] w-full flex items-center justify-center px-container-margin fixed top-0 z-50 shadow-sm">
+        <a href="main.html"
+            class="font-display-header text-display-header text-white cursor-pointer font-bold tracking-wider"
+            style="color: #FFF100;">TODO</a>
     </header>
 
     <div class="flex flex-1 pt-[64px] relative z-10 w-full max-w-7xl mx-auto">
@@ -165,7 +155,23 @@
             <div class="w-full flex flex-col gap-8">
                 <!-- Page Header -->
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="font-headline-lg text-headline-lg md:font-headline-lg md:text-headline-lg text-on-surface">ゴミ箱</h2>
+                    <h2
+                        class="font-headline-lg text-headline-lg md:font-headline-lg md:text-headline-lg text-on-surface">
+                        ゴミ箱</h2>
+                    <div class="flex items-center gap-3">
+                        <!-- Select All Checkbox -->
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-medium text-on-surface-variant" id="select-all-label">
+                            <input type="checkbox" id="select-all-checkbox" class="w-4 h-4 accent-[#a0d8ef] cursor-pointer">
+                            全選択
+                        </label>
+                        <!-- Permanent Delete Button -->
+                        <button id="delete-selected-btn"
+                            class="flex items-center gap-1 px-4 py-2 bg-[#ba1a1a] text-white rounded-full font-label-bold text-sm hover:opacity-90 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                            disabled>
+                            <span class="material-symbols-outlined text-[18px]">delete_forever</span>
+                            <span>完全削除</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Trash List Container -->
@@ -176,46 +182,82 @@
     </div>
 
     <!-- Back to Main Button -->
-    <a href="main.html" aria-label="メインに戻る" class="fixed bottom-[104px] left-4 md:left-container-margin bg-[#a0d8ef] text-white rounded-full px-6 py-4 shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer flex items-center gap-2">
+    <a href="main.html" aria-label="メインに戻る"
+        class="fixed bottom-[104px] left-4 md:left-container-margin bg-[#a0d8ef] text-white rounded-full px-6 py-4 shadow-lg hover:bg-[#426ab3] active:scale-95 transition-all duration-200 z-40 cursor-pointer flex items-center gap-2">
         <span class="material-symbols-outlined text-[24px]">arrow_back</span>
         <span class="font-label-bold">メインに戻る</span>
     </a>
 
     <!-- BottomNavBar (Mobile) -->
-    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
-        <a href="main.html" class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
+    <nav
+        class="md:hidden fixed bottom-0 left-0 w-full z-50 h-[80px] bg-surface-container-lowest border-t-2 border-[#a0d8ef] flex justify-around items-center px-4 transition-all duration-200 ease-in-out">
+        <a href="main.html"
+            class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
             <span class="material-symbols-outlined mb-1">list_alt</span>
             <span class="font-label-bold text-[12px]">タスク</span>
         </a>
-        <div class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
+        <div
+            class="flex flex-col items-center justify-center text-[#0000ff] p-2 w-[80px] cursor-pointer hover:bg-[#a0d8ef] hover:text-[#0001bb] rounded-2xl transition-colors">
             <span class="material-symbols-outlined mb-1">calendar_today</span>
             <span class="font-label-bold text-[12px]">カレンダー</span>
         </div>
-        <div aria-current="page" class="flex flex-col items-center justify-center bg-[#a0d8ef] text-[#0001bb] rounded-2xl p-2 w-[80px] cursor-pointer">
-            <span class="material-symbols-outlined icon-filled mb-1" style="font-variation-settings: 'FILL' 1;">delete</span>
+        <div aria-current="page"
+            class="flex flex-col items-center justify-center bg-[#a0d8ef] text-[#0001bb] rounded-2xl p-2 w-[80px] cursor-pointer">
+            <span class="material-symbols-outlined icon-filled mb-1"
+                style="font-variation-settings: 'FILL' 1;">delete</span>
             <span class="font-label-bold text-[12px]">ゴミ箱</span>
         </div>
     </nav>
 
     <!-- Restore Confirmation Modal -->
-    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200" id="restore-modal">
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200"
+        id="restore-modal">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="restore-modal-backdrop"></div>
+        <div class="absolute inset-0 bg-black/40" id="restore-modal-backdrop"></div>
         <!-- Modal Container -->
-        <div id="restore-modal-box" class="relative bg-surface-container-lowest w-full max-w-sm rounded-[32px] p-8 shadow-xl flex flex-col items-center border border-outline-variant gap-4 transform scale-95 transition-transform duration-200">
+        <div id="restore-modal-box"
+            class="relative bg-surface-container-lowest w-full max-w-sm rounded-[32px] p-8 shadow-xl flex flex-col items-center border border-outline-variant gap-4 transform scale-95 transition-transform duration-200">
             <h3 class="font-display-header text-display-header text-on-surface text-center">復元しますか？</h3>
-            <div class="flex flex-col items-center gap-1 text-center bg-surface-container-low w-full rounded-2xl p-4 border border-outline-variant">
+            <div
+                class="flex flex-col items-center gap-1 text-center bg-surface-container-low w-full rounded-2xl p-4 border border-outline-variant">
                 <span id="restore-modal-task-name" class="font-label-bold text-body-md text-on-surface"></span>
                 <span id="restore-modal-task-desc" class="text-xs text-outline mt-2"></span>
             </div>
             <div class="flex gap-4 w-full justify-center mt-2">
                 <!-- Yes Button (Swapped to Left) -->
-                <button id="restore-yes" class="flex-1 max-w-[120px] py-3 px-6 rounded-full bg-bubble-blue text-on-primary-container font-label-bold hover:opacity-90 transition-opacity shadow-sm active:scale-95">
+                <button id="restore-yes"
+                    class="flex-1 max-w-[120px] py-3 px-6 rounded-full bg-bubble-blue text-on-primary-container font-label-bold hover:opacity-90 transition-opacity shadow-sm active:scale-95">
                     はい
                 </button>
                 <!-- No Button (Swapped to Right) -->
-                <button id="restore-no" class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
+                <button id="restore-no"
+                    class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
                     いいえ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permanent Delete Confirmation Modal -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200"
+        id="delete-modal">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/40" id="delete-modal-backdrop"></div>
+        <!-- Modal Container -->
+        <div id="delete-modal-box"
+            class="relative bg-surface-container-lowest w-full max-w-sm rounded-[32px] p-8 shadow-xl flex flex-col items-center border border-outline-variant gap-4 transform scale-95 transition-transform duration-200">
+            <span class="material-symbols-outlined text-[#ba1a1a]" style="font-size: 40px;">delete_forever</span>
+            <h3 class="font-display-header text-display-header text-on-surface text-center">完全削除の確認</h3>
+            <p id="delete-modal-message" class="text-sm text-on-surface-variant text-center"></p>
+            <p class="text-xs text-[#ba1a1a] font-medium text-center">この操作は元に戻せません。</p>
+            <div class="flex gap-4 w-full justify-center mt-2">
+                <button id="delete-cancel-btn"
+                    class="flex-1 max-w-[120px] py-3 px-6 rounded-full border border-outline text-on-surface font-label-bold hover:bg-surface-container-low transition-colors active:scale-95">
+                    キャンセル
+                </button>
+                <button id="delete-confirm-btn"
+                    class="flex-1 max-w-[120px] py-3 px-6 rounded-full bg-[#ba1a1a] text-white font-label-bold hover:opacity-90 transition-opacity shadow-sm active:scale-95">
+                    削除
                 </button>
             </div>
         </div>
@@ -224,4 +266,5 @@
     <!-- Logic -->
     <script type="module" src="dust.js?v=1"></script>
 </body>
+
 </html>

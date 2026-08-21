@@ -136,7 +136,7 @@
 
     <!-- Trailing Action -->
     <button id="account-btn"
-      class="absolute right-4 md:right-container-margin text-[#0000ff] hover:opacity-80 transition-opacity flex items-center justify-center cursor-pointer"
+      class="absolute right-4 md:right-container-margin text-[#0000ff] bg-white rounded-full hover:opacity-80 transition-opacity flex items-center justify-center cursor-pointer"
       type="button" aria-label="アカウント">
       <span class="material-symbols-outlined icon-filled" style="font-size: 28px;">account_circle</span>
     </button>
@@ -145,14 +145,49 @@
   <!-- Main Content Canvas (Fixed Grid approach for desktop max-width 800px) -->
   <main
     class="w-full max-w-[800px] mx-auto pt-[88px] pb-[120px] px-container-margin md:pb-container-margin flex flex-col items-center relative z-10">
+    <!-- Filter UI -->
+    <div class="w-full relative mb-2" id="filter-container">
+      <button
+        id="filter-btn"
+        type="button"
+        class="w-full flex items-center justify-between bg-white border-2 border-[#a0d8ef] rounded-2xl px-5 py-3 font-label-bold text-label-bold text-on-surface shadow-sm hover:bg-[#f0faff] transition-colors cursor-pointer"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+      >
+        <span id="filter-label">未完了</span>
+        <span id="filter-chevron" class="material-symbols-outlined text-[#0000ff] transition-transform duration-200">expand_more</span>
+      </button>
+      <ul
+        id="filter-dropdown"
+        role="listbox"
+        class="hidden absolute left-0 right-0 top-[calc(100%+4px)] z-30 bg-white border-2 border-[#a0d8ef] rounded-2xl shadow-lg overflow-hidden"
+      >
+        <li
+          role="option"
+          data-filter="incomplete"
+          class="filter-option px-5 py-3 font-label-bold text-label-bold text-on-surface cursor-pointer hover:bg-[#e8f7fd] transition-colors"
+        >未完了</li>
+        <li
+          role="option"
+          data-filter="completed"
+          class="filter-option px-5 py-3 font-label-bold text-label-bold text-on-surface cursor-pointer hover:bg-[#e8f7fd] transition-colors"
+        >完了済み</li>
+        <li
+          role="option"
+          data-filter="all"
+          class="filter-option px-5 py-3 font-label-bold text-label-bold text-on-surface cursor-pointer hover:bg-[#e8f7fd] transition-colors"
+        >すべて表示</li>
+      </ul>
+    </div>
+
     <!-- Task List (Dynamic) -->
     <div id="task-list" class="w-full flex flex-col gap-[12px]"></div>
   </main>
 
   <!-- Floating Action Button (FAB) -->
   <a href="add.html" aria-label="タスク追加"
-    class="fixed bottom-[104px] md:bottom-container-margin right-container-margin md:right-[calc(50%-400px+24px)] w-[64px] h-[64px] bg-[#a0d8ef] rounded-full border-none flex items-center justify-center shadow-lg hover:brightness-95 active:scale-95 transition-all z-40 cursor-pointer">
-    <span class="material-symbols-outlined text-[#0000ff] text-[32px]">add</span>
+    class="fixed bottom-[104px] md:bottom-container-margin right-container-margin md:right-[calc(50%-400px+24px)] w-[64px] h-[64px] bg-[#a0d8ef] rounded-full border-none flex items-center justify-center shadow-lg hover:bg-[#426ab3] hover:text-white active:scale-95 transition-all z-40 cursor-pointer">
+    <span class="material-symbols-outlined text-white text-[32px]">add</span>
   </a>
 
   <!-- BottomNavBar (Mobile Only Shell) -->
