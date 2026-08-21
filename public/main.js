@@ -84,8 +84,9 @@ function renderError(message) {
 /**
  * Render star rating for priority (1-3)
  * @param {number|string} priority 
+ * @param {boolean} [isOverdue=false]
  */
-function renderStars(priority) {
+function renderStars(priority, isOverdue = false) {
   const p = parseInt(priority, 10) || 0;
   if (p <= 0) return "";
   let starsHtml = "";
@@ -93,11 +94,11 @@ function renderStars(priority) {
     if (i <= p) {
       starsHtml += `<span class="material-symbols-outlined text-[#FFC107] text-[16px] icon-filled" style="font-variation-settings: 'FILL' 1;">star</span>`;
     } else {
-      starsHtml += `<span class="material-symbols-outlined text-[#d1d5db] text-[16px]">star</span>`;
+      starsHtml += `<span class="material-symbols-outlined ${isOverdue ? 'text-white/50' : 'text-[#d1d5db]'} text-[16px]">star</span>`;
     }
   }
   return `
-    <div class="flex items-center gap-1 text-xs text-[#454558]">
+    <div class="flex items-center gap-1 text-xs ${isOverdue ? 'text-white' : 'text-[#454558]'}">
       <span class="font-medium">重要度:</span>
       <div class="flex items-center gap-0.5" title="重要度: ${p}">${starsHtml}</div>
     </div>
@@ -190,56 +191,43 @@ function compareTasks(a, b, nowTime) {
 }
 
 /**
- * Format dueDate (Firestore Timestamp / {seconds} object / string) for display.
- * Always returns a string in "YYYY-MM-DD HH:mm" format, or "" if invalid.
- * Never throws.
+ * Format dueDate for display as "M/D" (no leading zeros, no time).
+ * Supports Firestore Timestamp, {seconds} plain object, JS Date, and string.
+ * Never throws — returns "" for null/invalid values.
  * @param {*} dueDate
- * @returns {string}
+ * @returns {string}  e.g. "9/9", "12/25"
  */
 function formatDueDate(dueDate) {
   if (dueDate === null || dueDate === undefined || dueDate === "") return "";
 
-  // Firestore Timestamp (has toDate method)
+  let date = null;
+
+  // Firestore Timestamp → toDate()
   if (typeof dueDate === "object" && typeof dueDate.toDate === "function") {
-    try {
-      const d = dueDate.toDate();
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      const hh = String(d.getHours()).padStart(2, "0");
-      const min = String(d.getMinutes()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    } catch (_) {
-      return "";
+    try { date = dueDate.toDate(); } catch (_) { return ""; }
+  }
+  // Plain {seconds} object
+  else if (typeof dueDate === "object" && typeof dueDate.seconds === "number") {
+    date = new Date(dueDate.seconds * 1000);
+  }
+  // JS Date
+  else if (dueDate instanceof Date) {
+    date = dueDate;
+  }
+  // String fallback: parse to Date
+  else if (typeof dueDate === "string") {
+    const str = dueDate.trim().replace("T", " ");
+    const parts = str.split(/[\s\-\/]+/);
+    if (parts.length >= 3) {
+      date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     }
   }
 
-  // Plain object with seconds (e.g. { seconds: 1234, nanoseconds: 0 })
-  if (typeof dueDate === "object" && typeof dueDate.seconds === "number") {
-    try {
-      const d = new Date(dueDate.seconds * 1000);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      const hh = String(d.getHours()).padStart(2, "0");
-      const min = String(d.getMinutes()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    } catch (_) {
-      return "";
-    }
-  }
+  if (!date || isNaN(date.getTime())) return "";
 
-  // String: replace T separator with space
-  if (typeof dueDate === "string") {
-    return dueDate.trim().replace("T", " ");
-  }
-
-  // Any other type: coerce safely to string
-  try {
-    return String(dueDate);
-  } catch (_) {
-    return "";
-  }
+  const month = date.getMonth() + 1; // 先頭0なし
+  const day = date.getDate();        // 先頭0なし
+  return `${month}/${day}`;
 }
 
 /**
@@ -259,7 +247,7 @@ function renderTasks(tasks) {
     const dueTime = parseDueDateToTimestamp(task.dueDate);
     const isOverdue = dueTime !== null && dueTime < Date.now() && !isDone;
     return `
-      <div class="w-full bg-[#fffde7] rounded-3xl border border-[#a0d8ef] p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
+      <div class="w-full ${isOverdue ? 'bg-red-500 border-red-600 text-white' : 'bg-[#fffde7] border-[#a0d8ef]'} rounded-3xl border p-4 flex items-start gap-4 group shadow-sm transition-all hover:shadow-md relative" data-task-id="${escapeHtml(task.id)}">
         <!-- Pin Icon -->
         ${task.isPinned ? `
         <div class="absolute -top-2 -left-2 bg-[#0000ff] rounded-full p-1 shadow-sm border border-[#0000ff] flex items-center justify-center z-10">
@@ -269,7 +257,7 @@ function renderTasks(tasks) {
         <!-- Checkbox Button -->
         <button
           type="button"
-          class="task-toggle-btn w-6 h-6 mt-0.5 border-2 border-[#60a5fa] ${isDone ? 'bg-[#60a5fa]' : 'bg-transparent hover:bg-[#60a5fa]/20'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
+          class="task-toggle-btn w-6 h-6 mt-0.5 border-2 ${isOverdue ? 'border-white' : 'border-[#60a5fa]'} ${isDone ? (isOverdue ? 'bg-white' : 'bg-[#60a5fa]') : 'bg-transparent hover:bg-white/30'} rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
           data-id="${escapeHtml(task.id)}"
           data-completed="${isDone}"
           aria-label="${isDone ? '未完了にする' : '完了にする'}"
@@ -281,13 +269,13 @@ function renderTasks(tasks) {
         <!-- Task Content -->
         <div class="flex-1 flex flex-col min-w-0 gap-1.5">
           <!-- Title -->
-          <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
+          <div class="task-title font-body-md text-body-md font-medium break-words ${isDone ? 'line-through opacity-60' : ''} ${isOverdue ? 'text-white' : 'text-on-surface'}">
             ${escapeHtml(task.title)}
           </div>
 
           <!-- Description -->
           ${task.description ? `
-            <div class="task-desc text-xs text-[#454558] break-words opacity-80 whitespace-pre-wrap ${isDone ? 'line-through opacity-50' : ''}">
+            <div class="task-desc text-xs break-words opacity-80 whitespace-pre-wrap ${isDone ? 'line-through opacity-50' : ''} ${isOverdue ? 'text-white/90' : 'text-[#454558]'}">
               ${escapeHtml(task.description)}
             </div>
           ` : ''}
@@ -296,12 +284,12 @@ function renderTasks(tasks) {
           ${(task.dueDate || task.priority) ? `
             <div class="flex items-center gap-4 flex-wrap mt-1 ${isDone ? 'opacity-50' : ''}">
               ${task.dueDate ? `
-                <div class="flex items-center gap-1 text-xs ${isOverdue ? 'text-red-500 font-semibold' : 'text-[#454558]'}">
-                  <span class="material-symbols-outlined text-[16px] ${isOverdue ? 'text-red-500' : 'text-[#426ab3]'}">${isOverdue ? 'warning' : 'schedule'}</span>
+                <div class="flex items-center gap-1 text-xs ${isOverdue ? 'text-white font-semibold' : 'text-[#454558]'}">
+                  <span class="material-symbols-outlined text-[16px] ${isOverdue ? 'text-white' : 'text-[#426ab3]'}">${isOverdue ? 'warning' : 'schedule'}</span>
                   <span>期日: ${escapeHtml(formatDueDate(task.dueDate))}${isOverdue ? ' (期限切れ)' : ''}</span>
                 </div>
               ` : ''}
-              ${task.priority ? renderStars(task.priority) : ''}
+              ${task.priority ? `<div class="${isOverdue ? 'text-white [&_span.font-medium]:text-white' : ''}">${renderStars(task.priority, isOverdue)}</div>` : ''}
             </div>
           ` : ''}
         </div>
