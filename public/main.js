@@ -221,6 +221,11 @@ function renderTasks(tasks) {
       e.stopPropagation();
       const taskId = btn.getAttribute("data-id");
       const currentCompleted = btn.getAttribute("data-completed") === "true";
+
+      if (!currentCompleted) {
+        playCompletionEffect(btn);
+      }
+
       try {
         const taskDocRef = doc(db, "tasks", taskId);
         await updateDoc(taskDocRef, {
@@ -456,3 +461,265 @@ document.querySelectorAll(".filter-option").forEach((option) => {
 document.addEventListener("click", () => {
   closeDropdown();
 });
+
+// ============================================================
+// 超派手なタスク完了達成感エフェクト関連ロジック
+// ============================================================
+const effectStyles = document.createElement('style');
+effectStyles.textContent = `
+@keyframes check-pop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes card-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+@keyframes flash-screen {
+  0% { opacity: 0; background: rgba(255, 255, 255, 0); }
+  10% { opacity: 1; background: rgba(255, 255, 255, 0.6); }
+  100% { opacity: 0; background: rgba(255, 255, 255, 0); }
+}
+@keyframes huge-text-pop {
+  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  60% { 
+    transform: translate(-50%, -50%) scale(1); 
+    opacity: 1; 
+    filter: 
+      drop-shadow(0px 2px 0px #c65100) 
+      drop-shadow(0px 4px 0px #a03000)
+      drop-shadow(0px 6px 0px #802000)
+      drop-shadow(0px 15px 20px rgba(255, 100, 0, 0.8))
+      drop-shadow(0px 0px 30px rgba(255, 215, 0, 1))
+      brightness(1);
+  }
+  75% { 
+    transform: translate(-50%, -50%) scale(1.05); 
+    opacity: 1; 
+    filter: 
+      drop-shadow(0px 2px 0px #c65100) 
+      drop-shadow(0px 4px 0px #a03000)
+      drop-shadow(0px 6px 0px #802000)
+      drop-shadow(0px 15px 20px rgba(255, 100, 0, 0.8))
+      drop-shadow(0px 0px 50px rgba(255, 255, 255, 1))
+      brightness(1.3);
+  }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+}
+.huge-text-done {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-weight: 900;
+  font-family: 'Arial Black', 'Impact', 'Work Sans', sans-serif;
+  font-size: clamp(60px, 15vw, 120px);
+  white-space: nowrap;
+  text-align: center;
+  background: linear-gradient(
+    to bottom, 
+    #FFFFFF 0%, 
+    #FFF7B1 15%, 
+    #FFD700 40%, 
+    #FFF1A0 45%,
+    #FFB800 55%, 
+    #FF8C00 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 3px #FFFFFF;
+  filter: 
+    drop-shadow(0px 2px 0px #c65100) 
+    drop-shadow(0px 4px 0px #a03000)
+    drop-shadow(0px 6px 0px #802000)
+    drop-shadow(0px 15px 20px rgba(255, 100, 0, 0.8))
+    drop-shadow(0px 0px 30px rgba(255, 215, 0, 1));
+  animation: huge-text-pop 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes ray-burst {
+  0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.5) rotate(90deg); opacity: 0; }
+}
+@keyframes ring-burst {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 20px; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 0px; }
+}
+@keyframes confetti-blast {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+}
+@keyframes spark-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .effect-layer * {
+    animation-duration: 0.01ms !important;
+  }
+}
+`;
+document.head.appendChild(effectStyles);
+
+function playCompletionEffect(btn) {
+  const card = btn.closest('[data-task-id]');
+  if (!card) return;
+
+  // 1. タスクカード側の軽いリアクション（既存UIへのクローン表示）
+  const rect = card.getBoundingClientRect();
+  const clone = card.cloneNode(true);
+  
+  clone.style.position = 'absolute';
+  clone.style.top = (rect.top + window.scrollY) + 'px';
+  clone.style.left = (rect.left + window.scrollX) + 'px';
+  clone.style.width = rect.width + 'px';
+  clone.style.height = rect.height + 'px';
+  clone.style.zIndex = '9998';
+  clone.style.margin = '0';
+  clone.style.pointerEvents = 'none';
+  clone.style.transition = 'opacity 0.2s ease-out';
+  clone.style.animation = 'card-bounce 0.3s ease-out forwards';
+
+  const cloneBtn = clone.querySelector('.task-toggle-btn');
+  if (cloneBtn) {
+    cloneBtn.classList.remove('bg-transparent', 'hover:bg-[#60a5fa]/20');
+    cloneBtn.classList.add('bg-[#60a5fa]');
+    cloneBtn.innerHTML = '<span class="material-symbols-outlined text-white text-[18px] font-bold" style="animation: check-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">check</span>';
+  }
+
+  const titleEl = clone.querySelector('.task-title');
+  if (titleEl) titleEl.classList.add('line-through', 'opacity-60', 'text-slate-500');
+  const descEl = clone.querySelector('.task-desc');
+  if (descEl) descEl.classList.add('line-through', 'opacity-50');
+
+  document.body.appendChild(clone);
+  
+  setTimeout(() => {
+    clone.style.opacity = '0';
+    setTimeout(() => clone.remove(), 200);
+  }, 1000);
+
+  // 2. 画面全体の超派手なエフェクトレイヤー
+  const effectLayer = document.createElement('div');
+  effectLayer.className = 'effect-layer';
+  effectLayer.style.position = 'fixed';
+  effectLayer.style.inset = '0';
+  effectLayer.style.zIndex = '9999';
+  effectLayer.style.pointerEvents = 'none';
+  effectLayer.style.overflow = 'hidden';
+  document.body.appendChild(effectLayer);
+
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  // フラッシュ
+  const flash = document.createElement('div');
+  flash.style.position = 'absolute';
+  flash.style.inset = '0';
+  flash.style.animation = 'flash-screen 0.3s ease-out forwards';
+  effectLayer.appendChild(flash);
+
+  // 放射状のリングエフェクト
+  const ring = document.createElement('div');
+  ring.style.position = 'absolute';
+  ring.style.left = '50%';
+  ring.style.top = '50%';
+  ring.style.width = '150px';
+  ring.style.height = '150px';
+  ring.style.borderRadius = '50%';
+  ring.style.border = 'solid #fff59d';
+  ring.style.animation = 'ring-burst 0.7s ease-out forwards';
+  effectLayer.appendChild(ring);
+
+  // 放射状の光線
+  const rays = document.createElement('div');
+  rays.style.position = 'absolute';
+  rays.style.left = '50%';
+  rays.style.top = '50%';
+  rays.style.width = '300px';
+  rays.style.height = '300px';
+  rays.style.background = 'repeating-conic-gradient(from 0deg, transparent 0deg, transparent 10deg, rgba(255,215,0,0.4) 10deg, rgba(255,215,0,0.4) 20deg)';
+  rays.style.borderRadius = '50%';
+  rays.style.maskImage = 'radial-gradient(circle, black 20%, transparent 70%)';
+  rays.style.webkitMaskImage = 'radial-gradient(circle, black 20%, transparent 70%)';
+  rays.style.animation = 'ray-burst 0.8s ease-out forwards';
+  effectLayer.appendChild(rays);
+
+  // スパーク・光の粒子 (20個)
+  for (let i = 0; i < 20; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 150 + Math.random() * 250;
+    
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'absolute';
+    wrapper.style.left = cx + 'px';
+    wrapper.style.top = cy + 'px';
+    wrapper.style.transform = `rotate(${angle + Math.PI/2}rad)`;
+    
+    const spark = document.createElement('div');
+    spark.style.width = '3px';
+    spark.style.height = '15px';
+    spark.style.backgroundColor = '#ffffff';
+    spark.style.borderRadius = '2px';
+    spark.style.boxShadow = '0 0 10px 3px #fff59d';
+    spark.style.setProperty('--tx', '0px');
+    spark.style.setProperty('--ty', -dist + 'px');
+    spark.style.animation = `spark-fly ${0.3 + Math.random() * 0.4}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+    
+    wrapper.appendChild(spark);
+    effectLayer.appendChild(wrapper);
+  }
+
+  // 画面全体への紙吹雪大爆発 (30個)
+  const confettiColors = ['#0000ff', '#a0d8ef', '#fff59d', '#ff5252', '#4caf50', '#ff9800'];
+  const shapes = ['circle', 'square', 'rect'];
+  for (let i = 0; i < 30; i++) {
+    const piece = document.createElement('div');
+    const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    
+    piece.style.position = 'absolute';
+    piece.style.left = cx + 'px';
+    piece.style.top = cy + 'px';
+    piece.style.backgroundColor = color;
+    
+    if (shape === 'circle') {
+      piece.style.width = '10px';
+      piece.style.height = '10px';
+      piece.style.borderRadius = '50%';
+    } else if (shape === 'square') {
+      piece.style.width = '12px';
+      piece.style.height = '12px';
+    } else {
+      piece.style.width = '8px';
+      piece.style.height = '18px';
+    }
+    
+    const angle2 = Math.random() * Math.PI * 2;
+    const velocity = 300 + Math.random() * 400; // 広範囲へ拡散
+    const tx = Math.cos(angle2) * velocity;
+    const ty = Math.sin(angle2) * velocity + (Math.random() * 200); // 下方向への重力バイアス
+    const rot = (Math.random() * 720 - 360) + 'deg';
+    
+    piece.style.setProperty('--tx', tx + 'px');
+    piece.style.setProperty('--ty', ty + 'px');
+    piece.style.setProperty('--rot', rot);
+    
+    piece.style.animation = `confetti-blast ${0.6 + Math.random() * 0.6}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+    effectLayer.appendChild(piece);
+  }
+
+  // 主役：「完了！」の巨大テキスト
+  const msg = document.createElement('div');
+  msg.textContent = '完了！';
+  msg.className = 'huge-text-done';
+  effectLayer.appendChild(msg);
+
+  // 約1.5秒でエフェクトレイヤー全体を削除して通常画面に戻る
+  setTimeout(() => {
+    effectLayer.remove();
+  }, 1500);
+}
