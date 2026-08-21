@@ -1,51 +1,40 @@
-/* ============================================================
+@charset "UTF-8";
+
+/* ==========================================================================
    taskedit.css – タスク編集画面スタイル
-   ============================================================ */
+   ========================================================================== */
 
-/* ---- デコレーションBlob ------------------------------------ */
-.blob {
-  position: fixed;
-  z-index: -1;
-  border-radius: 50%;
-  pointer-events: none;
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
 }
 
-/* 右上の青いBlob */
-.blob-tr {
-  top: -80px;
-  right: -80px;
-  width: 400px;
-  height: 300px;
-  color: #a0d8ef;
-  opacity: 0.75;
+/* Decorative background elements */
+.bubble-top-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 330px;
+  height: 255px;
+  background-color: #a0d8ef;
+  border-radius: 50% 50% 0 50%;
+  z-index: 0;
+  opacity: 0.5;
 }
 
-/* 左下の黄色いBlob */
-.blob-bl {
-  bottom: -80px;
-  left: -80px;
-  width: 420px;
-  height: 320px;
-  color: #fef9c3;
-  opacity: 0.75;
+.bubble-bottom-left {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 300px;
+  height: 250px;
+  background-color: #e7e700;
+  border-radius: 50% 50% 50% 0;
+  z-index: 0;
+  opacity: 0.5;
 }
 
-@media (max-width: 768px) {
-  .blob-tr {
-    width: 280px;
-    height: 210px;
-    top: -60px;
-    right: -60px;
-  }
-  .blob-bl {
-    width: 280px;
-    height: 210px;
-    bottom: -60px;
-    left: -60px;
-  }
-}
-
-/* ---- フォーカスリング override ----------------------------- */
+/* Focus ring overrides */
 input:focus,
 textarea:focus {
   outline: none;
@@ -53,7 +42,33 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(160, 216, 239, 0.35);
 }
 
-/* ---- ステータスメッセージ ---------------------------------- */
+/* Star rating */
+.star-btn {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  color: #d1d5db;
+}
+
+.star-btn:hover,
+.star-btn.active {
+  color: #FFC107;
+  transform: scale(1.15);
+}
+
+.star-btn .material-symbols-outlined {
+  font-size: 36px;
+}
+
+.star-btn.active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+/* Status messages */
 #statusMessage.success {
   background-color: #d1fae5;
   color: #065f46;
@@ -66,26 +81,20 @@ textarea:focus {
   border: 1px solid #fca5a5;
 }
 
-/* ---- モーダル背景フェードイン ----------------------------- */
-#deleteModal:not(.hidden) {
-  animation: fadeIn 0.2s ease;
+/* Submit button states to match create/add pages */
+#btnSave {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+#btnSave:hover {
+  background-color: #426ab3 !important;
+  border-color: #426ab3 !important;
+  box-shadow: 0 6px 22px rgba(66, 106, 179, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
-#deleteModal > div {
-  animation: slideUp 0.22s ease;
+#btnSave:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 10px rgba(66, 106, 179, 0.4) !important;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(16px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
-/* ---- ボタン共通 ------------------------------------------- */
-button:disabled {
-  pointer-events: none;
-}

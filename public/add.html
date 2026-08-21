@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -21,6 +21,27 @@
       outline: none;
       border-width: 3px !important;
       border-color: #0000ff !important;
+    }
+    /* Star rating */
+    .star-btn {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      color: #d1d5db;
+    }
+    .star-btn:hover,
+    .star-btn.active {
+      color: #FFC107;
+      transform: scale(1.15);
+    }
+    .star-btn .material-symbols-outlined {
+      font-size: 36px;
+    }
+    .star-btn.active .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.6;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -66,6 +87,53 @@
             required
           />
           <p id="task-name-error" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
+        </div>
+
+        <!-- Priority (Stars) -->
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-primary">
+            重要度 <span class="text-error font-bold">*</span>
+          </label>
+          <div class="flex gap-2 px-1" id="star-container">
+            <button class="star-btn" type="button" data-value="1" aria-label="重要度1">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+            <button class="star-btn" type="button" data-value="2" aria-label="重要度2">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+            <button class="star-btn" type="button" data-value="3" aria-label="重要度3">
+              <span class="material-symbols-outlined">star</span>
+            </button>
+          </div>
+          <input type="hidden" id="priority" name="priority" value="0" />
+          <p id="priority-error" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
+        </div>
+
+        <!-- Due Date & Time -->
+        <div class="flex flex-col gap-base">
+          <label class="font-label-bold text-label-bold text-primary" for="due-date">
+            期日 <span class="text-error font-bold">*</span>
+          </label>
+          <div class="flex gap-2">
+            <input
+              class="flex-1 bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200"
+              id="due-date"
+              name="due-date"
+              type="date"
+              required
+            />
+            <input
+              class="w-[140px] bg-[#fff9c4] rounded-2xl border-2 border-[#a0d8ef] text-[#1e293b] font-input-text text-input-text p-4 px-6 focus:border-[3px] focus:outline-none placeholder:text-[#1e293b]/50 transition-all duration-200 text-center"
+              id="due-time"
+              name="due-time"
+              type="text"
+              inputmode="numeric"
+              placeholder="12:00"
+              maxlength="5"
+              required
+            />
+          </div>
+          <p id="due-date-error" class="text-error text-xs mt-1 px-2 hidden font-medium"></p>
         </div>
 
         <!-- Task Description Input -->
@@ -187,6 +255,50 @@
     </div>
   </div>
 
+  <!-- Star Rating Logic -->
+  <script>
+    (function () {
+      const stars = document.querySelectorAll('.star-btn');
+      const priorityInput = document.getElementById('priority');
+      let currentRating = 0;
+
+      function updateStars(rating) {
+        stars.forEach((btn) => {
+          const val = parseInt(btn.dataset.value);
+          if (val <= rating) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+        currentRating = rating;
+        priorityInput.value = rating;
+        priorityInput.dispatchEvent(new Event('change'));
+      }
+
+      stars.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.dataset.value);
+          if (val === currentRating) {
+            updateStars(0);
+          } else {
+            updateStars(val);
+          }
+        });
+
+        btn.addEventListener('mouseenter', () => {
+          const val = parseInt(btn.dataset.value);
+          stars.forEach((b) => {
+            b.classList.toggle('active', parseInt(b.dataset.value) <= val);
+          });
+        });
+
+        btn.addEventListener('mouseleave', () => {
+          updateStars(currentRating);
+        });
+      });
+    })();
+  </script>
 
   <!-- Category Create Modal -->
   <div id="create-category-modal-overlay"

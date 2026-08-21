@@ -118,6 +118,21 @@
       width: 0px;
       background: transparent;
     }
+
+    @keyframes deadlineWarning {
+      0%, 100% {
+        border-color: #a0d8ef;
+        box-shadow: 0 0 0 rgba(255, 0, 0, 0);
+      }
+      50% {
+        border-color: #ff0000;
+        box-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+      }
+    }
+
+    .deadline-warning {
+      animation: deadlineWarning 1s ease-in-out infinite;
+    }
   </style>
 </head>
 
@@ -286,6 +301,11 @@
         </div>
         <!-- Content -->
         <div class="flex flex-col gap-4">
+          <!-- カテゴリー（カテゴリーがあるときのみ表示） -->
+          <div id="task-detail-category-row" class="hidden">
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">カテゴリー</label>
+            <p id="task-detail-category" class="text-body-md font-semibold text-[#0001bb] mt-1"></p>
+          </div>
           <div>
             <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">タスク名</label>
             <p id="task-detail-title" class="text-[18px] font-semibold text-[#1e293b] mt-1"></p>
@@ -293,6 +313,10 @@
           <div>
             <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">期限</label>
             <p id="task-detail-deadline" class="text-body-md text-on-surface mt-1"></p>
+          </div>
+          <div>
+            <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">重要度</label>
+            <div id="task-detail-priority" class="flex items-center gap-0.5 mt-1"></div>
           </div>
           <div>
             <label class="text-[12px] font-bold text-[#a0d8ef] uppercase tracking-wider">内容</label>
