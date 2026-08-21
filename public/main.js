@@ -13,7 +13,8 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  serverTimestamp
+  serverTimestamp,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const taskListContainer = document.getElementById("task-list");
@@ -26,6 +27,12 @@ const taskListContainer = document.getElementById("task-list");
 let currentFilter = "incomplete";
 let allTasks = [];
 let searchQuery = "";
+
+// ============================================================
+// カテゴリーマップ（categoryId -> categoryName）
+// ============================================================
+let categoryMap = {}; // { [categoryId]: name }
+let unsubscribeCategories = null;
 
 const filterBtn = document.getElementById("filter-btn");
 const filterLabel = document.getElementById("filter-label");
@@ -171,6 +178,11 @@ function renderTasks(tasks) {
 
         <!-- Task Content -->
         <div class="flex-1 flex flex-col min-w-0">
+          ${task.categoryId && categoryMap[task.categoryId] ? `
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#a0d8ef] text-[#0001bb] mb-1 w-fit">
+              ${escapeHtml(categoryMap[task.categoryId])}
+            </span>
+          ` : ''}
           <div class="task-title font-body-md text-body-md text-on-surface font-medium break-words ${isDone ? 'line-through opacity-60 text-slate-500' : ''}">
             ${escapeHtml(task.title)}
           </div>
@@ -473,11 +485,38 @@ onAuthStateChanged(auth, (user) => {
     unsubscribeTasks();
     unsubscribeTasks = null;
   }
+  if (unsubscribeCategories) {
+    unsubscribeCategories();
+    unsubscribeCategories = null;
+  }
 
   if (!user) {
     // If not logged in, redirect to login page
     window.location.href = "login.html";
     return;
+  }
+
+  // Subscribe to categories for badge display
+  try {
+    const categoriesRef = collection(db, "categories");
+    const catQuery = query(
+      categoriesRef,
+      where("userId", "==", user.uid),
+      orderBy("createdAt", "asc")
+    );
+    unsubscribeCategories = onSnapshot(catQuery, (snapshot) => {
+      categoryMap = {};
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        categoryMap[docSnap.id] = data.name;
+      });
+      // Re-render tasks so badges reflect updated category names
+      renderTasks(allTasks);
+    }, (error) => {
+      console.error("カテゴリー取得エラー:", error);
+    });
+  } catch (error) {
+    console.error("カテゴリークエリエラー:", error);
   }
 
   // Subscribe to tasks belonging to current user
